@@ -1,0 +1,65 @@
+version: '3.6'
+services:
+  keycloak:
+    container_name: prod-keycloak    
+    # command: ["-Djboss.http.port=8180"]
+    ports:
+      - '8180:8080'
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+      # - KEYCLOAK_IMPORT=/resources/ClientFhirServerRealm.json
+    volumes:
+      - keycloak-data:/opt/jboss/keycloak/standalone/data/
+      # - './resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
+    image: hkong2/keycloak
+
+  # Create crd container
+  test-ehr: # Name of our service
+    container_name: prod-test-ehr
+    ports: # Port binding to host from docker container
+      - '8080:8080' # Bind port 3000 of host to 3000 of container
+    image: logicahealth/ehr-app
+    environment:
+      - DOCKER_DEV_PROFILE=true
+
+
+
+  # Create crd container
+  crd: # Name of our service
+    image: logicahealth/davinci-crd
+    container_name: prod-crd
+    ports: # Port binding to host from docker container
+      - "8090:8090" # Bind port 3000 of host to 3000 of container
+    environment:
+      VSAC_API_KEY: ${VSAC_API_KEY}
+
+
+  # Create crd container
+  crd-request-generator: # Name of our service
+    image: logicahealth/davinci-crd-request-generator
+    container_name: prod-crd-request-generator
+    ports: # Port binding to host from docker container
+      - "3000:3000" # Bind port 3000 of host to 3000 of container
+      - "3001:3001"
+
+
+  # Create crd container
+  dtr: # Name of our service
+    image: logicahealth/davinci-dtr    
+    container_name: prod-dtr
+    ports: # Port binding to host from docker container
+      - "3005:3005" # Bind port 3000 of host to 3000 of container
+
+  # # Create crd container
+  # rems: # Name of our service
+  #   image: logicahealth/ 
+  #   container_name: prod-rems
+  #   ports: # Port binding to host from docker container
+  #     - "9015:9015" # Bind port 3000 of host to 3000 of container
+
+
+
+volumes:
+  keycloak-data:

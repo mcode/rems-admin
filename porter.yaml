@@ -1,0 +1,44 @@
+name: drls_pas_workflow
+version: 0.0.2
+description: Prior Authorization Workflow
+registry: smalhotra01234
+
+dockerfile: Dockerfile.tmpl
+
+required:
+  - docker
+
+mixins:
+  - docker
+  - docker-compose
+
+credentials:
+  - name: DOCKER_USERNAME
+    env: DOCKER_USERNAME
+  - name: DOCKER_PASSWORD
+    env: DOCKER_PASSWORD
+
+build:
+  - docker:
+      description: "Docker build"
+      outputs:
+        - name: invocationImage
+
+install:
+  - docker-compose:
+      description: Docker Compose up
+      arguments:
+        - up
+ 
+ps:
+  - docker-compose:
+      description: Docker Compose ps
+      arguments:
+        - ps
+
+uninstall:
+  - docker-compose:
+      description: Docker Compose down
+      arguments:
+        - down
+        - --remove-orphans
