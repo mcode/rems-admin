@@ -24,8 +24,8 @@ This guide will take you through the development environment setup for each of t
         + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
         + [Install Ruby](#install-ruby)
         + [Install Docker-sync](#install-docker-sync)
-- [Clone DRLS REMS](#clone-drls)
-- [Configure DRLS REMS](#configure-drls)
+- [Clone DRLS REMS](#clone-drls-rems)
+- [Configure DRLS REMS](#configure-drls-rems)
     * [CRD configs](#crd-configs)
     * [test-ehr configs](#test-ehr-configs)
     * [crd-request-generator configs](#crd-request-generator-configs)
@@ -125,7 +125,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 
     Note: The versioning is important, system default ruby sometimes installs version 0.1.1 if -v tag is not set. The 0.1.1 release will not work for the rest of this guide.
 
-## Clone DRLS
+## Clone DRLS REMS
 
 1. Create a root directory for the DRLS development work (we will call this `<drlsroot>` for the remainder of this setup guide). While this step is not required, having a common root for the DRLS components will make things a lot easier down the line. 
     ```bash
@@ -149,7 +149,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
-## Configure DRLS
+## Configure DRLS REMS
 
 ### CRD configs
 

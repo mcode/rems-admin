@@ -1,7 +1,7 @@
-name: drls_pas_workflow
-version: 0.0.2
-description: Prior Authorization Workflow
-registry: smalhotra01234
+name: fullstack_drls_rems
+version: 0.0.1
+description: Fullstack DRLS REMS Workflow
+registry: codexrems
 
 dockerfile: Dockerfile.tmpl
 
@@ -12,11 +12,11 @@ mixins:
   - docker
   - docker-compose
 
-credentials:
-  - name: DOCKER_USERNAME
-    env: DOCKER_USERNAME
-  - name: DOCKER_PASSWORD
-    env: DOCKER_PASSWORD
+# credentials:
+#   - name: DOCKER_USERNAME
+#     env: DOCKER_USERNAME
+#   - name: DOCKER_PASSWORD
+#     env: DOCKER_PASSWORD
 
 build:
   - docker:
@@ -28,6 +28,8 @@ install:
   - docker-compose:
       description: Docker Compose up
       arguments:
+        - -f 
+        - docker-compose-porter.yml
         - up
  
 ps:
@@ -40,5 +42,7 @@ uninstall:
   - docker-compose:
       description: Docker Compose down
       arguments:
+        - -f 
+        - docker-compose-porter.yml
         - down
         - --remove-orphans

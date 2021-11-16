@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   keycloak:
-    container_name: REMS_DEV_keycloak
+    container_name: rems_dev_keycloak
     # command: ["-Djboss.http.port=8180"]
     ports:
       - '8180:8080'
@@ -17,7 +17,7 @@ services:
 
   # Create test ehr container
   test-ehr: # Name of our service
-    container_name: REMS_DEV_test-ehr
+    container_name: rems_dev_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     environment:
@@ -26,7 +26,7 @@ services:
       context: ../test-ehr
       dockerfile: Dockerfile.dev 
     volumes:
-      - REMS_DEV_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
+      - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - /test-ehr/.gradle
       - /test-ehr/build
       - /test-ehr/target
@@ -38,13 +38,13 @@ services:
     build: 
       context: ../CRD
       dockerfile: Dockerfile.dev 
-    container_name: REMS_DEV_crd
+    container_name: rems_dev_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
     volumes:
-      - REMS_DEV_crd-sync:/CRD:nocopy #  nocopy is important
+      - rems_dev_crd-sync:/CRD:nocopy #  nocopy is important
       - /CRD/.gradle
 
 
@@ -53,12 +53,12 @@ services:
     build: 
       context: ../crd-request-generator
       dockerfile: Dockerfile.dev 
-    container_name: REMS_DEV_crd-request-generator
+    container_name: rems_dev_crd-request-generator
     ports: # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
     volumes:
-      - REMS_DEV_crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
+      - rems_dev_crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
       - /home/node/app/node_modules
       - /home/node/app/databaseData
 
@@ -68,13 +68,13 @@ services:
     build: 
       context: ../dtr
       dockerfile: Dockerfile.dev     
-    container_name: REMS_DEV_dtr
+    container_name: rems_dev_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
     volumes:
-      - REMS_DEV_dtr-sync:/home/node/app:nocopy #  nocopy is important
+      - rems_dev_dtr-sync:/home/node/app:nocopy #  nocopy is important
       - /home/node/app/node_modules
-      # - /home/node/app/databaseData
+      - /home/node/app/databaseData
 
 
   # Create rems container
@@ -82,21 +82,21 @@ services:
     build: 
       context: '.'
       dockerfile: Dockerfile.dev     
-    container_name: REMS_DEV_rems
+    container_name: rems_dev_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
     volumes:
-      - REMS_DEV_rems-sync:/REMS:nocopy #  nocopy is important
+      - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
 
 volumes:
   keycloak-data:
-  REMS_DEV_test-ehr-sync:
+  rems_dev_test-ehr-sync:
     external: true
-  REMS_DEV_crd-sync:
+  rems_dev_crd-sync:
     external: true
-  REMS_DEV_crd-request-generator-sync:
+  rems_dev_crd-request-generator-sync:
     external: true
-  REMS_DEV_dtr-sync:
+  rems_dev_dtr-sync:
     external: true
-  REMS_DEV_rems-sync:
+  rems_dev_rems-sync:
     external: true

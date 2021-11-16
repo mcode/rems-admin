@@ -4,7 +4,11 @@ Repository to host root docker bundle config files for local development and pub
 
 ## Purpose of this guide
 
-This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Production. There are two approaches to doing this: Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires the corresponding docker-compose.yml file from the REMS repository. Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. 
+This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Production. There are two approaches to doing this: 
+
+Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires the corresponding docker-compose.yml file from the REMS repository. 
+
+Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. 
 
 This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
 
@@ -17,18 +21,20 @@ This guide will take you through the development environment setup for each of t
 6. [REMS](https://github.com/mcode/REMS.git)
 7. Keycloak
 
-<!-- ## Table of Contents
+## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Install core tools](#install-core-tools)
     * [Installing core tools on MacOS](#installing-core-tools-on-macos)
         + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
-        + [Install Porter (Optional)](#install-porter)
-    * [Add VSAC credentials to your environment](#add-vsac-credentials-to-your-environment)
-- [Run DRLS REMS](#run-drls)
-    * [Option 1 - Docker Compose](#start-docker-sync-application)
-    * [Option 2 - Porter Install](#stop-docker-sync-application-and-remove-all-containers/volumes)
-    * [Useful Docker Sync Commands](#useful-docker-sync-commands)
-- [Verify DRLS is working](#verify-drls-is-working) -->
+        + [Install Porter (Option 2 only)](#install-porter-(option-2-only))
+- [Clone REMS repository(Option 1 Only)](#clone-rems-repository-(option-1-only))
+- [Configure DRLS REMS](#configure-drls-rems)
+    * [Add VSAC credentials to environment (Option 1 only)](#add-vsac-credentials-to-environment-(option-1-only))  
+    * [Add Compose Project Name to environment (Option 1 only)](#add-compose-project-name-to-environment-(option-1-only))  
+- [Run DRLS REMS](#run-drls-rems)
+    * [Option 1 - Docker Compose](#option-1---docker-compose)
+    * [Option 2 - Porter Install](#option-2---porter-install)
+- [Verify DRLS is working](#verify-drls-is-working)
 
 
 ## Prerequisites
@@ -60,23 +66,38 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 
     The defaults for memory at 2GB and possibly CPU as well are too low to run the entire Prior-Auth workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
 
-#### Install Porter
+#### Install Porter (Option 2 Only)
 
--- To DO
+1. Download and install porter with the following commands:
+    ```bash
+    curl -L https://cdn.porter.sh/latest/install-mac.sh | bash
+    ```
+2. Open `.bash_profile` and add the following lines at the very bottom:
+    ```bash
+    export PATH=$PATH:~/.porter
+    ```
+4. Save `.bash_profile` and complete the update to `env`: 
+    ```bash
+    source .bash_profile
+    ```
+5. Install required Porter plugins 
+    ```bash
+    porter mixins install docker
+    porter mixins install docker-compose
+    ```
 
 ## Clone REMS repository (Option 1 Only)
 
-
 1.  clone the REMS repositories from Github:
     ```bash
-    git clone https://github.com/mcode/REMS.git REMS
-    git clone https://github.com/mcode/test-ehr.git test-ehr
-
+    git clone https://github.com/mcode/REMS.git REMS  
     ```
 
-    Alternatively, you can download just the docker-compose.yml file from the REMS reposiotry and src/main/resources/ClientFhirServerRealm.json since those are all that are needed for option 1. 
+    Alternatively, you can download/copy just the docker-compose.yml file from the REMS reposiotry since that is the only file needed for this set up. 
 
-### Add VSAC credentials to your development environment
+## Configure DRLS REMS
+
+### Add VSAC credentials to environment (Option 1 only)
 
 > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
 > To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
@@ -84,35 +105,43 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Set "VSAC_API_KEY" in the .env file in the REMS Repository (if following option 1) 
-2. `cd ~/`
-3. Open `.bash_profile` and add the following lines at the very bottom:
+1. Set "VSAC_API_KEY" in the .env file in the REMS Repository
+
+or 
+
+1. `cd ~/`
+2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
     export VSAC_API_KEY=vsac_api_key
     ```
-4. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`: 
     ```bash
     source .bash_profile
     ```
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
-### Add Compose Project Name 
+### Add Compose Project Name to environment (Option 1 only)
+
+Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is reccomended to change the compose project name for each so that they differ.
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Set "COMPOSE_PROJECT_NAME" as "REMS_PROD" in the .env file in the REMS Repository (if follwing option 1)
-2. `cd ~/`
-3. Open `.bash_profile` and add the following lines at the very bottom:
+1. Set "COMPOSE_PROJECT_NAME" as "rems_prod" in the .env file in the REMS Repository 
+
+or 
+
+1. `cd ~/`
+2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
-    export COMPOSE_PROJECT_NAME=REMS_PROD
+    export COMPOSE_PROJECT_NAME=rems_prod
     ```
-4. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`: 
     ```bash
     source .bash_profile
     ```
 
 
-## Run DRLS
+## Run DRLS REMS
 ### Option 1 - Docker Compose
 #### Start docker compose application 
 
@@ -121,22 +150,25 @@ You can see a list of your pre-existing environment variables on your Mac by run
     docker-compose up 
 ```
 
-#### Stop docker-compose application and remove all containers/volumes
+#### Stop docker-compose application
 ```bash
-    docker-compose down 
-    docker volume prune
+    docker-compose down # Stops applications
+
+    docker volume prune # Optiional - Removes persisted data
 ```
 
 ### Option 2 - Porter Install
 #### Install and Run Porter application 
 
 ```bash
-    porter install # Note, the project will keep running in the background when you "ctrl + c" out of process. To stop running all together, use the uninstall command below 
+   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   # Note, the project will keep running in the background when you "ctrl + c" out of process. To stop running all together, use the uninstall command below 
 ```
 
 #### Stop Running Porter 
 ```bash
-    porter uninstall
+    porter uninstall --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1 # Stops application servers
+
+    docker volume prune # Optional - Removes persisted data
 ```
 
 
@@ -168,7 +200,7 @@ ToDo
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit next
-12. Submit Prior Authorization Request to http://localhost:9015/fhir
+12. Submit REMS Request to http://localhost:9015/fhir  
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
