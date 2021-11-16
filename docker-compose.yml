@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   keycloak:
-    container_name: prod-keycloak    
+    container_name: REMS_PROD_keycloak  
     # command: ["-Djboss.http.port=8180"]
     ports:
       - '8180:8080'
@@ -15,49 +15,48 @@ services:
       # - './resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
     image: hkong2/keycloak
 
-  # Create crd container
+  # Create test-ehr container
   test-ehr: # Name of our service
-    container_name: prod-test-ehr
+    container_name: REMS_PROD_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
-    image: logicahealth/ehr-app
+    image: smalhotra01234/rems_prod_test-ehr
     environment:
       - DOCKER_DEV_PROFILE=true
-
-
+      
 
   # Create crd container
   crd: # Name of our service
-    image: logicahealth/davinci-crd
-    container_name: prod-crd
+    image: smalhotra01234/rems_prod_crd
+    container_name: REMS_PROD_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
 
 
-  # Create crd container
+  # Create crd request generator container
   crd-request-generator: # Name of our service
-    image: logicahealth/davinci-crd-request-generator
-    container_name: prod-crd-request-generator
+    image: smalhotra01234/rems_prod_crd-request-generator
+    container_name: REMS_PROD_crd-request-generator
     ports: # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
 
 
-  # Create crd container
+  # Create dtr container
   dtr: # Name of our service
-    image: logicahealth/davinci-dtr    
-    container_name: prod-dtr
+    image: smalhotra01234/rems_prod_dtr    
+    container_name: REMS_PROD_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
-  # # Create crd container
-  # rems: # Name of our service
-  #   image: logicahealth/ 
-  #   container_name: prod-rems
-  #   ports: # Port binding to host from docker container
-  #     - "9015:9015" # Bind port 3000 of host to 3000 of container
+  # # Create rems container
+  rems: # Name of our service
+    image: smalhotra01234/rems_prod_rems
+    container_name: REMS_PROD_rems
+    ports: # Port binding to host from docker container
+      - "9015:9015" # Bind port 3000 of host to 3000 of container
 
 
 

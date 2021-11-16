@@ -4,17 +4,40 @@ Repository to host root docker bundle config files for local development and pub
 
 ## Purpose of this guide
 
-This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS)** system for Local Development, complete with file synchronization and server reloading. To achieve this functionality, this guide takes advantage of the docker-sync tool. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**. 
+This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Local Development, complete with file synchronization and server reloading. To achieve this functionality, this guide takes advantage of the docker-sync tool. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**. 
 
 This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
 
 This guide will take you through the development environment setup for each of the following DRLS components:
-1. [Coverage Requirements Discovery (CRD)](https://github.com/HL7-DaVinci/CRD)
+1. [Coverage Requirements Discovery (CRD)](https://github.com/mcode/CRD)
 2. [(Test) EHR FHIR Service](https://github.com/HL7-DaVinci/test-ehr)
-3. [Documents, Templates, and Rules (DTR) SMART on FHIR app](https://github.com/HL7-DaVinci/dtr)
-4. [Clinical Decision Support (CDS) Library](https://github.com/HL7-DaVinci/CDS-Library)
-5. [CRD Request Generator](https://github.com/HL7-DaVinci/crd-request-generator)
-6. Keycloak
+3. [Documents, Templates, and Rules (DTR) SMART on FHIR app](https://github.com/mcode/dtr)
+4. [Clinical Decision Support (CDS) Library](https://github.com/mcode/CDS-Library)
+5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
+6. [REMS](https://github.com/mcode/REMS.git)
+7. Keycloak
+
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Install core tools](#install-core-tools)
+    * [Installing core tools on MacOS](#installing-core-tools-on-macos)
+        + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
+        + [Install Ruby](#install-ruby)
+        + [Install Docker-sync](#install-docker-sync)
+- [Clone DRLS REMS](#clone-drls)
+- [Configure DRLS REMS](#configure-drls)
+    * [CRD configs](#crd-configs)
+    * [test-ehr configs](#test-ehr-configs)
+    * [crd-request-generator configs](#crd-request-generator-configs)
+    * [dtr configs](#dtr-configs)
+    * [rems configs](#rems-configs)
+
+    * [Add VSAC credentials to your development environment](#add-vsac-credentials-to-your-development-environment)
+- [Run DRLS REMS](#run-drls)
+    * [Start Docker Sync](#start-docker-sync-application)
+    * [Stop Docker Sync](#stop-docker-sync-application-and-remove-all-containers/volumes)
+    * [Useful Docker Sync Commands](#useful-docker-sync-commands)
+- [Verify DRLS is working](#verify-drls-is-working)
 
 
 ## Prerequisites
@@ -122,7 +145,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
     git clone https://github.com/mcode/dtr.git dtr
     git clone https://github.com/mcode/REMS.git REMS
 
-    cd CRD
+    cd CRD/server
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
@@ -193,7 +216,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Add VSAC API key to .env file in DRLS-Docker Repository 
+1. Set "VSAC_API_KEY" in the .env file in the REMS Repository (if following option 1) 
 2. `cd ~/`
 3. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
@@ -205,6 +228,22 @@ You can see a list of your pre-existing environment variables on your Mac by run
     ```
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
+
+### Add Compose Project Name 
+
+You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
+1. Set "COMPOSE_PROJECT_NAME" as "rems_dev" in the .env file in the REMS Repository 
+2. `cd ~/`
+3. Open `.bash_profile` and add the following lines at the very bottom:
+    ```bash
+    export COMPOSE_PROJECT_NAME=rems_dev
+    ```
+4. Save `.bash_profile` and complete the update to `env`: 
+    ```bash
+    source .bash_profile
+    ```
+
+
 
 ## Run DRLS
 
@@ -221,7 +260,7 @@ Note: Initial set up will take several minutes and spin up fans with high resour
     docker volume prune
 ```
 
-### Useful docker-sync-commands
+### Useful docker-sync commands
 Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands.html
 
 ## Verify DRLS is working

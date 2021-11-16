@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   keycloak:
-    container_name: keycloak    
+    container_name: REMS_DEV_keycloak
     # command: ["-Djboss.http.port=8180"]
     ports:
       - '8180:8080'
@@ -15,9 +15,9 @@ services:
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
     image: hkong2/keycloak
 
-  # Create crd container
+  # Create test ehr container
   test-ehr: # Name of our service
-    container_name: test-ehr
+    container_name: REMS_DEV_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     environment:
@@ -26,7 +26,7 @@ services:
       context: ../test-ehr
       dockerfile: Dockerfile.dev 
     volumes:
-      - test-ehr-sync:/test-ehr:nocopy #  nocopy is important
+      - REMS_DEV_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - /test-ehr/.gradle
       - /test-ehr/build
       - /test-ehr/target
@@ -38,65 +38,65 @@ services:
     build: 
       context: ../CRD
       dockerfile: Dockerfile.dev 
-    container_name: crd
+    container_name: REMS_DEV_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
     volumes:
-      - crd-sync:/CRD:nocopy #  nocopy is important
+      - REMS_DEV_crd-sync:/CRD:nocopy #  nocopy is important
       - /CRD/.gradle
 
 
-  # Create crd container
+  # Create crd request generator container
   crd-request-generator: # Name of our service
     build: 
       context: ../crd-request-generator
       dockerfile: Dockerfile.dev 
-    container_name: crd-request-generator
+    container_name: REMS_DEV_crd-request-generator
     ports: # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
     volumes:
-      - crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/db-data
-
-
-  # Create crd container
-  dtr: # Name of our service
-    build: 
-      context: ../dtr
-      dockerfile: Dockerfile.dev     
-    container_name: dtr
-    ports: # Port binding to host from docker container
-      - "3005:3005" # Bind port 3000 of host to 3000 of container
-    volumes:
-      - dtr-sync:/home/node/app:nocopy #  nocopy is important
+      - REMS_DEV_crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
       - /home/node/app/node_modules
       - /home/node/app/databaseData
 
 
-  # Create crd container
+  # Create dtr container
+  dtr: # Name of our service
+    build: 
+      context: ../dtr
+      dockerfile: Dockerfile.dev     
+    container_name: REMS_DEV_dtr
+    ports: # Port binding to host from docker container
+      - "3005:3005" # Bind port 3000 of host to 3000 of container
+    volumes:
+      - REMS_DEV_dtr-sync:/home/node/app:nocopy #  nocopy is important
+      - /home/node/app/node_modules
+      # - /home/node/app/databaseData
+
+
+  # Create rems container
   rems: # Name of our service
     build: 
       context: '.'
       dockerfile: Dockerfile.dev     
-    container_name: rems
+    container_name: REMS_DEV_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
     volumes:
-      - rems-sync:/REMS:nocopy #  nocopy is important
+      - REMS_DEV_rems-sync:/REMS:nocopy #  nocopy is important
 
 volumes:
   keycloak-data:
-  test-ehr-sync:
+  REMS_DEV_test-ehr-sync:
     external: true
-  crd-sync:
+  REMS_DEV_crd-sync:
     external: true
-  crd-request-generator-sync:
+  REMS_DEV_crd-request-generator-sync:
     external: true
-  dtr-sync:
+  REMS_DEV_dtr-sync:
     external: true
-  rems-sync:
+  REMS_DEV_rems-sync:
     external: true

@@ -1,2 +1,4 @@
 FROM ubuntu:latest
-WORKDIR /rems
+WORKDIR /REMS
+COPY . .
+CMD ./dockerRunner.sh
