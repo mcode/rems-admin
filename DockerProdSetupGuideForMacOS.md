@@ -152,7 +152,7 @@ or
 
 #### Stop docker-compose application
 ```bash
-    docker-compose down # Stops applications
+    docker-compose down # Removes application servers
 
     docker volume prune # Optiional - Removes persisted data
 ```
@@ -166,7 +166,7 @@ or
 
 #### Stop Running Porter 
 ```bash
-    porter uninstall --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1 # Stops application servers
+    porter uninstall --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1 # Stops and removes application servers
 
     docker volume prune # Optional - Removes persisted data
 ```
