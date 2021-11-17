@@ -152,7 +152,7 @@ or
 ```bash
     docker-compose down # Removes application servers
 
-    docker volume prune # Optiional - Removes persisted data
+    docker volume prune # Optional - Removes persisted data
 ```
 
 ### Option 2 - Porter Install
