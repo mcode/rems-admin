@@ -41,8 +41,6 @@ This guide will take you through the development environment setup for each of t
 
 Your computer must have these minimum requirements:
 - Running MacOS
-    
-    > The docker synchronization strategy used by docker-sync in this guide is designed for MacOs use. The same configuration will likely not work on Windows as the synchronization strategy used by docker-sync on windows can not handle more than 30 sync files at a time. Reference documentaion: https://docker-sync.readthedocs.io/en/latest/advanced/sync-strategies.html#
 
 - x86_64 (64-bit) or equivalent processor
     * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
