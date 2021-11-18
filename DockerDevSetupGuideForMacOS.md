@@ -1,4 +1,4 @@
-# DRLS-Docker-The Ultimate Guide to Running DRLS REMS for Local Development
+# DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS for Local Development
 Repository to host root docker bundle config files for local development and publishing 
 
 
