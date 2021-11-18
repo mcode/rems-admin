@@ -6,9 +6,9 @@ Repository to host root docker bundle config files for local development and pub
 
 This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Production. There are two approaches to doing this: 
 
-Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires the corresponding docker-compose.yml file from the REMS repository. 
+Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires the corresponding docker-compose.yml file from the REMS repository. This option has minimal technical set up involved and allows for the customization/modification of the dockerized configuration. 
 
-Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. 
+Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. This option has the least amount of technical set up involved and is recommended for non-tecnical users of DRLS REMS as it **does not** allow for the customization/modification of the dockerized configuration. 
 
 This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
 
@@ -62,7 +62,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
 3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
 
-    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire Prior-Auth workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
+    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
 
 #### Install Porter (Option 2 Only)
 
