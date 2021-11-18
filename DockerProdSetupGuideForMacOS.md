@@ -1,4 +1,4 @@
-# DRLS-Docker-The Ultimate Guide to Running DRLS (Prior Auth workflow) for Local Development
+# DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS locally
 Repository to host root docker bundle config files for local development and publishing 
 
 
