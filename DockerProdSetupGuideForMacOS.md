@@ -159,8 +159,9 @@ or
 #### Install and Run Porter application 
 
 ```bash
-   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   # Note, the project will keep running in the background when you "ctrl + c" out of process. To stop running all together, use the uninstall command below 
+   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   
 ```
+Note, the project will keep running in the background when you "ctrl + c" out of process. To stop running all together, use the uninstall command below 
 
 #### Stop Running Porter 
 ```bash
