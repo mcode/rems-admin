@@ -20,14 +20,14 @@ services:
     container_name: rems_prod_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
-    image: codexrems/rems_prod_test-ehr
+    image: codexrems/test-ehr
     environment:
       - DOCKER_DEV_PROFILE=true
 
 
   # Create crd container
   crd: # Name of our service
-    image: codexrems/rems_prod_crd
+    image: codexrems/crd
     container_name: rems_prod_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
@@ -37,7 +37,7 @@ services:
 
   # Create crd request generator container
   crd-request-generator: # Name of our service
-    image: codexrems/rems_prod_crd-request-generator
+    image: codexrems/crd-request-generator
     container_name: rems_prod_crd-request-generator
     ports: # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
@@ -46,14 +46,14 @@ services:
 
   # Create dtr container
   dtr: # Name of our service
-    image: codexrems/rems_prod_dtr    
+    image: codexrems/dtr    
     container_name: rems_prod_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
   # # Create rems container
   rems: # Name of our service
-    image: codexrems/rems_prod_rems
+    image: codexrems/rems
     container_name: rems_prod_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
