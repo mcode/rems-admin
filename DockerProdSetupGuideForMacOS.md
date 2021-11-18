@@ -1,4 +1,4 @@
-# DRLS-Docker-The Ultimate Guide to Running DRLS (Prior Auth workflow) for Local Development
+# DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS locally
 Repository to host root docker bundle config files for local development and publishing 
 
 
@@ -10,7 +10,7 @@ Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires t
 
 Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. This option has the least amount of technical set up involved and is recommended for non-tecnical users of DRLS REMS as it **does not** allow for the customization/modification of the dockerized configuration. 
 
-This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
+This document **is designed to take you through the entire set up process for DRLS REMS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS REMS documentation.
 
 This guide will take you through the development environment setup for each of the following DRLS components:
 1. [Coverage Requirements Discovery (CRD)](https://github.com/mcode/CRD)
@@ -159,10 +159,11 @@ or
 #### Install and Run Porter application 
 
 ```bash
-   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   # Note, the project will keep running in the background when you "ctrl + c" out of process. To stop running all together, use the uninstall command below 
+   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   
 ```
+Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the uninstall command below 
 
-#### Stop Running Porter 
+#### Stop Running Porter application and Uninstall
 ```bash
     porter uninstall --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1 # Stops and removes application servers
 

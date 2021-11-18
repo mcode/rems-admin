@@ -1,4 +1,4 @@
-# DRLS-Docker-The Ultimate Guide to Running DRLS (Prior Auth workflow) for Local Development
+# DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS for Local Development
 Repository to host root docker bundle config files for local development and publishing 
 
 
@@ -70,9 +70,9 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
     The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
 
 #### Install Ruby 
-    Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
+Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
 
-    Reference: https://github.com/rbenv/rbenv
+Reference: https://github.com/rbenv/rbenv
 
 1. Install rbenv
   ```bash
@@ -287,7 +287,7 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit next
-12. Submit Prior Authorization Request to http://localhost:9015/fhir
+12. Submit REMS Request to http://localhost:9015/fhir
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
