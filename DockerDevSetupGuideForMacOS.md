@@ -287,7 +287,7 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit next
-12. Submit Prior Authorization Request to http://localhost:9015/fhir
+12. Submit REMS Request to http://localhost:9015/fhir
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
