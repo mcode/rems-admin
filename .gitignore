@@ -1,0 +1,3 @@
+.cnab/
+.docker-sync/
+Zscaler_Root_CA.pem

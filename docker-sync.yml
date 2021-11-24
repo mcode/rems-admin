@@ -1,0 +1,22 @@
+version: "2"
+options:
+  compose-file-path: './docker-compose-dev.yml'
+syncs: 
+  rems_dev_test-ehr-sync:
+    src: ../test-ehr
+    sync_excludes: ['.gradle', 'build', 'target', 'bin']
+
+  rems_dev_crd-sync:
+    src: '../CRD'
+    sync_excludes: ['.gradle', 'server/.gradle', 'server/bin', 'server/build']
+
+  rems_dev_crd-request-generator-sync:
+    src: '../crd-request-generator'
+    sync_excludes: ['node_modules', 'build', 'databaseData']
+
+  rems_dev_dtr-sync:  
+    src: '../dtr'
+    sync_excludes: ['node_modules', 'databaseData']
+
+  rems_dev_rems-sync:
+    src: '.'
