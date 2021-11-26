@@ -54,6 +54,9 @@ services:
       context: ../crd-request-generator
       dockerfile: Dockerfile.dev 
     container_name: rems_dev_crd-request-generator
+    environment:
+      - REACT_APP_REMS_CONFIG=true
+      
     ports: # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
