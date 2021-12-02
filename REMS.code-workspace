@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "../test-ehr"
+		},
+		{
+			"name": "CRD-CDS-Library",
+			"path": "../CRD/server/CDS-Library"		
+		},
+		{
+			"path": "../CRD"
+		},
+		{
+			"path": "../crd-request-generator"
+		},
+		{
+			"path": "../dtr"
+		},
+		{
+			"path": "."
+		}
+	]
+}
