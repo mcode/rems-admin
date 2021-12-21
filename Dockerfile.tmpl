@@ -40,4 +40,3 @@ RUN apt-get source git && \
 COPY ./.cnab/app/porter.yaml ${BUNDLE_DIR}/porter.yaml
 COPY ./docker-compose-porter.yml ${BUNDLE_DIR}
 COPY ./.env ${BUNDLE_DIR}
-# COPY ../test-ehr/src/main/resources/ClientFhirServerRealm.json ${BUNDLE_DIR}/resources/ClientFhirServerRealm.json 

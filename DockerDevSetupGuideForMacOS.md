@@ -1,10 +1,9 @@
 # DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS for Local Development
-Repository to host root docker bundle config files for local development and publishing 
-
 
 ## Purpose of this guide
 
-This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Local Development, complete with file synchronization and server reloading. To achieve this functionality, this guide takes advantage of the docker-sync tool. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**. 
+This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Local Development. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**. 
+
 
 This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
 
@@ -16,6 +15,13 @@ This guide will take you through the development environment setup for each of t
 5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
 6. [REMS](https://github.com/mcode/REMS.git)
 7. Keycloak
+
+### Expected Functionality 		
+1. File Synchronization between local host system and docker container		
+2. Automatic Server Reloading whenever source file is changed		
+    - CRD and prior-auth also reload on CDS_Library changes 		
+3. Automatic Dependendency Installation whenever package.json, package-lock.json, or build.gradle are changed		
+4. Automatic Data Loader in test-ehr whenever fhirResourcesToLoad directory is changed
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -47,6 +53,8 @@ Your computer must have these minimum requirements:
     
     > The docker synchronization strategy used by docker-sync in this guide is designed for MacOs use. The same configuration will likely not work on Windows as the synchronization strategy used by docker-sync on windows can not handle more than 30 sync files at a time. Reference documentaion: https://docker-sync.readthedocs.io/en/latest/advanced/sync-strategies.html#
 
+    >  If you are using a windows device, refer to the [Production Environement Set Up](DockerProdSetupGuideForMacOS.md) and follow option 1
+
 - x86_64 (64-bit) or equivalent processor
     * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
 - At least 8 GB of RAM
@@ -67,7 +75,12 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
 3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
 
-    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
+    **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS PAS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.**
+
+#### Install Visual Studio Code and Extensions		
+The recomended IDE for this set up is Visual Studio Code		
+1. Install Visual Studio Code - https://code.visualstudio.com		
+2. Install Docker extension - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
 #### Install Ruby 
 Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
@@ -102,9 +115,6 @@ Reference: https://github.com/rbenv/rbenv
         which ruby 
         /usr/bin/ruby # Incorrect, using system default ruby. Path not set correctly, reference step 2
    ```
-
-
-
 
 #### Install Docker-sync 
 
@@ -149,55 +159,26 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
+# Open DRLS PAS as VsCode workspace 		
+The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a seperate root for an easier development experience.	
+
+The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. See: https://code.visualstudio.com/docs/editor/versioncontrol	
+
+The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you eaily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, attach a Visual Studio Code IDE to the container using remote-containers. See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+
 ## Configure DRLS REMS
 
 ### CRD configs
 
-1. `cd <drlsroot>/crd/server/src/main/resources`
-2. Edit `application.yml` to include:
-    ```yaml
-    spring:
-        profiles:
-        active: localDb
-    
-    localDb:
-        path: CDS-Library/CRD-DTR/ 
-    ```
+***None***
 
 ### test-ehr configs
 
-1. `cd <drlsroot>/test-ehr/src/main/resources`
-2. Edit `fhirServer.docker-dev.properties` to include:
-    ```bash
-    client_id = app-token
-    client_secret= #replaceMeWithYourClientSecret
-    realm=ClientFhirServer
-    use_oauth = false
-    oauth_token = http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token
-    oauth_authorize =  http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect/auth
-    auth_redirect_host = localhost 
-    ```
+***None***
 
 ### crd-request-generator configs
 
-1. `cd <drlsroot>/crd-request-generator/src`
-2. Edit `properties.json` to look like this:
-    ```json
-    {
-        "realm": "ClientFhirServer",
-        "client": "app-login",
-        "auth": "http://localhost:8180/auth",
-        "server": "http://localhost:8090",
-        "ehr_server": "http://localhost:8080/test-ehr/r4",
-        "ehr_base": "http://localhost:8080/test-ehr/r4",
-        "cds_service": "http://localhost:8090/r4/cds-services",
-        "order_sign": "order-sign-crd",
-        "order_select": "order-select-crd",
-        "user": "alice",
-        "password": "alice",
-        "public_keys": "http://localhost:3001/public_keys"
-    }
-    ```
+***None***
 
 ### dtr configs
 
@@ -216,13 +197,16 @@ Reference: https://github.com/rbenv/rbenv
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Set "VSAC_API_KEY" in the .env file in the REMS Repository (if following option 1) 
-2. `cd ~/`
-3. Open `.bash_profile` and add the following lines at the very bottom:
+1. Set "VSAC_API_KEY" in the .env file in the REMS Repository 
+
+    or 
+
+1. `cd ~/`
+2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
     export VSAC_API_KEY=vsac_api_key
     ```
-4. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`: 
     ```bash
     source .bash_profile
     ```
@@ -233,12 +217,15 @@ You can see a list of your pre-existing environment variables on your Mac by run
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
 1. Set "COMPOSE_PROJECT_NAME" as "rems_dev" in the .env file in the REMS Repository 
-2. `cd ~/`
-3. Open `.bash_profile` and add the following lines at the very bottom:
+
+    or 
+        
+1. `cd ~/`
+2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
     export COMPOSE_PROJECT_NAME=rems_dev
     ```
-4. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`: 
     ```bash
     source .bash_profile
     ```
@@ -258,6 +245,29 @@ Note: Initial set up will take several minutes and spin up fans with high resour
 ```bash
     docker-sync-stack clean # This is the equivalent of running docker-sync clean followed by docker-compose down
     docker volume prune
+```
+
+### Rebuilding Images and Containers		
+```bash		
+    docker-compose -f docker-compose-dev.yml up --build --force-recreate  [<service_name1> <service_name2> ...]		
+```		
+or		
+```bash		
+    docker-compose -f docker-compose-dev.yml build --no-cache --pull [<service_name1> <service_name2> ...] 		
+    docker-compose -f docker-compose-dev.yml up --force-recreate  [<service_name1> <service_name2> ...]		
+```		
+```bash		
+    # Options:		
+    #   --force-recreate                        Recreate containers even if their configuration and image haven't changed.		
+    #   --build                                 Build images before starting containers.		
+    #   --pull                                  Pull published images before building images.		
+    #   --no-cache                              Do not use cache when building the image.		
+    #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services		
+```		
+After rebuilding imaages and containers, start docker-sync normally  		
+```bash		
+    ctrl + c # Stop running "docker-compose up" command (containers running without sync functionality)		
+    docker-sync-stack start # If this command fails to run, running a second time usually fixes the issue		
 ```
 
 ### Useful docker-sync commands

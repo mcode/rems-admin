@@ -1,6 +1,4 @@
 # DRLS-REMS-Docker-The Ultimate Guide to Running DRLS REMS locally
-Repository to host root docker bundle config files for local development and publishing 
-
 
 ## Purpose of this guide
 
@@ -62,13 +60,20 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
 3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
 
-    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.
+    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS PAS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 16GB memory and 6 CPU Processors on MITRE issued Mac Devices.
+
+#### Install Visual Studio Code and Extensions (Option 1 Only)
+
+The recomended IDE for this set up is Visual Studio Code
+
+1. Install Visual Studio Code - https://code.visualstudio.com
+2. Install Docker extension - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
 #### Install Porter (Option 2 Only)
 
-1. Download and install porter with the following commands:
+1. Download and install porter as per https://porter.sh/install/ instructions:
     ```bash
-    curl -L https://cdn.porter.sh/latest/install-mac.sh | bash
+    curl -L https://cdn.porter.sh/latest/install-mac.sh | bash 
     ```
 2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
@@ -92,6 +97,10 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
     ```
 
     Alternatively, you can download/copy just the docker-compose.yml file from the REMS reposiotry since that is the only file needed for this set up. 
+
+## Open prior-auth in VSCode (Option 1 Only)
+
+The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you eaily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
 ## Configure DRLS REMS
 
@@ -154,22 +163,52 @@ or
 
     docker volume prune # Optional - Removes persisted data
 ```
+#### Updating docker-compose application images
+
+```bash
+    docker-compose build --no-cache --pull [<service_name1> <service_name2> ...] 
+    docker-compose --force-recreate  [<service_name1> <service_name2> ...]
+```
+
+```bash
+
+    # Options:
+    #   --force-recreate                        Recreate containers even if their configuration and image haven't changed.
+    #   --build                                 Build images before starting containers.
+    #   --pull                                  Pull published images before building images.
+    #   --no-cache                              Do not use cache when building the image.
+    #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services
+```
 
 ### Option 2 - Porter Install
 #### Install and Run Porter application 
 
+You can set the flag --allow-docker-host-access in the below commands with the PORTER_ALLOW_DOCKER_HOST_ACCESS environment variable so that you don’t have to specify it for every command.
+
 ```bash
-   porter install --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1   
+    porter install fullstack_drls_rems --allow-docker-host-access --reference codexrems/fullstack_drls_rems:latest # Initial Installation needs to be from remote repository
+
+    or 
+
+    porter install fullstack_drls_rems --allow-docker-host-access  # Subsequent runs can use the local installation
+
 ```
-Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the uninstall command below 
+Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the stop command below 
 
 #### Stop Running Porter application and Uninstall
 ```bash
-    porter uninstall --allow-docker-host-access --reference codexrems/fullstack_drls_rems:v0.0.1 # Stops and removes application servers
-
-    docker volume prune # Optional - Removes persisted data
+    porter invoke fullstack_drls_rems --action stop --allow-docker-host-access 
 ```
 
+#### Updating Porter application 
+
+```bash
+    porter upgrade fullstack_drls_rems --allow-docker-host-access # Pull and Update application images and recreate containers
+
+    or 
+
+    porter upgrade fullstack_drls_rems --allow-docker-host-access --reference codexrems/fullstack_drls_rems:latest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
+```
 
 ## Verify DRLS is working
 
@@ -179,10 +218,6 @@ Note: The project will keep running in the background when you "ctrl + c" out of
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
 2. Click **Submit**
-
-### Upload ClientFhirServerRealm.json to keycloak
- 
-ToDo
 
 ### The fun part: Generate a test request
 
