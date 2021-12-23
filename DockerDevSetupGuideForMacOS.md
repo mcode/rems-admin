@@ -19,7 +19,7 @@ This guide will take you through the development environment setup for each of t
 ### Expected Functionality 		
 1. File Synchronization between local host system and docker container		
 2. Automatic Server Reloading whenever source file is changed		
-    - CRD and prior-auth also reload on CDS_Library changes 		
+    - CRD also reloads on CDS_Library changes 		
 3. Automatic Dependendency Installation whenever package.json, package-lock.json, or build.gradle are changed		
 4. Automatic Data Loader in test-ehr whenever fhirResourcesToLoad directory is changed
 
