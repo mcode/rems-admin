@@ -159,7 +159,7 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
-# Open DRLS PAS as VsCode workspace 		
+# Open DRLS REMS as VsCode workspace 		
 The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a seperate root for an easier development experience.	
 
 The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. See: https://code.visualstudio.com/docs/editor/versioncontrol	
