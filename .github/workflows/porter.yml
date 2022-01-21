@@ -1,0 +1,19 @@
+name: Porter Invocation Image CI/CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Porter
+      run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
+    - name: Install Porter Mixins
+      run: porter mixins install docker
+      run: porter mixins install docker-compose
+    - name: Build Invocation Image
+      run: porter install --allow-docker-host-access
+      
