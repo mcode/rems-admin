@@ -21,6 +21,6 @@ jobs:
     - name: Install Porter Mixins
       run: porter mixins install docker; porter mixins install docker-compose
     - name: Build Invocation Image
-      run: porter build --allow-docker-host-access
+      run: porter build 
     - name: Publish Invocation Image
       run: porter publish 
