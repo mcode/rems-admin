@@ -13,6 +13,8 @@ jobs:
     steps:
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
+    - name: Set Porter path
+      run: export PATH=$PATH:~/.porter
     - name: Install Porter Mixins
       run: porter mixins install docker; porter mixins install docker-compose
     - name: Build Invocation Image
