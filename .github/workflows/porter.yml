@@ -12,8 +12,7 @@ jobs:
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
     - name: Install Porter Mixins
-      run: porter mixins install docker
-      run: porter mixins install docker-compose
+      run: porter mixins install docker; porter mixins install docker-compose
     - name: Build Invocation Image
       run: porter install --allow-docker-host-access
       
