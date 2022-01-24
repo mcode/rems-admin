@@ -13,7 +13,7 @@ services:
     volumes:
       - keycloak-data:/opt/jboss/keycloak/standalone/data/
       # - './resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    image: hkong2/keycloak
+    image: codexrems/keycloak
 
   # Create test-ehr container
   test-ehr: # Name of our service
