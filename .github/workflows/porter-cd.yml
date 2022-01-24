@@ -1,8 +1,9 @@
-name: Porter Invocation Image CD
+name: Porter Invocation Docker Image CD
 
 on:
   push:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   porter-cd:
