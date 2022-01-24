@@ -3,7 +3,7 @@ version: 0.0.1
 description: Fullstack DRLS REMS Workflow
 registry: codexrems
 
-dockerfile: Dockerfile.tmpl
+# dockerfile: Dockerfile.tmpl
 
 required:
   - docker
