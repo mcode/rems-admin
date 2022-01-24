@@ -1,29 +1,34 @@
-name: Porter Invocation Image CI/CD
+name: Porter Invocation Image CD
 
 on:
   push:
     branches: [ master ]
 
 jobs:
-
-  porter-ci-cd:
+  porter-cd:
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout Repository
       uses: actions/checkout@v2
+
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
+
     - name: Set Porter path
       run: echo "~/.porter" >> $GITHUB_PATH
+
     - name: Install Porter Mixins
       run: porter mixins install docker; porter mixins install docker-compose
+
     - name: Build Invocation Image
       run: porter build 
+
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
+        
     - name: Publish Invocation Image
       run: porter publish --tag latest 

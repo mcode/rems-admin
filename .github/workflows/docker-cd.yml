@@ -1,4 +1,4 @@
-name: Docker Image CI/CD
+name: Docker Image CD
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  docker-ci-cd: 
+  docker-cd: 
     runs-on: ubuntu-latest
     steps:
 
