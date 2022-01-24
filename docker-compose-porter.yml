@@ -60,7 +60,15 @@ services:
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
 
-
+  pharmacy-information-system: # Name of our service
+    build: 
+      image: codexrems/pharmacy-information-system
+    container_name: rems_porter_pharmacy-information-system
+    environment:
+      - PORT=3010
+    ports: # Port binding to host from docker container
+      - "4200:4200" 
+      - "3010:3010"
 
 volumes:
   keycloak-data:

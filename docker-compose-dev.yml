@@ -90,6 +90,21 @@ services:
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
 
+  pharmacy-information-system: # Name of our service
+    build: 
+      context: ../pharmacy-information-system
+      dockerfile: Dockerfile.dev     
+    container_name: rems_dev_pharmacy-information-system
+    environment:
+      - PORT=3010
+    ports: # Port binding to host from docker container
+      - "4200:4200" 
+      - "3010:3010"
+    volumes:
+      - rems_dev_pharmacy-information-system-sync:/home/node/app:nocopy #  nocopy is important
+      - /home/node/app/node_modules
+      - /home/node/app/backend/node_modules
+
 volumes:
   keycloak-data:
   rems_dev_test-ehr-sync:
@@ -101,4 +116,6 @@ volumes:
   rems_dev_dtr-sync:
     external: true
   rems_dev_rems-sync:
+    external: true
+  rems_dev_pharmacy-information-system-sync:
     external: true
