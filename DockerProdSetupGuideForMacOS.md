@@ -60,7 +60,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
 3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
 
-    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS PAS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 16GB memory and 6 CPU Processors on MITRE issued Mac Devices.
+    The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 16GB memory and 6 CPU Processors on MITRE issued Mac Devices.
 
 #### Install Visual Studio Code and Extensions (Option 1 Only)
 
@@ -234,7 +234,8 @@ Note: The project will keep running in the background when you "ctrl + c" out of
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit next
-12. Submit REMS Request to http://localhost:9015/fhir  
+<!-- 12. Submit REMS Request to http://localhost:9015/fhir   -->
+13. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir
 
 Congratulations! DRLS is fully installed and ready for you to use!
 

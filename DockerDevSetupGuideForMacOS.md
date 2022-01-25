@@ -75,7 +75,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
 3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
 
-    **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS PAS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.**
+    **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.**
 
 #### Install Visual Studio Code and Extensions		
 The recomended IDE for this set up is Visual Studio Code		
@@ -144,7 +144,7 @@ Reference: https://github.com/rbenv/rbenv
 
     `<drlsroot>` will be the base directory into which all the other components will be installed. For example, CRD will be cloned to `<drlsroot>/crd`.
 
-    Note: If you are using a different project structure from the above description, you will need to change the corresponding repo paths in docker-compose-prior-auth-dev.yml, docker-sync.yml, and docker-compose.yml
+    Note: If you are using a different project structure from the above description, you will need to change the corresponding repo paths in docker-compose-dev.yml, docker-sync.yml, and docker-compose.yml
 
 2. Now clone the DRLS component repositories from Github:
     ```bash
@@ -298,7 +298,8 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit next
-12. Submit REMS Request to http://localhost:9015/fhir
+<!-- 12. Submit REMS Request to http://localhost:9015/fhir   -->
+13. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
