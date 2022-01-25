@@ -1,9 +1,9 @@
 # Docker file specifying  MITRE SSL certificates for a Full Stack CNAB invocation image
 FROM ubuntu:latest
 
-# ARG BUNDLE_DIR
-# ARG DEBIAN_FRONTEND=noninteractive
-# ENV DEBIAN_FRONTEND=noninteractive
+ARG BUNDLE_DIR
+ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # RUN apt-get update && apt-get install -y ca-certificates && apt-get install -y curl
 
