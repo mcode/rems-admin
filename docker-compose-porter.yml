@@ -61,8 +61,7 @@ services:
       - "9015:9015" # Bind port 3000 of host to 3000 of container
 
   pharmacy-information-system: # Name of our service
-    build: 
-      image: codexrems/pharmacy-information-system
+    image: codexrems/pharmacy-information-system
     container_name: rems_porter_pharmacy-information-system
     environment:
       - PORT=3010
