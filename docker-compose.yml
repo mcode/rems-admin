@@ -62,7 +62,7 @@ services:
 
   pharmacy-information-system: # Name of our service
     image: codexrems/pharmacy-information-system
-    container_name: rems_porter_pharmacy-information-system
+    container_name: rems_prod_pharmacy-information-system
     environment:
       - PORT=3010
     ports: # Port binding to host from docker container
