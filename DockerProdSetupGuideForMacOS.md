@@ -186,28 +186,28 @@ or
 You can set the flag --allow-docker-host-access in the below commands with the PORTER_ALLOW_DOCKER_HOST_ACCESS environment variable so that you don’t have to specify it for every command.
 
 ```bash
-    porter install fullstack_drls_rems --allow-docker-host-access --reference codexrems/fullstack_drls_rems:latest # Initial Installation needs to be from remote repository
+    porter install fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:latest # Initial Installation needs to be from remote repository
 
     or 
 
-    porter install fullstack_drls_rems --allow-docker-host-access  # Subsequent runs can use the local installation
+    porter install fullstack_rems --allow-docker-host-access  # Subsequent runs can use the local installation
 
 ```
 Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the stop command below 
 
 #### Stop Running Porter application and Uninstall
 ```bash
-    porter invoke fullstack_drls_rems --action stop --allow-docker-host-access 
+    porter invoke fullstack_rems --action stop --allow-docker-host-access 
 ```
 
 #### Updating Porter application 
 
 ```bash
-    porter upgrade fullstack_drls_rems --allow-docker-host-access # Pull and Update application images and recreate containers
+    porter upgrade fullstack_rems --allow-docker-host-access # Pull and Update application images and recreate containers
 
     or 
 
-    porter upgrade fullstack_drls_rems --allow-docker-host-access --reference codexrems/fullstack_drls_rems:latest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
+    porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:latest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
 ```
 
 ## Verify DRLS is working
