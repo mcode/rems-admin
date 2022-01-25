@@ -16,7 +16,7 @@ jobs:
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@v2
       with:
-        include: ".env"
+        include: "**.env"
         find: "rems_dev"
         replace: "rems_porter"
         regex: false
