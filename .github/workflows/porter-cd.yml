@@ -12,6 +12,14 @@ jobs:
 
     - name: Checkout Repository
       uses: actions/checkout@v2
+      
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v2
+      with:
+        include: ".env"
+        find: "rems_dev"
+        replace: "rems_porter"
+        regex: false
 
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
