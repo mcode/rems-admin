@@ -223,21 +223,20 @@ Note: The project will keep running in the background when you "ctrl + c" out of
 
 1. Go to http://localhost:3000/ehr-server/reqgen.
 2. Click **Patient Select** button in upper left.
-3. Find **William Oster** in the list of patients and click the dropdown menu next to his name.
-4. Select **E0470** in the dropdown menu.
-5. Click anywhere in the row for William Oster.
-6. Click **Submit** at the bottom of the page.
-7. After several seconds you should receive a response in the form of two **CDS cards**:
-    - **Respiratory Assist Device**
-    - **Positive Airway Pressure Device**
-8. Select **Order Form** on one of those CDS cards.
-9. If you are asked for login credentials, use **alice** for username and **alice** for password.
-10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
-11. Fill out questionnaire and hit next
-<!-- 12. Submit REMS Request to http://localhost:9015/fhir   -->
-13. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir
+3. Find **Jon Snow** in the list of patients and click the dropdown menu next to his name.
+4. Select **2183126 - Turalio 200 MG Oral Capsule** in the dropdown menu.
+5. Click anywhere in the row to select Jon Snow.
+6. After several seconds you should receive a response in the form of a **CDS card**:
+    - **Turalio 200 MG Oral Capsule has REMS**
+7. Click **Submit** at the bottom of the page.
+8. After several seconds you should receive a response in the form of a **CDS card**:
+    - **Drug Has REMS: Documentation Required.**
+9. Select **Patient Enrollment Form** on the returned CDS card.
+10. If you are asked for login credentials, use **alice** for username and **alice** for password.
+11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
+12. Fill out questionnaire and hit **Proceed to Prior Auth**
+<!-- 13. Submit REMS Request to http://localhost:9015/fhir  - In Progress, step not yet complete -->
+14. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir with **OAuth** enabled
+15. Subscribe to updates using **WebSockets** or another option
 
 Congratulations! DRLS is fully installed and ready for you to use!
-
-## Troubleshooting docker-sync
-Reference: https://docker-sync.readthedocs.io/en/latest/troubleshooting/sync-stopping.html
