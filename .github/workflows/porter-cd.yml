@@ -40,4 +40,4 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
         
     - name: Publish Invocation Image
-      run: porter publish --tag latest
+      run: porter publish --tag REMSvlatest
