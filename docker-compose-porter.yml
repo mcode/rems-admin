@@ -13,21 +13,21 @@ services:
     volumes:
       - keycloak-data:/opt/jboss/keycloak/standalone/data/
       # - './resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    image: codexrems/keycloak:REMSv0.1
+    image: codexrems/keycloak:REMSvlatest
 
   # Create test-ehr container
   test-ehr: # Name of our service
     container_name: rems_porter_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
-    image: codexrems/test-ehr:REMSv0.1
+    image: codexrems/test-ehr:REMSvlatest
     environment:
       - DOCKER_DEV_PROFILE=true
 
 
   # Create crd container
   crd: # Name of our service
-    image: codexrems/crd:REMSv0.1
+    image: codexrems/crd:REMSvlatest
     container_name: rems_porter_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
@@ -37,7 +37,7 @@ services:
 
   # Create crd request generator container
   crd-request-generator: # Name of our service
-    image: codexrems/crd-request-generator:REMSv0.1
+    image: codexrems/crd-request-generator:REMSvlatest
     container_name: rems_porter_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
@@ -48,20 +48,20 @@ services:
 
   # Create dtr container
   dtr: # Name of our service
-    image: codexrems/dtr:REMSv0.1
+    image: codexrems/dtr:REMSvlatest
     container_name: rems_porter_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
   # # Create rems container
   rems: # Name of our service
-    image: codexrems/rems:REMSv0.1
+    image: codexrems/rems:REMSvlatest
     container_name: rems_porter_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
 
   pharmacy-information-system: # Name of our service
-    image: codexrems/pharmacy-information-system:REMSv0.1
+    image: codexrems/pharmacy-information-system:REMSvlatest
     container_name: rems_porter_pharmacy-information-system
     environment:
       - PORT=3010
