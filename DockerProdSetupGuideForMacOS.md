@@ -157,12 +157,19 @@ or
     docker-compose up 
 ```
 
-#### Stop docker-compose application
+#### Stop docker-compose and uninstall application
 ```bash
     docker-compose down # Removes application servers
-
-    docker volume prune # Optional - Removes persisted data
 ```
+
+To remove all images, volumes, and artifacts set up during the install, run the following commands
+
+```bash
+    docker image prune -a
+    docker volume prune 
+    docker network prune
+```
+
 #### Updating docker-compose application images
 
 ```bash
@@ -200,6 +207,18 @@ Note: The project will keep running in the background when you "ctrl + c" out of
     porter invoke fullstack_rems --action stop --allow-docker-host-access 
 ```
 
+If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
+
+```bash
+
+    Unable to find image 'codexrems/fullstack_rems-installer:v0.0.1' locally
+    Error: 1 error occurred:
+        * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
+
+
+    porter invoke fullstack_rems --action stop --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest
+```
+
 #### Updating Porter application 
 
 ```bash
@@ -208,6 +227,31 @@ Note: The project will keep running in the background when you "ctrl + c" out of
     or 
 
     porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
+```
+
+#### Stop Running Porter application and Uninstall
+```bash
+    porter uninstall fullstack_rems --allow-docker-host-access
+```
+
+If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
+
+```bash
+
+    Unable to find image 'codexrems/fullstack_rems-installer:v0.0.1' locally
+    Error: 1 error occurred:
+        * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
+
+
+      porter uninstall fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest
+```
+
+To remove all images, volumes, and artifacts set up during the install, run the following commands
+
+```bash
+    docker image prune -a
+    docker volume prune 
+    docker network prune
 ```
 
 ## Verify DRLS is working

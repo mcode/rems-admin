@@ -22,7 +22,7 @@ services:
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     image: codexrems/test-ehr:REMSvlatest
     environment:
-      - DOCKER_DEV_PROFILE=true
+      - DOCKER_PROFILE=true
 
 
   # Create crd container
