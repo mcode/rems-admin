@@ -2,7 +2,7 @@ name: Porter Invocation Docker Image CI
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ master, dev ]
   workflow_dispatch:
 
 
@@ -13,6 +13,11 @@ jobs:
 
     - name: Checkout Repository
       uses: actions/checkout@v2
+
+    - run: 'echo "VSAC_API_KEY=$VSAC_API_KEY" > .env; echo "COMPOSE_PROJECT_NAME=rems_porter" >> .env'
+      shell: bash
+      env:
+        VSAC_API_KEY: ${{secrets.VSAC_API_KEY}}
 
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
