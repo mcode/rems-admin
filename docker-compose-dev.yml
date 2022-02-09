@@ -20,6 +20,7 @@ services:
     container_name: rems_dev_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
+      - "8081:8081"
     environment:
       - DOCKER_PROFILE=true
     build: 
@@ -41,6 +42,7 @@ services:
     container_name: rems_dev_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
+      - "8091:8091"
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
     volumes:
@@ -60,9 +62,9 @@ services:
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
     volumes:
-      - rems_dev_crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/databaseData
+      - rems_dev_crd-request-generator-sync:/home/node/app/crd-request-generator:nocopy #  nocopy is important
+      - /home/node/app/crd-request-generator/node_modules
+      - /home/node/app/crd-request-generator/databaseData
 
 
   # Create dtr container
@@ -73,10 +75,11 @@ services:
     container_name: rems_dev_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
+      - "3006:3006"
     volumes:
-      - rems_dev_dtr-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/databaseData
+      - rems_dev_dtr-sync:/home/node/app/dtr:nocopy #  nocopy is important
+      - /home/node/app/dtr/node_modules
+      - /home/node/app/dtr/databaseData
 
 
   # Create rems container
@@ -97,13 +100,28 @@ services:
     container_name: rems_dev_pharmacy-information-system
     environment:
       - PORT=3010
+      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
     ports: # Port binding to host from docker container
       - "4200:4200" 
       - "3010:3010"
+      - "3011:3011"
     volumes:
-      - rems_dev_pharmacy-information-system-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/backend/node_modules
+      - rems_dev_pharmacy-information-system-sync:/home/node/app/pharmacy-information-system:nocopy #  nocopy is important
+      - /home/node/app/pharmacy-information-system/node_modules
+      - /home/node/app/pharmacy-information-system/backend/node_modules
+
+  pharmacy-information-system-database: # Name of our service
+    image: mongo
+    container_name: rems_dev_pharmacy-information-system-database
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+    expose:
+      - "27017"
+    ports: # Port binding to host from docker container
+      - "27017:27017" 
+    volumes:
+      - /data/db
 
 volumes:
   keycloak-data:

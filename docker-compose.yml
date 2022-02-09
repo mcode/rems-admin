@@ -65,9 +65,23 @@ services:
     container_name: rems_prod_pharmacy-information-system
     environment:
       - PORT=3010
+      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
     ports: # Port binding to host from docker container
       - "4200:4200" 
       - "3010:3010"
+
+  pharmacy-information-system-database: # Name of our service
+    image: mongo
+    container_name: rems_dev_pharmacy-information-system-database
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+    expose:
+      - "27017"
+    ports: # Port binding to host from docker container
+      - "27017:27017" 
+    volumes:
+      - /data/db
 
 volumes:
   keycloak-data:
