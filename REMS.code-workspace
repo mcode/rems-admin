@@ -30,7 +30,6 @@
 			  "name": "Debug All REMS Applications (Docker)",
 			  "stopAll": true,
 			  "preLaunchTask": "Launch Chrome in Debug Mode",
-			  "postDebugTask": "Terminate All Tasks",
 			  "configurations": [
 				  "Debug CRD (Local + Docker)", 
 				  "Debug DTR Backend (Docker)", 
@@ -80,13 +79,6 @@
 					}
 				  ]
 			},
-			{
-				"label": "Terminate All Tasks",
-				"type": "process",
-				"command":[
-					"${command:workbench.action.terminal.kill",
-				],
-			  }
 		],
 		"inputs": [
 			{
