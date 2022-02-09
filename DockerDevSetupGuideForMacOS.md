@@ -215,6 +215,14 @@ You can see a list of your pre-existing environment variables on your Mac by run
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
+Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+
+    For more information on how to set environment variables consult these following guides:
+
+    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+
 ### Add Compose Project Name 
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
@@ -232,7 +240,14 @@ You can see a list of your pre-existing environment variables on your Mac by run
     source .bash_profile
     ```
 
+Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
+    For more information on how to set environment variables consult these following guides:
+
+    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+    
 
 ## Run DRLS
 

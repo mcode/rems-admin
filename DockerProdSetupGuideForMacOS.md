@@ -288,9 +288,9 @@ To remove all images, volumes, and artifacts set up during the install, run the 
 1. Go to http://localhost:3005/register.
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
-2. Click **Submit** -->
+2. Click **Submit**
 
-Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above.
+Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above. -->
 
 ### The fun part: Generate a test request
 
