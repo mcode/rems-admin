@@ -227,7 +227,7 @@ You can set the flag --allow-docker-host-access in the below commands with the P
 ```
 Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the stop command below 
 
-#### Stop Running Porter application and Uninstall
+#### Stop Running Porter application
 ```bash
     porter invoke fullstack_rems --action stop --allow-docker-host-access 
 ```
@@ -254,7 +254,7 @@ If you get the below error on running the stop command above, then try running t
     porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
 ```
 
-#### Stop Running Porter application and Uninstall
+#### Uninstall Porter Application
 ```bash
     porter uninstall fullstack_rems --allow-docker-host-access
 ```
@@ -281,12 +281,14 @@ To remove all images, volumes, and artifacts set up during the install, run the 
 
 ## Verify DRLS is working
 
-### Register the test-ehr
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+
+<!-- ### Register the test-ehr
 
 1. Go to http://localhost:3005/register.
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
-2. Click **Submit**
+2. Click **Submit** -->
 
 Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above.
 

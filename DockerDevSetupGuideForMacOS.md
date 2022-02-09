@@ -162,7 +162,7 @@ Reference: https://github.com/rbenv/rbenv
 # Open DRLS REMS as VsCode workspace 		
 The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a seperate root for an easier development experience.	
 
-The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. That said, when debugging it is reccomeneded to use the **Debug All REMS Applications (Dokcer) (workspace)** debugger as this is a compund debugger that combines the Docker debugger for all servers and applications in this workspace, simply set a breakpoint anywhere in the code base and debug away. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging 
+The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. Simply start one of the debuggers and set a breakpoint anywhere in the code base. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging 
 
 The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol	
 
@@ -243,6 +243,14 @@ Note: Initial set up will take several minutes and spin up fans with high resour
     docker-sync-stack start # This is the equivalent of running docker-sync start followed by docker-compose up
 ```
 
+### Debugging docker-sync application
+1. Select the Debugger Tab on the left side pannel of VsCode
+2. From the drop down menu next to Run and Debug select **Debug All REMS Applications (Docker) (workspace)**. This is a compund debugger that combines all the other docker debuggers for all servers and applications in this workspace.
+3. When finished debugging, simply hit the disconnect button to close out all debug sessions
+4. **Important**: Make sure to close out the **Launch Chrome in Debug Mode** task that gets open in the VsCode terminal space. This task launches chrome in debug mode in order to debug frontend applications in this workspace. This needs to be closed in order to run the debugger again next time, leaving it open will not properly start the frontend debuggers. 
+
+![Closing Launch Chrome Task](./setup-images/ClosingLaunchChromeTask.png)
+
 ### Stop docker-sync application and remove all containers/volumes/images
 ```bash
     docker-sync-stack clean # This is the equivalent of running docker-sync clean followed by docker-compose down
@@ -278,14 +286,16 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 
 ## Verify DRLS is working
 
-### Register the test-ehr
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+
+<!-- ### Register the test-ehr
 
 1. Go to http://localhost:3005/register.
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
 2. Click **Submit**
 
-Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above.
+Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above. -->
 
 ### The fun part: Generate a test request
 
