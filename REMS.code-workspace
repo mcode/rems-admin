@@ -80,14 +80,6 @@
 				  ]
 			},
 		],
-		"inputs": [
-			{
-			  "id": "terminate",
-			  "type": "command",
-			  "command": "workbench.action.tasks.terminate",
-			  "args": "terminateAll"
-			}
-		  ]
 	},
 	"settings": {
 		"debug.onTaskErrors": "debugAnyway"
