@@ -25,6 +25,14 @@
 	],
 	"launch": {
 		"version": "0.2.0",
+		"configurations": [
+			{
+				"postDebugTask": "Terminate All Tasks",
+				"name": "Post Debug Task - Terminate Chrome (This is not a Debugger)",
+				"request": "launch",
+				"type": "node"
+			},
+		],
 		"compounds": [
 			{
 			  "name": "Debug All REMS Applications (Docker)",
@@ -37,7 +45,8 @@
 				  "Debug DTR Frontend (Attach Local + Docker)", 
 				  "Debug CRD-Request-Generator (Attach Docker)", 
 				  "Debug Pharmacy-Information-System Backend (Docker)", 
-				  "Debug Pharmacy-Information-System Frontend (Attach Local + Docker)"
+				  "Debug Pharmacy-Information-System Frontend (Attach Local + Docker)",
+				  "Post Debug Task - Terminate Chrome (This is not a Debugger)"
 				],
 			}
 		  ]
@@ -78,8 +87,21 @@
 					  }
 					}
 				  ]
-			},
+			},{
+				"label": "Terminate All Tasks",
+				"command": "echo ${input:terminate}",
+				"type": "shell",
+				"problemMatcher": []
+			  }
 		],
+		"inputs": [
+			{
+			  "id": "terminate",
+			  "type": "command",
+			  "command": "workbench.action.tasks.terminate",
+			  "args": "terminateAll"
+			}
+		  ]
 	},
 	"settings": {
 		"debug.onTaskErrors": "debugAnyway"
