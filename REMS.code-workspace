@@ -105,5 +105,17 @@
 	},
 	"settings": {
 		"debug.onTaskErrors": "debugAnyway"
-	}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-azuretools.vscode-docker",
+			"vscjava.vscode-java-debug",
+			"cqframework.cql",
+			"mitre-health.vscode-language-fsh",
+			"redhat.java",
+			"mongodb.mongodb-vscode",
+			"VisualStudioExptTeam.vscodeintellicode"
+		]
+	},
+
 }

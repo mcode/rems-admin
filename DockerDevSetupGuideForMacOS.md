@@ -80,7 +80,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 #### Install Visual Studio Code and Extensions		
 The recomended IDE for this set up is Visual Studio Code		
 1. Install Visual Studio Code - https://code.visualstudio.com		
-2. Install Docker extension - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+2. Install Extensions - The workspace should automatically recommend extensions to install when opening the workspace
 
 #### Install Ruby 
 Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
@@ -168,6 +168,8 @@ The Source Control Tab can be used to easily track changes during the devlopemen
 
 The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you easily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. For more information on the docker debugger see: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
+The MongoDB Extension allows for connecting to the pharmacy information system's backend database by inputting the following connection string: `mongodb://pharmacy-information-root:pharmacy-information-password@localhost:27017/?retryWrites=true&w=majority`. For more information on this extension see: https://marketplace.visualstudio.com/items?itemName=mongodb.mongodb-vscode 
+
 ## Configure DRLS REMS
 
 ### CRD configs
@@ -215,13 +217,13 @@ You can see a list of your pre-existing environment variables on your Mac by run
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
-Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
-    For more information on how to set environment variables consult these following guides:
+For more information on how to set environment variables consult these following guides:
 
-    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ### Add Compose Project Name 
 
@@ -240,13 +242,13 @@ You can see a list of your pre-existing environment variables on your Mac by run
     source .bash_profile
     ```
 
-Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
-    For more information on how to set environment variables consult these following guides:
+For more information on how to set environment variables consult these following guides:
 
-    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
     
 
 ## Run DRLS

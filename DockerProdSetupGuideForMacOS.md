@@ -80,7 +80,7 @@ The recomended IDE for this set up is Visual Studio Code
     export PATH=$PATH:~/.porter
     ```
 
-    Note: The exact lines to add to your system path will be mentioned at the bottom of the execution of step 1 and may vary from what's above depending the operating system you installed Porter on. Consult the output in your terminal for how to set your system path.
+    Note: The exact command to add to your system path will be mentioned at the bottom of the execution of step 1 and may vary from what's above depending the operating system you installed Porter on. Consult the output in your terminal for how to set your system path.
 
     Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
@@ -90,11 +90,11 @@ The recomended IDE for this set up is Visual Studio Code
     - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
     - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
-4. Save `.bash_profile` or whatever file was modified in step 2 and complete the update to your `environment`: 
+3. Save `.bash_profile` or whatever file was modified in step 2 and complete the update to your `environment`: 
     ```bash
     source .bash_profile
     ```
-5. Install required Porter plugins 
+4. Install required Porter plugins 
     ```bash
     porter mixins install docker
     porter mixins install docker-compose
@@ -139,13 +139,13 @@ or
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
-Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
-    For more information on how to set environment variables consult these following guides:
+For more information on how to set environment variables consult these following guides:
 
-    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ### Add Compose Project Name to environment (Option 1 only)
 
@@ -165,13 +165,13 @@ or
     ```bash
     source .bash_profile
     ```
-Note: How you set environment and path variables may vary depending on your operating system and terminal used, for instance for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
-    For more information on how to set environment variables consult these following guides:
+For more information on how to set environment variables consult these following guides:
 
-    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ## Run DRLS REMS
 ### Option 1 - Docker Compose
