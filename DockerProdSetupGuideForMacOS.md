@@ -80,7 +80,7 @@ The recomended IDE for this set up is Visual Studio Code
     export PATH=$PATH:~/.porter
     ```
 
-    Note: The exact lines to add to your system path will be mentioned at the bottom of the execution of step 1 and may vary from whats above depending the operating system you installed Porter on, consult this output for how to set your system path.
+    Note: The exact lines to add to your system path will be mentioned at the bottom of the execution of step 1 and may vary from what's above depending the operating system you installed Porter on. Consult the output in your terminal for how to set your system path.
 
     Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
 
