@@ -4,23 +4,23 @@ options:
 syncs: 
   rems_dev_test-ehr-sync:
     src: ../test-ehr
-    sync_excludes: ['.gradle', 'build', 'target', 'bin']
+    sync_excludes: ['.gradle', 'bin', 'build', 'target', 'logs']
 
   rems_dev_crd-sync:
     src: '../CRD'
-    sync_excludes: ['.gradle', 'server/.gradle', 'server/bin', 'server/build']
+    sync_excludes: ['logs', '.gradle', 'server/.gradle', 'server/bin', 'server/build', 'server/ValueSetCache', 'operations/build', 'resources/build']
 
   rems_dev_crd-request-generator-sync:
     src: '../crd-request-generator'
-    sync_excludes: ['node_modules', 'build', 'databaseData']
+    sync_excludes: ['node_modules', 'build', 'databaseData', 'logs']
 
   rems_dev_dtr-sync:  
     src: '../dtr'
-    sync_excludes: ['node_modules', 'databaseData']
+    sync_excludes: ['node_modules', 'databaseData', 'logs']
 
   rems_dev_rems-sync:
     src: '.'
   
   rems_dev_pharmacy-information-system-sync:  
     src: '../pharmacy-information-system'
-    sync_excludes: ['node_modules', 'backend/node_modules']
+    sync_excludes: ['node_modules', 'backend/node_modules', 'logs']
