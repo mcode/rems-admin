@@ -59,6 +59,16 @@ Your computer must have these minimum requirements:
 
 Additionally, you must have credentials (api key) access for the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
 
+### Setting Environment Variables and System Path
+
+How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+
+    For more information on how to set environment variables consult these following guides:
+
+    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
+
 ## Install core tools
 
 ### Installing core tools on MacOS
@@ -211,13 +221,8 @@ You can see a list of your pre-existing environment variables on your Mac by run
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
-Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 
-For more information on how to set environment variables consult these following guides:
-
-- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ### Add Compose Project Name 
 
@@ -236,14 +241,8 @@ You can see a list of your pre-existing environment variables on your Mac by run
     source .bash_profile
     ```
 
-Note: How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 
-For more information on how to set environment variables consult these following guides:
-
-- https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
-- https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
-- https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
-    
 
 ## Run DRLS
 

@@ -9,10 +9,8 @@ services:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
       - DB_VENDOR=h2
-      # - KEYCLOAK_IMPORT=/resources/ClientFhirServerRealm.json
     volumes:
-      - keycloak-data:/opt/jboss/keycloak/standalone/data/
-      # - './resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
+      - rems_porter_keycloak-data:/opt/jboss/keycloak/standalone/data/
     image: codexrems/keycloak:REMSvlatest
 
   # Create test-ehr container
@@ -33,7 +31,8 @@ services:
       - "8090:8090" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-
+    volumes:
+      - rems_porter_crd-server-ValueSetCache:/CRD/server/ValueSetCache
 
   # Create crd request generator container
   crd-request-generator: # Name of our service
@@ -81,7 +80,9 @@ services:
     ports: # Port binding to host from docker container
       - "27017:27017" 
     volumes:
-      - /data/db
+      - rems_porter_pharmacy-infomation-system-database:/data/db
 
 volumes:
-  keycloak-data:
+  rems_porter_keycloak-data:
+  rems_porter_pharmacy-infomation-system-database:
+  rems_porter_crd-server-ValueSetCache:

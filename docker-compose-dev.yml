@@ -11,7 +11,7 @@ services:
       - DB_VENDOR=h2
       - KEYCLOAK_IMPORT=/resources/ClientFhirServerRealm.json
     volumes:
-      - keycloak-data:/opt/jboss/keycloak/standalone/data/
+      - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
     image: hkong2/keycloak
 
@@ -148,7 +148,7 @@ volumes:
     external: true
   rems_dev_pharmacy-information-system-sync:
     external: true
-  keycloak-data:
+  rems_dev_keycloak-data:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
   rems_dev_test-ehr-build:
