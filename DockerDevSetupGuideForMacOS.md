@@ -49,12 +49,6 @@ This guide will take you through the development environment setup for each of t
 ## Prerequisites
 
 Your computer must have these minimum requirements:
-- Running MacOS
-    
-    > The docker synchronization strategy used by docker-sync in this guide is designed for MacOs use. The same configuration will likely not work on Windows as the synchronization strategy used by docker-sync on windows can not handle more than 30 sync files at a time. Reference documentaion: https://docker-sync.readthedocs.io/en/latest/advanced/sync-strategies.html#
-
-    >  If you are using a windows device, refer to the [Production Environement Set Up](DockerProdSetupGuideForMacOS.md) and follow option 1
-
 - x86_64 (64-bit) or equivalent processor
     * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
 - At least 8 GB of RAM
@@ -64,6 +58,16 @@ Your computer must have these minimum requirements:
 - [Git installed](https://www.atlassian.com/git/tutorials/install-git)
 
 Additionally, you must have credentials (api key) access for the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
+
+### Setting Environment Variables and System Path
+
+How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+
+    For more information on how to set environment variables consult these following guides:
+
+    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ## Install core tools
 
@@ -80,7 +84,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 #### Install Visual Studio Code and Extensions		
 The recomended IDE for this set up is Visual Studio Code		
 1. Install Visual Studio Code - https://code.visualstudio.com		
-2. Install Docker extension - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+2. Install Extensions - The workspace should automatically recommend extensions to install when opening the workspace
 
 #### Install Ruby 
 Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
@@ -162,9 +166,13 @@ Reference: https://github.com/rbenv/rbenv
 # Open DRLS REMS as VsCode workspace 		
 The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a seperate root for an easier development experience.	
 
-The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. See: https://code.visualstudio.com/docs/editor/versioncontrol	
+The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. Simply start one of the debuggers and set a breakpoint anywhere in the code base. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging 
 
-The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you easily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol	
+
+The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you easily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. For more information on the docker debugger see: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
+
+The MongoDB Extension allows for connecting to the pharmacy information system's backend database by inputting the following connection string: `mongodb://pharmacy-information-root:pharmacy-information-password@localhost:27017/?retryWrites=true&w=majority`. For more information on this extension see: https://marketplace.visualstudio.com/items?itemName=mongodb.mongodb-vscode 
 
 ## Configure DRLS REMS
 
@@ -192,7 +200,7 @@ The Docker Extension for VsCode has useful functionality to aid in the developme
 ### Add VSAC credentials to your development environment
 
 > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
-> To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
+> To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. Please reach out to Sahil Malhotra at smalhotra@mitre.org in order to request access to the CMS-DRLS author group. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
 
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
@@ -213,6 +221,9 @@ You can see a list of your pre-existing environment variables on your Mac by run
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
+
+
 ### Add Compose Project Name 
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
@@ -230,6 +241,7 @@ You can see a list of your pre-existing environment variables on your Mac by run
     source .bash_profile
     ```
 
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 
 
 ## Run DRLS
@@ -240,6 +252,14 @@ Note: Initial set up will take several minutes and spin up fans with high resour
 ```bash
     docker-sync-stack start # This is the equivalent of running docker-sync start followed by docker-compose up
 ```
+
+### Debugging docker-sync application
+1. Select the Debugger Tab on the left side pannel of VsCode
+2. From the drop down menu next to Run and Debug select **Debug All REMS Applications (Docker) (workspace)**. This is a compund debugger that combines all the other docker debuggers for all servers and applications in this workspace.
+3. When finished debugging, simply hit the disconnect button to close out all debug sessions
+4. **Important**: Make sure to close out the **Launch Chrome in Debug Mode** task that gets open in the VsCode terminal space. This task launches chrome in debug mode in order to debug frontend applications in this workspace. This needs to be closed in order to run the debugger again next time, leaving it open will not properly start the frontend debuggers. 
+
+![Closing Launch Chrome Task](./setup-images/ClosingLaunchChromeTask.png)
 
 ### Stop docker-sync application and remove all containers/volumes/images
 ```bash
@@ -276,12 +296,16 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 
 ## Verify DRLS is working
 
-### Register the test-ehr
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+
+<!-- ### Register the test-ehr
 
 1. Go to http://localhost:3005/register.
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
 2. Click **Submit**
+
+Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above. -->
 
 ### The fun part: Generate a test request
 

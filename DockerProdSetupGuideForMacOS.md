@@ -38,8 +38,6 @@ This guide will take you through the development environment setup for each of t
 ## Prerequisites
 
 Your computer must have these minimum requirements:
-- Running MacOS
-
 - x86_64 (64-bit) or equivalent processor
     * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
 - At least 8 GB of RAM
@@ -49,6 +47,16 @@ Your computer must have these minimum requirements:
 - [Git installed](https://www.atlassian.com/git/tutorials/install-git)
 
 Additionally, you must have credentials (api key) access for the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
+
+### Setting Environment Variables and System Path
+
+How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+
+    For more information on how to set environment variables consult these following guides:
+
+    - https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/
+    - https://www3.ntu.edu.sg/home/ehchua/programming/howto/Environment_Variables.html
+    - https://unix.stackexchange.com/questions/117467/how-to-permanently-set-environmental-variables
 
 ## Install core tools
 
@@ -79,11 +87,16 @@ The recomended IDE for this set up is Visual Studio Code
     ```bash
     export PATH=$PATH:~/.porter
     ```
-4. Save `.bash_profile` and complete the update to `env`: 
+
+    Note: The exact command to add to your system path will be mentioned at the bottom of the execution of step 1 and may vary from what's above depending the operating system you installed Porter on. Consult the output in your terminal for how to set your system path.
+
+    Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
+
+3. Save `.bash_profile` or whatever file was modified in step 2 and complete the update to your `environment`: 
     ```bash
     source .bash_profile
     ```
-5. Install required Porter plugins 
+4. Install required Porter plugins 
     ```bash
     porter mixins install docker
     porter mixins install docker-compose
@@ -107,7 +120,7 @@ The Docker Extension for VsCode has useful functionality to aid in the developme
 ### Add VSAC credentials to environment (Option 1 only)
 
 > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
-> To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
+> To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. Please reach out to Sahil Malhotra at smalhotra@mitre.org in order to request access to the CMS-DRLS author group. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
 
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
@@ -128,6 +141,8 @@ or
 
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
+
 ### Add Compose Project Name to environment (Option 1 only)
 
 Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is reccomended to change the compose project name for each so that they differ.
@@ -146,7 +161,8 @@ or
     ```bash
     source .bash_profile
     ```
-
+    
+Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 
 ## Run DRLS REMS
 ### Option 1 - Docker Compose
@@ -202,7 +218,7 @@ You can set the flag --allow-docker-host-access in the below commands with the P
 ```
 Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the stop command below 
 
-#### Stop Running Porter application and Uninstall
+#### Stop Running Porter application
 ```bash
     porter invoke fullstack_rems --action stop --allow-docker-host-access 
 ```
@@ -229,7 +245,7 @@ If you get the below error on running the stop command above, then try running t
     porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
 ```
 
-#### Stop Running Porter application and Uninstall
+#### Uninstall Porter Application
 ```bash
     porter uninstall fullstack_rems --allow-docker-host-access
 ```
@@ -256,12 +272,16 @@ To remove all images, volumes, and artifacts set up during the install, run the 
 
 ## Verify DRLS is working
 
-### Register the test-ehr
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+
+<!-- ### Register the test-ehr
 
 1. Go to http://localhost:3005/register.
     - Client Id: **app-login**
     - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
 2. Click **Submit**
+
+Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above. -->
 
 ### The fun part: Generate a test request
 

@@ -11,7 +11,7 @@ services:
       - DB_VENDOR=h2
       - KEYCLOAK_IMPORT=/resources/ClientFhirServerRealm.json
     volumes:
-      - keycloak-data:/opt/jboss/keycloak/standalone/data/
+      - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
     image: hkong2/keycloak
 
@@ -20,6 +20,7 @@ services:
     container_name: rems_dev_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
+      - "8081:8081"
     environment:
       - DOCKER_PROFILE=true
     build: 
@@ -27,10 +28,11 @@ services:
       dockerfile: Dockerfile.dev 
     volumes:
       - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
-      - /test-ehr/.gradle
-      - /test-ehr/build
-      - /test-ehr/target
-      - /test-ehr/bin
+      - rems_dev_test-ehr-gradle:/test-ehr/.gradle
+      - rems_dev_test-ehr-bin:/test-ehr/bin
+      - rems_dev_test-ehr-build:/test-ehr/build
+      - rems_dev_test-ehr-target:/test-ehr/target
+      - rems_dev_test-ehr-logs:/test-ehr/logs
 
 
   # Create crd container
@@ -41,11 +43,19 @@ services:
     container_name: rems_dev_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
+      - "8091:8091"
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
     volumes:
       - rems_dev_crd-sync:/CRD:nocopy #  nocopy is important
-      - /CRD/.gradle
+      - rems_dev_crd-logs:/CRD/logs
+      - rems_dev_crd-gradle:/CRD/.gradle
+      - rems_dev_crd-server-gradle:/CRD/server/.gradle
+      - rems_dev_crd-server-build:/CRD/server/build
+      - rems_dev_crd-server-bin:/CRD/server/bin
+      - rems_dev_crd-server-ValueSetCache:/CRD/server/ValueSetCache
+      - rems_dev_crd-operations-build:/CRD/operations/build
+      - rems_dev_crd-resources-build:/CRD/resources/build
 
 
   # Create crd request generator container
@@ -60,9 +70,11 @@ services:
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
     volumes:
-      - rems_dev_crd-request-generator-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/databaseData
+      - rems_dev_crd-request-generator-sync:/home/node/app/crd-request-generator:nocopy #  nocopy is important
+      - rems_dev_crd-request-generator-nodeModules:/home/node/app/crd-request-generator/node_modules
+      - rems_dev_crd-request-generator-databaseData:/home/node/app/crd-request-generator/databaseData
+      - rems_dev_crd-request-generator-build:/home/node/app/crd-request-generator/build
+      - rems_dev_crd-request-generator-logs:/home/node/app/crd-request-generator/logs
 
 
   # Create dtr container
@@ -73,10 +85,12 @@ services:
     container_name: rems_dev_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
+      - "3006:3006"
     volumes:
-      - rems_dev_dtr-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/databaseData
+      - rems_dev_dtr-sync:/home/node/app/dtr:nocopy #  nocopy is important
+      - rems_dev_dtr-nodeModules:/home/node/app/dtr/node_modules
+      - rems_dev_dtr-databaseData:/home/node/app/dtr/databaseData
+      - rems_dev_dtr-logs:/home/node/app/dtr/logs
 
 
   # Create rems container
@@ -86,7 +100,7 @@ services:
       dockerfile: Dockerfile.dev     
     container_name: rems_dev_rems
     ports: # Port binding to host from docker container
-      - "9015:9015" # Bind port 3000 of host to 3000 of container
+      - "9020:9020" # Bind port 3000 of host to 3000 of container
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
 
@@ -97,16 +111,31 @@ services:
     container_name: rems_dev_pharmacy-information-system
     environment:
       - PORT=3010
+      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
     ports: # Port binding to host from docker container
       - "4200:4200" 
       - "3010:3010"
+      - "3011:3011"
     volumes:
-      - rems_dev_pharmacy-information-system-sync:/home/node/app:nocopy #  nocopy is important
-      - /home/node/app/node_modules
-      - /home/node/app/backend/node_modules
+      - rems_dev_pharmacy-information-system-sync:/home/node/app/pharmacy-information-system:nocopy #  nocopy is important
+      - rems_dev_pharmacy-information-system-nodeModules:/home/node/app/pharmacy-information-system/node_modules
+      - rems_dev_pharmacy-information-system-backend-nodeModules:/home/node/app/pharmacy-information-system/backend/node_modules
+      - rems_dev_pharmacy-information-system-logs:/home/node/app/pharmacy-information-system/logs
+
+  pharmacy-information-system-database: # Name of our service
+    image: mongo
+    container_name: rems_dev_pharmacy-information-system-database
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+    expose:
+      - "27017"
+    ports: # Port binding to host from docker container
+      - "27017:27017" 
+    volumes:
+      - rems_dev_pharmacy-infomation-system-database:/data/db
 
 volumes:
-  keycloak-data:
   rems_dev_test-ehr-sync:
     external: true
   rems_dev_crd-sync:
@@ -119,3 +148,28 @@ volumes:
     external: true
   rems_dev_pharmacy-information-system-sync:
     external: true
+  rems_dev_keycloak-data:
+  rems_dev_test-ehr-gradle:
+  rems_dev_test-ehr-bin:
+  rems_dev_test-ehr-build:
+  rems_dev_test-ehr-target:
+  rems_dev_test-ehr-logs:
+  rems_dev_crd-logs:
+  rems_dev_crd-gradle:
+  rems_dev_crd-server-gradle:
+  rems_dev_crd-server-build:
+  rems_dev_crd-server-bin:
+  rems_dev_crd-server-ValueSetCache:
+  rems_dev_crd-operations-build:
+  rems_dev_crd-resources-build:
+  rems_dev_crd-request-generator-nodeModules:
+  rems_dev_crd-request-generator-databaseData:
+  rems_dev_crd-request-generator-build:
+  rems_dev_crd-request-generator-logs:
+  rems_dev_dtr-nodeModules:
+  rems_dev_dtr-databaseData:
+  rems_dev_dtr-logs:
+  rems_dev_pharmacy-information-system-nodeModules:
+  rems_dev_pharmacy-information-system-backend-nodeModules:
+  rems_dev_pharmacy-information-system-logs:
+  rems_dev_pharmacy-infomation-system-database:
