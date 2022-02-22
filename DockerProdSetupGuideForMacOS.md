@@ -4,9 +4,9 @@
 
 This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Production. There are two approaches to doing this: 
 
-Option 1 utilizes Docker Compose, which comes with Docker Dektop, and requires the corresponding docker-compose.yml file from the REMS repository. This option has minimal technical set up involved and allows for the customization/modification of the dockerized configuration. 
+Option 1 utilizes Docker Compose, which comes with Docker Desktop, and requires the corresponding docker-compose.yml file from the REMS repository. This option has minimal technical set up involved and allows for the customization/modification of the dockerized configuration. 
 
-Option 2 utilizes Porter, which requires a seperate installation in addition to Docker Desktop but does not require the use of any local files. This option has the least amount of technical set up involved and is recommended for non-tecnical users of DRLS REMS as it **does not** allow for the customization/modification of the dockerized configuration. 
+Option 2 utilizes Porter, which requires a separate installation in addition to Docker Desktop but does not require the use of any local files. This option has the least amount of technical set up involved and is recommended for non-technical users of DRLS REMS as it **does not** allow for the customization/modification of the dockerized configuration. 
 
 This document **is designed to take you through the entire set up process for DRLS REMS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS REMS documentation.
 
@@ -16,19 +16,22 @@ This guide will take you through the development environment setup for each of t
 3. [Documents, Templates, and Rules (DTR) SMART on FHIR app](https://github.com/mcode/dtr)
 4. [Clinical Decision Support (CDS) Library](https://github.com/mcode/CDS-Library)
 5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
-6. [REMS](https://github.com/mcode/REMS.git)
-7. Keycloak
+6. [REMS](https://github.com/mcode/REMS)
+7. [Pharmacy Information System](https://github.com/mcode/pharmacy-information-system)
+8. Keycloak
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
+    * [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path)
 - [Install core tools](#install-core-tools)
     * [Installing core tools on MacOS](#installing-core-tools-on-macos)
         + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
-        + [Install Porter (Option 2 only)](#install-porter-(option-2-only))
-- [Clone REMS repository(Option 1 Only)](#clone-rems-repository-(option-1-only))
+        + [Install Porter (Option 2 only)](#install-porter-option-2-only)
+- [Clone REMS repository(Option 1 Only)](#clone-rems-repository-option-1-only)
+    * [Open REMS in VSCode (Option 1 Only)](#open-rems-in-vscode-option-1-only)
 - [Configure DRLS REMS](#configure-drls-rems)
-    * [Add VSAC credentials to environment (Option 1 only)](#add-vsac-credentials-to-environment-(option-1-only))  
-    * [Add Compose Project Name to environment (Option 1 only)](#add-compose-project-name-to-environment-(option-1-only))  
+    * [Add VSAC credentials to environment (Option 1 only)](#add-vsac-credentials-to-environment-option-1-only)  
+    * [Add Compose Project Name to environment (Option 1 only)](#add-compose-project-name-to-environment-option-1-only)  
 - [Run DRLS REMS](#run-drls-rems)
     * [Option 1 - Docker Compose](#option-1---docker-compose)
     * [Option 2 - Porter Install](#option-2---porter-install)
@@ -50,7 +53,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 
 ### Setting Environment Variables and System Path
 
-How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permanently set environment/path variables on [insert operating system] [insert terminal type]`.
 
     For more information on how to set environment variables consult these following guides:
 
@@ -109,9 +112,9 @@ The recomended IDE for this set up is Visual Studio Code
     git clone https://github.com/mcode/REMS.git REMS  
     ```
 
-    Alternatively, you can download/copy just the docker-compose.yml file from the REMS reposiotry since that is the only file needed for this set up. 
+    Alternatively, you can download/copy just the docker-compose.yml file from the REMS repository since that is the only file needed for this set up. 
 
-## Open REMS in VSCode (Option 1 Only)
+### Open REMS in VSCode (Option 1 Only)
 
 The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you eaily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
@@ -145,7 +148,7 @@ Note: How you set environment and path variables may vary depending on your oper
 
 ### Add Compose Project Name to environment (Option 1 only)
 
-Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is reccomended to change the compose project name for each so that they differ.
+Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is recommended to change the compose project name for each so that they differ.
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
 1. Set "COMPOSE_PROJECT_NAME" as "rems_prod" in the .env file in the REMS Repository 
@@ -242,7 +245,7 @@ If you get the below error on running the stop command above, then try running t
 
     or 
 
-    porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to applicaion images from remote repository and recreate containers
+    porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to application images from remote repository and recreate containers
 ```
 
 #### Uninstall Porter Application
@@ -272,7 +275,7 @@ To remove all images, volumes, and artifacts set up during the install, run the 
 
 ## Verify DRLS is working
 
-<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additional clients to dtr -->
 
 <!-- ### Register the test-ehr
 

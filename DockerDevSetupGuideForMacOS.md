@@ -14,34 +14,40 @@ This guide will take you through the development environment setup for each of t
 4. [Clinical Decision Support (CDS) Library](https://github.com/mcode/CDS-Library)
 5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
 6. [REMS](https://github.com/mcode/REMS.git)
-7. Keycloak
+7. [Pharmacy Information System](https://github.com/mcode/pharmacy-information-system)
+8. Keycloak
 
 ### Expected Functionality 		
 1. File Synchronization between local host system and docker container		
 2. Automatic Server Reloading whenever source file is changed		
     - CRD also reloads on CDS_Library changes 		
-3. Automatic Dependendency Installation whenever package.json, package-lock.json, or build.gradle are changed		
-4. Automatic Data Loader in test-ehr whenever fhirResourcesToLoad directory is changed
+3. Automatic Dependency Installation whenever package.json, package-lock.json, or build.gradle are changed		
+4. Automatic Data Loader in test-ehr whenever the fhirResourcesToLoad directory is changed
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
+- [Install core tools](#install-core-tools)
+    * [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path)
 - [Install core tools](#install-core-tools)
     * [Installing core tools on MacOS](#installing-core-tools-on-macos)
         + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
         + [Install Ruby](#install-ruby)
         + [Install Docker-sync](#install-docker-sync)
 - [Clone DRLS REMS](#clone-drls-rems)
+    * [Open DRLS REMS as VsCode workspace](#open-drls-rems-as-vscode-workspacey)
 - [Configure DRLS REMS](#configure-drls-rems)
     * [CRD configs](#crd-configs)
     * [test-ehr configs](#test-ehr-configs)
     * [crd-request-generator configs](#crd-request-generator-configs)
     * [dtr configs](#dtr-configs)
     * [rems configs](#rems-configs)
-
+    * [pharmacy-information-system configs](#pharmacy-information-system-configs)
     * [Add VSAC credentials to your development environment](#add-vsac-credentials-to-your-development-environment)
 - [Run DRLS REMS](#run-drls)
     * [Start Docker Sync](#start-docker-sync-application)
+    * [Debugging docker-sync application](#debugging-docker-sync-application)
     * [Stop Docker Sync](#stop-docker-sync-application-and-remove-all-containers/volumes)
+    * [Rebuilding Images and Containers](#rebuilding-images-and-containers)
     * [Useful Docker Sync Commands](#useful-docker-sync-commands)
 - [Verify DRLS is working](#verify-drls-is-working)
 
@@ -61,7 +67,7 @@ Additionally, you must have credentials (api key) access for the **[Value Set Au
 
 ### Setting Environment Variables and System Path
 
-How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permentaly set environment/path variables on [insert operating system] [insert terminal type]`.
+How you set environment and path variables may vary depending on your operating system and terminal used. For instance, for zsh on MacOS you typically need to modify .zshrc instead of .bash_profile. To figure out how to set environment variables for your system, consult the guides below or google `how to permanently set environment/path variables on [insert operating system] [insert terminal type]`.
 
     For more information on how to set environment variables consult these following guides:
 
@@ -82,7 +88,7 @@ How you set environment and path variables may vary depending on your operating 
     **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.**
 
 #### Install Visual Studio Code and Extensions		
-The recomended IDE for this set up is Visual Studio Code		
+The recommended IDE for this set up is Visual Studio Code		
 1. Install Visual Studio Code - https://code.visualstudio.com		
 2. Install Extensions - The workspace should automatically recommend extensions to install when opening the workspace
 
@@ -109,7 +115,7 @@ Reference: https://github.com/rbenv/rbenv
   ```bash
         rbenv install 2.7.2 
    ```
-6. Verify that the system is using the correct ruby verions 
+6. Verify that the system is using the correct ruby versions 
   ```bash
         which ruby   
         /Users/$USER/.rbenv/shims/ruby # Correct
@@ -158,17 +164,18 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/crd-request-generator.git crd-request-generator
     git clone https://github.com/mcode/dtr.git dtr
     git clone https://github.com/mcode/REMS.git REMS
+    git clone https://github.com/mcode/pharmacy-information-system.git pharmacy-information-system
 
     cd CRD/server
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
 # Open DRLS REMS as VsCode workspace 		
-The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a seperate root for an easier development experience.	
+The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a separate root for an easier development experience.	
 
 The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. Simply start one of the debuggers and set a breakpoint anywhere in the code base. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging 
 
-The Source Control Tab can be used to easily track changes during the devlopement process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol	
+The Source Control Tab can be used to easily track changes during the development process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol	
 
 The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you easily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. For more information on the docker debugger see: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
@@ -193,6 +200,10 @@ The MongoDB Extension allows for connecting to the pharmacy information system's
 ***None***
 
 ### REMS configs
+
+***None***
+
+### pharmacy-information-system configs
 
 ***None***
 
@@ -254,8 +265,8 @@ Note: Initial set up will take several minutes and spin up fans with high resour
 ```
 
 ### Debugging docker-sync application
-1. Select the Debugger Tab on the left side pannel of VsCode
-2. From the drop down menu next to Run and Debug select **Debug All REMS Applications (Docker) (workspace)**. This is a compund debugger that combines all the other docker debuggers for all servers and applications in this workspace.
+1. Select the Debugger Tab on the left side panel of VsCode
+2. From the drop down menu next to Run and Debug select **Debug All REMS Applications (Docker) (workspace)**. This is a compound debugger that combines all the other docker debuggers for all servers and applications in this workspace.
 3. When finished debugging, simply hit the disconnect button to close out all debug sessions
 4. **Important**: Make sure to close out the **Launch Chrome in Debug Mode** task that gets open in the VsCode terminal space. This task launches chrome in debug mode in order to debug frontend applications in this workspace. This needs to be closed in order to run the debugger again next time, leaving it open will not properly start the frontend debuggers. 
 
@@ -285,7 +296,7 @@ or
     #   --no-cache                              Do not use cache when building the image.		
     #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services		
 ```		
-After rebuilding imaages and containers, start docker-sync normally  		
+After rebuilding images and containers, start docker-sync normally  		
 ```bash		
     ctrl + c # Stop running "docker-compose up" command (containers running without sync functionality)		
     docker-sync-stack start # If this command fails to run, running a second time usually fixes the issue		
@@ -296,7 +307,7 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 
 ## Verify DRLS is working
 
-<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additonal clients to dtr -->
+<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additional clients to dtr -->
 
 <!-- ### Register the test-ehr
 
