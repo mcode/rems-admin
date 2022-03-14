@@ -289,22 +289,29 @@ Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/
 
 ### The fun part: Generate a test request
 
-1. Go to http://localhost:3000/ehr-server/reqgen.
+
+1. Go to http://localhost:3000 and play the role of a prescriber.
 2. Click **Patient Select** button in upper left.
 3. Find **Jon Snow** in the list of patients and click the dropdown menu next to his name.
 4. Select **2183126 - Turalio 200 MG Oral Capsule** in the dropdown menu.
 5. Click anywhere in the row to select Jon Snow.
-6. After several seconds you should receive a response in the form of a **CDS card**:
-    - **Turalio 200 MG Oral Capsule has REMS**
-7. Click **Submit** at the bottom of the page.
-8. After several seconds you should receive a response in the form of a **CDS card**:
+6. Click **Submit** at the bottom of the page.
+7. After several seconds you should receive a response in the form of a **CDS card**:
     - **Drug Has REMS: Documentation Required.**
-9. Select **Patient Enrollment Form** on the returned CDS card.
-10. If you are asked for login credentials, use **alice** for username and **alice** for password.
-11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
-12. Fill out questionnaire and hit **Proceed to Prior Auth**
-<!-- 13. Submit REMS Request to http://localhost:9015/fhir  - In Progress, step not yet complete -->
-14. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir with **OAuth** enabled
-15. Subscribe to updates using **WebSockets** or another option
+8. Select **Patient Enrollment Form** on the returned CDS card.
+9. If you are asked for login credentials, use **alice** for username and **alice** for password.
+10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
+11. Fill out questionnaire and hit **Proceed to Prior Auth**.
+12. Click **submit** to send prescription request to pharmacist (note: this is a stand in ui and there is no visual that anything happens after hitting the submit button).
+
+13. Go to http://localhost:4200 and play the role of a pharmacist.
+14. Click on **Log in as Admin** in the top right of the page
+15. If you've already created login credentials, then sign in with those credentials and skip to step 17. If not, proceed to step 16.
+16. Click **Sign Up** at the bottom of the screen and create some credentials for yourself. Select pharmacist as your role and fill in some example data for the rest of the fields. Click **submit** to create your account, there is no visual that anything happens after hitting submit. Finally, click on **Login** at the bottom of the screen and go back to step 15. 
+17. Click **Doctor Orders** in the left hand navigation menu on the screen 
+18. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
+
+<!-- 14. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir with **OAuth** enabled -->
+<!-- 15. Subscribe to updates using **WebSockets** or another option -->
 
 Congratulations! DRLS is fully installed and ready for you to use!
