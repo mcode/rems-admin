@@ -71,7 +71,7 @@ services:
 
   pharmacy-information-system-database: # Name of our service
     image: mongo
-    container_name: rems_dev_pharmacy-information-system-database
+    container_name: rems_porter_pharmacy-information-system-database
     environment:
       MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
       MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
