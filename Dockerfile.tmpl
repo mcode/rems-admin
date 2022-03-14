@@ -39,4 +39,4 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY ./.cnab/app/porter.yaml ${BUNDLE_DIR}/porter.yaml
 COPY ./docker-compose-porter.yml ${BUNDLE_DIR}/docker-compose-porter.yml
-COPY ./.env.porter ${BUNDLE_DIR}/.env
+COPY ./.env ${BUNDLE_DIR}/.env
