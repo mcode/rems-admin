@@ -11,21 +11,21 @@ services:
       - DB_VENDOR=h2
     volumes:
       - rems_porter_keycloak-data:/opt/jboss/keycloak/standalone/data/
-    image: codexrems/keycloak:REMSvlatest
+    image: codexrems/keycloak:REMSvCurrent
 
   # Create test-ehr container
   test-ehr: # Name of our service
     container_name: rems_porter_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
-    image: codexrems/test-ehr:REMSvlatest
+    image: codexrems/test-ehr:REMSvCurrent
     environment:
       - DOCKER_PROFILE=true
 
 
   # Create crd container
   crd: # Name of our service
-    image: codexrems/crd:REMSvlatest
+    image: codexrems/crd:REMSvCurrent
     container_name: rems_porter_crd
     ports: # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
@@ -36,7 +36,7 @@ services:
 
   # Create crd request generator container
   crd-request-generator: # Name of our service
-    image: codexrems/crd-request-generator:REMSvlatest
+    image: codexrems/crd-request-generator:REMSvCurrent
     container_name: rems_porter_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
@@ -47,20 +47,20 @@ services:
 
   # Create dtr container
   dtr: # Name of our service
-    image: codexrems/dtr:REMSvlatest
+    image: codexrems/dtr:REMSvCurrent
     container_name: rems_porter_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
   # # Create rems container
   rems: # Name of our service
-    image: codexrems/rems:REMSvlatest
+    image: codexrems/rems:REMSvCurrent
     container_name: rems_porter_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
 
   pharmacy-information-system: # Name of our service
-    image: codexrems/pharmacy-information-system:REMSvlatest
+    image: codexrems/pharmacy-information-system:REMSvCurrent
     container_name: rems_porter_pharmacy-information-system
     environment:
       - PORT=3010
