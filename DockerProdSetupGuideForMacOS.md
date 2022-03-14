@@ -122,8 +122,7 @@ The Docker Extension for VsCode has useful functionality to aid in the developme
 
 ### Add VSAC credentials to environment (Option 1 only)
 
-> At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
-> To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. Please reach out to Sahil Malhotra at smalhotra@mitre.org in order to request access to the CMS-DRLS author group. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
+> At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
 
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
@@ -211,19 +210,21 @@ To remove all images, volumes, and artifacts set up during the install, run the 
 
 You can set the flag --allow-docker-host-access in the below commands with the PORTER_ALLOW_DOCKER_HOST_ACCESS environment variable so that you don’t have to specify it for every command.
 
+Note: replace ${vsav_api_key} in the below commands with your own vsac api key. If you do not have access to VSAC, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
+
 ```bash
-    porter install fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Initial Installation needs to be from remote repository
+    porter install fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Initial Installation needs to be from remote repository
 
     or 
 
-    porter install fullstack_rems --allow-docker-host-access  # Subsequent runs can use the local installation
+    porter install fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
 
 ```
 Note: The project will keep running in the background when you "ctrl + c" out of the above process. To stop running all together, use the stop command below 
 
 #### Stop Running Porter application
 ```bash
-    porter invoke fullstack_rems --action stop --allow-docker-host-access 
+    porter invoke fullstack_rems --action stop --param vsac_api_key=${vsav_api_key} --allow-docker-host-access 
 ```
 
 If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
@@ -235,22 +236,22 @@ If you get the below error on running the stop command above, then try running t
         * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
 
 
-    porter invoke fullstack_rems --action stop --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest
+    porter invoke fullstack_rems --action stop --param vsac_api_key=${vsav_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent
 ```
 
 #### Updating Porter application 
 
 ```bash
-    porter upgrade fullstack_rems --allow-docker-host-access # Pull and Update application images and recreate containers
+    porter upgrade fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access # Pull and Update application images and recreate containers
 
     or 
 
-    porter upgrade fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest # Pull and Update Invocation Image in addition to application images from remote repository and recreate containers
+    porter upgrade fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Pull and Update Invocation Image in addition to application images from remote repository and recreate containers
 ```
 
 #### Uninstall Porter Application
 ```bash
-    porter uninstall fullstack_rems --allow-docker-host-access
+    porter uninstall fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access
 ```
 
 If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
@@ -262,7 +263,7 @@ If you get the below error on running the stop command above, then try running t
         * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
 
 
-      porter uninstall fullstack_rems --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvlatest
+      porter uninstall fullstack_rems --param vsac_api_key=${vsav_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent
 ```
 
 To remove all images, volumes, and artifacts set up during the install, run the following commands

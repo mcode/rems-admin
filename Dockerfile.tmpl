@@ -38,5 +38,5 @@ ENV DEBIAN_FRONTEND=noninteractive
 #     dpkg -i ../git_*ubuntu*.deb
 
 COPY ./.cnab/app/porter.yaml ${BUNDLE_DIR}/porter.yaml
-COPY ./docker-compose-porter.yml ${BUNDLE_DIR}
-COPY ./.env ${BUNDLE_DIR}
+COPY ./docker-compose-porter.yml ${BUNDLE_DIR}/docker-compose-porter.yml
+COPY ./.env ${BUNDLE_DIR}/.env

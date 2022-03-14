@@ -13,10 +13,8 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
       
-    - run: 'echo "VSAC_API_KEY=$VSAC_API_KEY" > .env; echo "COMPOSE_PROJECT_NAME=rems_porter" >> .env'
+    - run: 'echo "COMPOSE_PROJECT_NAME=rems_porter" >> .env; echo "PORTER_ALLOW_DOCKER_HOST_ACCESS=true" >> .env'
       shell: bash
-      env:
-        VSAC_API_KEY: ${{secrets.VSAC_API_KEY}}
 
     - name: Install Porter
       run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
@@ -37,4 +35,4 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
         
     - name: Publish Invocation Image
-      run: porter publish --tag REMSvlatest
+      run: porter publish --tag REMSvCurrent
