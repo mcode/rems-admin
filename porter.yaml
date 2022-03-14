@@ -12,6 +12,11 @@ mixins:
   - docker
   - docker-compose
 
+parameters:
+- name: vsac_api_key
+  type: string
+
+
 # credentials:
 #   - name: DOCKER_USERNAME
 #     env: DOCKER_USERNAME
