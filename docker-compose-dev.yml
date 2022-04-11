@@ -112,6 +112,7 @@ services:
     environment:
       - PORT=3010
       - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
+      - CRD_BASE_URL=http://crd:8090/
     ports: # Port binding to host from docker container
       - "4200:4200" 
       - "3010:3010"
