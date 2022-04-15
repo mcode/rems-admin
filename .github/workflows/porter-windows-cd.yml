@@ -1,4 +1,4 @@
-name: Porter Invocation Docker Image CD
+name: Porter Windows Docker Image CD
 
 on:
   push:
@@ -22,6 +22,6 @@ jobs:
     - name: Build and push Server Docker image
       uses: docker/build-push-action@v2
       with:
-        context: ./Dockerfile.porter-windows
+        context: Dockerfile.porter-windows
         push: true
         tags: codexrems/fullstack_rems-windows:REMSvCurrent
