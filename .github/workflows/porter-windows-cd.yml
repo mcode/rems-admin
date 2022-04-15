@@ -1,0 +1,27 @@
+name: Porter Invocation Docker Image CD
+
+on:
+  push:
+    branches: [ master, windows-porter-install-fix ]
+  workflow_dispatch:
+
+jobs:
+  docker-cd: 
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+      
+    - name: Build and push Server Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./Dockerfile.porter-windows
+        push: true
+        tags: codexrems/fullstack_rems-windows:REMSvCurrent
