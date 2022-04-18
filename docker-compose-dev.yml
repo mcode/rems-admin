@@ -33,6 +33,8 @@ services:
       - rems_dev_test-ehr-build:/test-ehr/build
       - rems_dev_test-ehr-target:/test-ehr/target
       - rems_dev_test-ehr-logs:/test-ehr/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
   # Create crd container

@@ -21,6 +21,8 @@ services:
     image: codexrems/test-ehr:REMSvCurrent
     environment:
       - DOCKER_PROFILE=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
   # Create crd container
