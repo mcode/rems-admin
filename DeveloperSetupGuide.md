@@ -2,7 +2,7 @@
 
 ## Purpose of this guide
 
-This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Local Development. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**. 
+This document details the installation process for the dockerized version of the **Documentation Requirements Lookup Service (DRLS) REMS Workflow** system for Local Development. Be aware that each component of DRLS has its own README where you will find more detailed documentation. This document **is not designed to replace those individual READMEs**.
 
 
 This document **is designed to take you through the entire set up process for DRLS using docker containers**. It is a standalone guide that does not depend on any supplementary DRLS documentation.
@@ -15,7 +15,7 @@ This guide will take you through the development environment setup for each of t
 5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
 6. [REMS](https://github.com/mcode/REMS.git)
 7. [Pharmacy Information System](https://github.com/mcode/pharmacy-information-system)
-8. Keycloak
+8. [Keycloak](https://www.keycloak.org/)
 
 ### Expected Functionality 		
 1. File Synchronization between local host system and docker container		
@@ -56,14 +56,21 @@ This guide will take you through the development environment setup for each of t
 
 Your computer must have these minimum requirements:
 - x86_64 (64-bit) or equivalent processor
-    * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
-- At least 8 GB of RAM
+    * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/
+- At least 16 GB of RAM (12 GB recommended minimum for Docker Desktop)
 - At least 256 GB of storage
 - Internet access
 - [Chrome browser](https://www.google.com/chrome/)
 - [Git installed](https://www.atlassian.com/git/tutorials/install-git)
 
-Additionally, you must have credentials (api key) access for the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
+Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
+  1. [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
+  2. Click 'request a license' under 'Get Started'
+  3. If you already have a key you can click 'Visit Your Profile' in the right hand side-bar. The API key will be listed under your username.
+  4. If you do not have a key, click 'Generate an API Key'
+  5. Sign in using one of the providers (Login.gov recommended)
+  6. Generating the key is an automated process, you should be approved via e-mail fairly quickly. If not, use the contact information in the first link to reach out to the office (this is not managed by our team / system).
+  7. Once approved, loop back to step 2
 
 ### Setting Environment Variables and System Path
 
@@ -77,23 +84,23 @@ How you set environment and path variables may vary depending on your operating 
 
 ## Install core tools
 
-### Installing core tools on MacOS
+### Installing core tools
 
-#### Install Docker Desktop for Mac
+#### Install Docker Desktop
 
-1. Download the **stable** version of **[Docker for Mac](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer.
-2. Once the installation is complete, you should see a Docker icon on your Mac's menu bar (top of the screen). Click the icon and verify that **Docker Desktop is running.**
-3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources. 
+1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer.
+2. Once the installation is complete, verify that **Docker Desktop is running.**
+3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources.
 
-    **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 7 CPU Processors on MITRE issued Mac Devices.**
+    **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 6 CPU Processors on MITRE issued Mac Devices.**
 
 #### Install Visual Studio Code and Extensions		
 The recommended IDE for this set up is Visual Studio Code		
 1. Install Visual Studio Code - https://code.visualstudio.com		
 2. Install Extensions - The workspace should automatically recommend extensions to install when opening the workspace
 
-#### Install Ruby 
-Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv. 
+#### Install Ruby
+Note: The default ruby that comes with Mac may not install the right package version for docker-sync, it is reccomended to install ruby with a package manager, this guide uses rbenv.
 
 Reference: https://github.com/rbenv/rbenv
 
@@ -107,47 +114,47 @@ Reference: https://github.com/rbenv/rbenv
         rbenv init
    ```
 3. Close Terminal so changes take affect
-4. Test rbenv is installed correctly 
+4. Test rbenv is installed correctly
   ```bash
         curl -fsSL https://github.com/rbenv/rbenv-installer/raw/main/bin/rbenv-doctor | bash    
   ```
-5. Install Ruby 
+5. Install Ruby
   ```bash
-        rbenv install 2.7.2 
+        rbenv install 2.7.2
    ```
-6. Verify that the system is using the correct ruby versions 
+6. Verify that the system is using the correct ruby versions
   ```bash
         which ruby   
         /Users/$USER/.rbenv/shims/ruby # Correct
 
         ....
 
-        which ruby 
+        which ruby
         /usr/bin/ruby # Incorrect, using system default ruby. Path not set correctly, reference step 2
    ```
 
-#### Install Docker-sync 
+#### Install Docker-sync
 
 1. Download and Install docker-sync using the following command:
     ```bash
         gem install docker-sync -v 0.7.0
     ```
-2. Test that the right version is installed 
+2. Test that the right version is installed
     ```bash
         docker-sync -v
-        0.7.0  # Correct 
+        0.7.0  # Correct
 
         ...
 
         docker-sync -v
-        0.1.1  # Incorrect, make sure you have ruby installed and are not using the default system ruby 
+        0.1.1  # Incorrect, make sure you have ruby installed and are not using the default system ruby
     ```
 
     Note: The versioning is important, system default ruby sometimes installs version 0.1.1 if -v tag is not set. The 0.1.1 release will not work for the rest of this guide.
 
 ## Clone DRLS REMS
 
-1. Create a root directory for the DRLS development work (we will call this `<drlsroot>` for the remainder of this setup guide). While this step is not required, having a common root for the DRLS components will make things a lot easier down the line. 
+1. Create a root directory for the DRLS development work (we will call this `<drlsroot>` for the remainder of this setup guide). While this step is not required, having a common root for the DRLS components will make things a lot easier down the line.
     ```bash
     mkdir <drlsroot>
     ```
@@ -170,42 +177,17 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
-# Open DRLS REMS as VsCode workspace 		
-The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a separate root for an easier development experience.	
+# Open DRLS REMS as VsCode workspace
 
-The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. Simply start one of the debuggers and set a breakpoint anywhere in the code base. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging 
+The REMS repository contains the **REMS.code-workspace** file, which can be used to open the above project structure as a multi-root VS Code workspace. To open this workspace, select *File* > *Open Workspace from File...* and navigate to <drls-root>/REMS/REMS.code-workspace. In this workspace configuration, the CDS-Library embedded within CRD is opened as a separate root for an easier development experience.
 
-The Source Control Tab can be used to easily track changes during the development process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol	
+The Debugger Tab has various debugging configurations and can be used to easily debug any errors that come up during development. Simply start one of the debuggers and set a breakpoint anywhere in the code base. For more information on VsCode debugging see: https://code.visualstudio.com/docs/editor/debugging
+
+The Source Control Tab can be used to easily track changes during the development process and perform git actions, with each root of the workspace having its own source control header. Sor more information source control see: https://code.visualstudio.com/docs/editor/versioncontrol
 
 The Docker Extension for VsCode has useful functionality to aid in the development process using this set up guide. This extension lets you easily visualize the containers, images, networks, and volumes created by this set up. Clicking on a running container will open up the file structure of the container. Right clicking on a running container will give the option to view container logs (useful to see output from select services), attach a shell instance within the container, and attach a Visual Studio Code IDE to the container using remote-containers. For more information on the docker debugger see: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
-The MongoDB Extension allows for connecting to the pharmacy information system's backend database by inputting the following connection string: `mongodb://pharmacy-information-root:pharmacy-information-password@localhost:27017/?retryWrites=true&w=majority`. For more information on this extension see: https://marketplace.visualstudio.com/items?itemName=mongodb.mongodb-vscode 
-
-## Configure DRLS REMS
-
-### CRD configs
-
-***None***
-
-### test-ehr configs
-
-***None***
-
-### crd-request-generator configs
-
-***None***
-
-### dtr configs
-
-***None***
-
-### REMS configs
-
-***None***
-
-### pharmacy-information-system configs
-
-***None***
+The MongoDB Extension allows for connecting to the pharmacy information system's backend database by inputting the following connection string: `mongodb://pharmacy-information-root:pharmacy-information-password@localhost:27017/?retryWrites=true&w=majority`. For more information on this extension see: https://marketplace.visualstudio.com/items?itemName=mongodb.mongodb-vscode
 
 
 ### Add VSAC credentials to your development environment
@@ -213,19 +195,19 @@ The MongoDB Extension allows for connecting to the pharmacy information system's
 > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
 > To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. Please reach out to Sahil Malhotra at smalhotra@mitre.org in order to request access to the CMS-DRLS author group. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
 
-> While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
+> While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC.
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Set "VSAC_API_KEY" in the .env file in the REMS Repository 
+1. Set "VSAC_API_KEY" in the .env file in the REMS Repository
 
-    or 
+    or
 
 1. `cd ~/`
 2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
     export VSAC_API_KEY=vsac_api_key
     ```
-3. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`:
     ```bash
     source .bash_profile
     ```
@@ -235,19 +217,19 @@ You can see a list of your pre-existing environment variables on your Mac by run
 Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 
 
-### Add Compose Project Name 
+### Add Compose Project Name
 
 You can see a list of your pre-existing environment variables on your Mac by running `env` in your Terminal. To add to `env`:
-1. Set "COMPOSE_PROJECT_NAME" as "rems_dev" in the .env file in the REMS Repository 
+1. Set "COMPOSE_PROJECT_NAME" as "rems_dev" in the .env file in the REMS Repository
 
-    or 
-        
+    or
+
 1. `cd ~/`
 2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
     export COMPOSE_PROJECT_NAME=rems_dev
     ```
-3. Save `.bash_profile` and complete the update to `env`: 
+3. Save `.bash_profile` and complete the update to `env`:
     ```bash
     source .bash_profile
     ```
@@ -257,8 +239,8 @@ Note: How you set environment and path variables may vary depending on your oper
 
 ## Run DRLS
 
-### Start docker-sync application 
-Note: Initial set up will take several minutes and spin up fans with high resource use, be patient, future boots will be much quicker, quieter, and less resource intensive 
+### Start docker-sync application
+Note: Initial set up will take several minutes and spin up fans with high resource use, be patient, future boots will be much quicker, quieter, and less resource intensive
 
 ```bash
     docker-sync-stack start # This is the equivalent of running docker-sync start followed by docker-compose up
@@ -268,7 +250,7 @@ Note: Initial set up will take several minutes and spin up fans with high resour
 1. Select the Debugger Tab on the left side panel of VsCode
 2. From the drop down menu next to Run and Debug select **Debug All REMS Applications (Docker) (workspace)**. This is a compound debugger that combines all the other docker debuggers for all servers and applications in this workspace.
 3. When finished debugging, simply hit the disconnect button to close out all debug sessions
-4. **Important**: Make sure to close out the **Launch Chrome in Debug Mode** task that gets open in the VsCode terminal space. This task launches chrome in debug mode in order to debug frontend applications in this workspace. This needs to be closed in order to run the debugger again next time, leaving it open will not properly start the frontend debuggers. 
+4. **Important**: Make sure to close out the **Launch Chrome in Debug Mode** task that gets open in the VsCode terminal space. This task launches chrome in debug mode in order to debug frontend applications in this workspace. This needs to be closed in order to run the debugger again next time, leaving it open will not properly start the frontend debuggers.
 
 ![Closing Launch Chrome Task](./setup-images/ClosingLaunchChromeTask.png)
 
@@ -307,17 +289,6 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 
 ## Verify DRLS is working
 
-<!-- Commenting out below section as these steps have been automated as part of set up, however keeping in as a reference for how to add additional clients to dtr -->
-
-<!-- ### Register the test-ehr
-
-1. Go to http://localhost:3005/register.
-    - Client Id: **app-login**
-    - Fhir Server (iss): **http://localhost:8080/test-ehr/r4**
-2. Click **Submit**
-
-Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/r4: app-login** as this will undo the registration steps mentioned above. -->
-
 ### The fun part: Generate a test request
 
 1. Go to http://localhost:3000/ehr-server/reqgen.
@@ -334,16 +305,12 @@ Note: Do not click the X that shows up next to **http://localhost:8080/test-ehr/
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 11. Fill out questionnaire and hit **Proceed to Prior Auth**.
 12. Click **submit** to send prescription request to pharmacist (note: this is a stand in ui and there is no visual that anything happens after hitting the submit button).
-
 13. Go to http://localhost:4200 and play the role of a pharmacist.
 14. Click on **Log in as Admin** in the top right of the page
 15. If you've already created login credentials, then sign in with those credentials and skip to step 17. If not, proceed to step 16.
-16. Click **Sign Up** at the bottom of the screen and create some credentials for yourself. Select pharmacist as your role and fill in some example data for the rest of the fields. Click **submit** to create your account, there is no visual that anything happens after hitting submit. Finally, click on **Login** at the bottom of the screen and go back to step 15. 
-17. Click **Doctor Orders** in the left hand navigation menu on the screen 
+16. Click **Sign Up** at the bottom of the screen and create some credentials for yourself. Select pharmacist as your role and fill in some example data for the rest of the fields. Click **submit** to create your account, there is no visual that anything happens after hitting submit. Finally, click on **Login** at the bottom of the screen and go back to step 15.
+17. Click **Doctor Orders** in the left hand navigation menu on the screen
 18. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
-
-<!-- 14. Submit PAS request to https://davinci-prior-auth.logicahealth.org/fhir with **OAuth** enabled -->
-<!-- 15. Subscribe to updates using **WebSockets** or another option -->
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
