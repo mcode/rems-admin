@@ -4,9 +4,9 @@
 - [Purpose](#purpose-of-this-guide)
 - [Components](#components)
 - [Quick Setup](#quick-setup)
-- [Cleanup and Useful Options](#cleanup-and-useful-commands)
+- [Cleanup and Useful Options](#cleanup-and-useful-options)
   * [Setting Environment Variables](#setting-environment-variables)
-  * [Configurable install](docker-compose-without-porter)
+  * [Configurable install](#docker-compose-without-porter)
 
 ## Purpose of this guide
 
@@ -14,7 +14,7 @@ This document details instructions on how to quickly get up and running with a l
 
 *Note:* If you are looking to contribute or make code changes, please see the full [Developer Environment Setup](DeveloperSetupGuide.md).
 
-*Note:* If you are looking to just have more control or configuration options with Docker in your local environment, see [the configurable install](docker-compose-without-porter).
+*Note:* If you are looking to just have more control or configuration options with Docker in your local environment, see [the configurable install](#docker-compose-without-porter).
 
 ## Components
 
