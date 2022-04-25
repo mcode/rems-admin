@@ -1,14 +1,14 @@
 # REMS
 
-## Running fullstack DRLS REMS Dockerized set up
+## Running the full prototype environment
 
-You can find complete end-to-end fullstack set up guides for DRLS REMS at the following links:
+You can find complete end-to-end full-stack set up guides for DRLS REMS at the following links:
 
-[Developer Environment Set Up](DockerDevSetupGuideForMacOS.md) - Follow this guide if you are a developer and intend on making code changes to the DRLS REMS project. This guide follows a much more technical set up process.
-    
-[Production Environment Set Up](DockerProdSetupGuideForMacOS.md) - Follow this guide if you are not a developer and do not intend on making code changes to the DRLS REMS project. This guide covers two options for running DRLS REMS, both of which are less technical than the developer set up.  
+[Simple Set Up](SimpleSetupGuide.md) - This guide will get you up and running quickly with a demo environment for using the prototype locally. If you want to make changes or contribute to the codebase, see the detailed developer guide below.
 
-## Running REMS server locally
+[Developer Environment Set Up](DeveloperSetupGuide.md) - Follow this guide if you are a developer and intend on making code changes to the DRLS REMS project. This guide follows a much more technical set up process and is fully featured.
+
+## Running only the REMS server project locally
 1.  Clone the REMS repositories from Github:
     ```bash
     git clone https://github.com/mcode/REMS.git REMS  
