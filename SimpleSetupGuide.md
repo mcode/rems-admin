@@ -2,18 +2,32 @@
 
 ## Guide Contents
 - [Purpose](#purpose-of-this-guide)
-- [Quick Setup](#quick-setup)
 - [Components](#components)
+- [Quick Setup](#quick-setup)
 - [Cleanup and Useful Options](#cleanup-and-useful-commands)
   * [Setting Environment Variables](#setting-environment-variables)
   * [Configurable install](docker-compose-without-porter)
-- [FAQ and Troubleshooting](#faq)
 
 ## Purpose of this guide
 
 This document details instructions on how to quickly get up and running with a local demo deployment of the full-stack Documentation Requirements Lookup Service (DRLS) REMS prototype environment. This is primarily meant for non-technical users interested in exploring the prototype on their own machine.
 
-*Note:* If you are looking to contribute or make code changes, please see the full [Developer Environment Setup](DeveloperSetupGuide.md). If you are looking to just have more control or configuration options with Docker, see [the configurable install](docker-compose-without-porter).
+*Note:* If you are looking to contribute or make code changes, please see the full [Developer Environment Setup](DeveloperSetupGuide.md).
+
+*Note:* If you are looking to just have more control or configuration options with Docker in your local environment, see [the configurable install](docker-compose-without-porter).
+
+## Components
+
+The following DRLS components will be deployed in Docker locally:
+
+1. [Coverage Requirements Discovery (CRD)](https://github.com/mcode/CRD)
+2. [(Test) EHR FHIR Service](https://github.com/HL7-DaVinci/test-ehr)
+3. [Documents, Templates, and Rules (DTR) SMART on FHIR app](https://github.com/mcode/dtr)
+4. [Clinical Decision Support (CDS) Library](https://github.com/mcode/CDS-Library)
+5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
+6. [REMS](https://github.com/mcode/REMS)
+7. [Pharmacy Information System](https://github.com/mcode/pharmacy-information-system)
+8. [Keycloak](https://www.keycloak.org/)
 
 ## Quick Setup
 
@@ -28,16 +42,20 @@ Your computer must have these minimum requirements:
 - [Chrome browser](https://www.google.com/chrome/) installed
 - **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs.
 - [Porter Install](https://porter.sh/install/) - *Note:* read the output from the installation as once it is finished, depending on Operating System, it may tell you to run additional commands to finish the setup.
-- [Porter Mixins](https://porter.sh/mixins/) - Install `docker` and `docker-compose` mixins for porter
+- [Porter Mixins](https://porter.sh/mixins/) - Install `docker` and `docker-compose` mixins for porter. To install from terminal:
+```bash
+    porter mixins install docker
+    porter mixins install docker-compose
+```
 
 ### 2. Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
-  - [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
-  - Click 'request a license' under 'Get Started'
-  - If you already have a key you can click 'Visit Your Profile' in the right hand side-bar. The API key will be listed under your username.
-  - If you do not have a key, click 'Generate an API Key'
-  - Sign in using one of the providers (Login.gov recommended)
-  - Generating the key is an automated process, you should be approved via e-mail fairly quickly. If not, use the contact information in the first link to reach out to the office (this is not managed by our team / system).
-  - Once approved, loop back to step 2
+  1. [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
+  2. Click 'request a license' under 'Get Started'
+  3. If you already have a key you can click 'Visit Your Profile' in the right hand side-bar. The API key will be listed under your username.
+  4. If you do not have a key, click 'Generate an API Key'
+  5. Sign in using one of the providers (Login.gov recommended)
+  6. Generating the key is an automated process, you should be approved via e-mail fairly quickly. If not, use the contact information in the first link to reach out to the office (this is not managed by our team / system).
+  7. Once approved, loop back to step 2
 
 ### 3. Run
 
@@ -77,24 +95,12 @@ Your computer must have these minimum requirements:
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
-## Components
-
-The following DRLS components will be deployed in Docker locally:
-
-1. [Coverage Requirements Discovery (CRD)](https://github.com/mcode/CRD)
-2. [(Test) EHR FHIR Service](https://github.com/HL7-DaVinci/test-ehr)
-3. [Documents, Templates, and Rules (DTR) SMART on FHIR app](https://github.com/mcode/dtr)
-4. [Clinical Decision Support (CDS) Library](https://github.com/mcode/CDS-Library)
-5. [CRD Request Generator](https://github.com/mcode/crd-request-generator)
-6. [REMS](https://github.com/mcode/REMS)
-7. [Pharmacy Information System](https://github.com/mcode/pharmacy-information-system)
-8. [Keycloak](https://www.keycloak.org/)
 
 ## Cleanup and Useful Options
 
 ### Stop Server
 
-Stop Running Porter application, `ctrl+c` in the terminal running the server, OR:
+Stop Running Porter application by running:
 
 ```bash
     porter invoke fullstack_rems --action stop --param vsac_api_key=${vsac_api_key} --allow-docker-host-access
@@ -160,7 +166,9 @@ How you set environment and path variables may vary depending on your operating 
 
     > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC.
 
-Set `VSAC_API_KEY` in your terminal environment to the API key obtained from your [UMLS profile page](https://uts.nlm.nih.gov/uts/edit-profile) - for more info see [step 2 of quick setup section](#quick-setup). Bash example:
+Set `VSAC_API_KEY` in your terminal environment to the API key obtained from your [UMLS profile page](https://uts.nlm.nih.gov/uts/edit-profile) - for more info on getting your VSAC key see [step 2 of quick setup section](#quick-setup). For setting up your environment, see the [Setting Environment Variables](#setting-environment-variables) section.
+
+Bash example:
     ```bash
     export VSAC_API_KEY=vsac_api_key
     ````
@@ -215,5 +223,3 @@ To remove all images, volumes, and artifacts set up during the install, run the 
     #   --no-cache                              Do not use cache when building the image.
     #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services
 ```
-
-## FAQ
