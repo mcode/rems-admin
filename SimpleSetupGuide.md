@@ -42,7 +42,10 @@ Your computer must have these minimum requirements:
 - [Chrome browser](https://www.google.com/chrome/) installed
 - **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs.
 - [Porter Install](https://porter.sh/install/) - *Note:* read the output from the installation as once it is finished, depending on Operating System, it may tell you to run additional commands to finish the setup.
-- [Porter Mixins](https://porter.sh/mixins/) - Install `docker` and `docker-compose` mixins for porter. To install from terminal:
+- [Porter Mixins](https://porter.sh/mixins/) - Install `docker` and `docker-compose` mixins for porter. 
+
+> Note: On Windows, these mixins will need to be installed within a windows specific container running in Interactive Mode. This is highlighted in the [Run on Windows](#windows) section of this guide.
+
 ```bash
     porter mixins install docker
     porter mixins install docker-compose
@@ -58,7 +61,7 @@ Your computer must have these minimum requirements:
   7. Once approved, loop back to step 2
 
 ### 3. Run
-
+#### MacOS and Linux
 > Note: replace ${vsac_api_key} in the below commands with your own VSAC api key obtained in the previous step.
 
 ```bash
@@ -68,6 +71,35 @@ Your computer must have these minimum requirements:
     # Future runs
     porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
 ```
+
+#### Windows 
+> Note: The install on Windows requires additional steps in order to expose the WSL Docker Daemon to Porter. The way to do this is to run the porter commands inside an additional windows specific container running in interactive mode, which exposes that container's terminal instance. 
+
+> Note: replace ${vsac_api_key} in the below commands with your own VSAC api key obtained in the previous step.
+
+1. Download the Windows specific Docker Image from DockerHub
+```bash
+    docker pull codexrems/fullstack_rems-windows:REMSvCurrent
+```
+2. Run the Windows specific docker image as a container in interactive mode. Interactive Mode exposes the container's terminal instance and all future commands after this step will be run within the exposed terminal instance. 
+```bash
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -ti --name porter-windows-container codexrems/fullstack_rems-windows:REMSvCurrent
+```
+3. In the interactive docker shell created in step 2, install the porter mixins
+```bash
+    porter mixins install docker
+    porter mixins install docker-compose 
+```
+4. Install the porotoype application within the interactive docker shell created in step 2
+```bash
+    # First time run
+    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Initial Installation needs to be from remote repository
+
+    # Future runs
+    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
+```
+
+> Note: Any porter comannds below such as [stopping the server](#stop-server), [updating the porter application](#updating-porter-application), or [uninstalling the porter application](#cleanup) should be run within the windows specific docker container terminal instance started in step 2. To exit the interactive shell started in step 2, use **ctrl + d**
 
 ### 4. Verify everything is working
 
@@ -100,7 +132,7 @@ Congratulations! DRLS is fully installed and ready for you to use!
 
 ### Stop Server
 
-Stop Running Porter application by running:
+Stop Running Porter application by using **ctrl + c** to exit the running process, followed by:
 
 ```bash
     porter invoke fullstack_rems --action stop --param vsac_api_key=${vsac_api_key} --allow-docker-host-access
