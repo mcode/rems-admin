@@ -90,7 +90,7 @@ Your computer must have these minimum requirements:
     porter mixins install docker
     porter mixins install docker-compose 
 ```
-4. Install the porotoype application within the interactive docker shell created in step 2
+4. Install the prototype application within the interactive docker shell created in step 2
 ```bash
     # First time run
     porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Initial Installation needs to be from remote repository
