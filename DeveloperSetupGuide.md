@@ -69,8 +69,10 @@ Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
   3. If you already have a key you can click 'Visit Your Profile' in the right hand side-bar. The API key will be listed under your username.
   4. If you do not have a key, click 'Generate an API Key'
   5. Sign in using one of the providers (Login.gov recommended)
-  6. Generating the key is an automated process, you should be approved via e-mail fairly quickly. If not, use the contact information in the first link to reach out to the office (this is not managed by our team / system).
-  7. Once approved, loop back to step 2
+  6. Agree to terms of service
+  7. Fill out request form for VSAC API Key - you'll need to provide some basic information for the NIH to get your account approved
+  8. Generating the key is an automated process, you should be approved via e-mail fairly quickly. If not, use the contact information in the first link to reach out to the office (this is not managed by our team / system).
+  9. Once approved, loop back to step 2
 
 ### Setting Environment Variables and System Path
 
