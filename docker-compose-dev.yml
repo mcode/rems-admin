@@ -13,7 +13,7 @@ services:
     volumes:
       - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    image: hkong2/keycloak
+    image: jboss/keycloak:15.0.2
 
   # Create test ehr container
   test-ehr: # Name of our service
