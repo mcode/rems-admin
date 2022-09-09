@@ -9,11 +9,12 @@ services:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
       - DB_VENDOR=h2
-      - KEYCLOAK_IMPORT=/resources/ClientFhirServerRealm.json
     volumes:
       - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    image: jboss/keycloak:15.0.2
+    build: 
+      context: ../test-ehr
+      dockerfile: Dockerfile.keycloak 
 
   # Create test ehr container
   test-ehr: # Name of our service
