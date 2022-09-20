@@ -110,14 +110,14 @@ Your computer must have these minimum requirements:
 3. Find **Jon Snow** in the list of patients and click the dropdown menu next to his name.
 4. Select **2183126 - Turalio 200 MG Oral Capsule** in the dropdown menu.
 5. Click anywhere in the row to select Jon Snow.
-6. Click **Submit** at the bottom of the page.
-7. After several seconds you should receive a response in the form of a **CDS card**:
+6. Click **Submit to CRD** at the bottom of the page.
+7. After several seconds you should receive a response in the form of two **CDS cards**:
     - **Drug Has REMS: Documentation Required.**
-8. Select **Patient Enrollment Form** on the returned CDS card.
+8. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
 9. If you are asked for login credentials, use **alice** for username and **alice** for password.
 10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
-11. Fill out questionnaire and hit **Proceed to Prior Auth**.
-12. Click **submit** to send prescription request to pharmacist (note: this is a stand in ui and there is no visual that anything happens after hitting the submit button).
+11. Fill out questionnaire and hit **Submit REMS Bundle**.
+12. A new UI will appear with REMS Admin Status and Pharmacy Status.
 13. Go to http://localhost:4200 and play the role of a pharmacist.
 14. Click on **Log in as Admin** in the top right of the page
 15. If you've already created login credentials, then sign in with those credentials and skip to step 17. If not, proceed to step 16.
