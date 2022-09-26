@@ -56,9 +56,11 @@ services:
       - rems_dev_crd-server-gradle:/CRD/server/.gradle
       - rems_dev_crd-server-build:/CRD/server/build
       - rems_dev_crd-server-bin:/CRD/server/bin
+      - rems_dev_crd-server-db:/CRD/server/db
       - rems_dev_crd-server-ValueSetCache:/CRD/server/ValueSetCache
       - rems_dev_crd-operations-build:/CRD/operations/build
       - rems_dev_crd-resources-build:/CRD/resources/build
+      
 
 
   # Create crd request generator container
@@ -163,6 +165,7 @@ volumes:
   rems_dev_crd-server-gradle:
   rems_dev_crd-server-build:
   rems_dev_crd-server-bin:
+  rems_dev_crd-server-db:
   rems_dev_crd-server-ValueSetCache:
   rems_dev_crd-operations-build:
   rems_dev_crd-resources-build:

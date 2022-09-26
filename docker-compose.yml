@@ -23,6 +23,8 @@ services:
       - DOCKER_PROFILE=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - rems_prod_test-ehr-target:/test-ehr/target
 
 
   # Create crd container
@@ -35,6 +37,7 @@ services:
       VSAC_API_KEY: ${VSAC_API_KEY}
     volumes:
       - rems_prod_crd-server-ValueSetCache:/CRD/server/ValueSetCache
+      - rems_prod_crd-server-db:/CRD/server/db
 
 
   # Create crd request generator container
@@ -91,3 +94,5 @@ volumes:
   rems_prod_keycloak-data:
   rems_porter_pharmacy-infomation-system-database:
   rems_prod_crd-server-ValueSetCache:
+  rems_prod_crd-server-db:
+  rems_prod_test-ehr-target:
