@@ -120,10 +120,11 @@ Your computer must have these minimum requirements:
 12. A new UI will appear with REMS Admin Status and Pharmacy Status.
 13. Go to http://localhost:4200 and play the role of a pharmacist.
 14. Click on **Log in as Admin** in the top right of the page
-15. If you've already created login credentials, then sign in with those credentials and skip to step 17. If not, proceed to step 16.
-16. Click **Sign Up** at the bottom of the screen and create some credentials for yourself. Select pharmacist as your role and fill in some example data for the rest of the fields. Click **submit** to create your account, there is no visual that anything happens after hitting submit. Finally, click on **Login** at the bottom of the screen and go back to step 15.
-17. Click **Doctor Orders** in the left hand navigation menu on the screen
-18. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
+15. Sign in with the pre-configured user Suzy:
+	* Email: spharmichael@example.com
+	* Password: suzy
+16. Click **Doctor Orders** in the left hand navigation menu on the screen
+17. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
