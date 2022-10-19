@@ -18,7 +18,7 @@ jobs:
       shell: bash
 
     - name: Install Porter
-      run: curl -L https://cdn.porter.sh/latest/install-linux.sh | bash
+      run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
 
     - name: Set Porter path
       run: echo "~/.porter" >> $GITHUB_PATH
