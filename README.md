@@ -17,3 +17,28 @@ You can find complete end-to-end full-stack set up guides for DRLS REMS at the f
     ```bash
     ./dockerRunner.sh  
     ```
+
+# REMS Administrator
+NOTE: The REMS Administrator is a work in progress.
+
+## Running the REMS Adminstrator
+
+#### Setup
+```
+npm install
+```
+#### Run Tests
+```
+npm test
+```
+#### Run Application
+```
+npm start
+```
+Application will be runnin on port 8090.
+
+To reach the CDS Services discovery information:
+
+```
+http://localhost:8090/cds-services
+```
