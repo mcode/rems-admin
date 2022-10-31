@@ -91,8 +91,9 @@ How you set environment and path variables may vary depending on your operating 
 #### Install Docker Desktop
 
 1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer.
-2. Once the installation is complete, verify that **Docker Desktop is running.**
-3. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources.
+	- As an alternative to **Docker Desktop**, **[Colima](https://github.com/abiosoft/colima)** works well as a direct substitute.
+3. Once the installation is complete, verify that **Docker Desktop is running.**
+4. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources.
 
     **Note: The defaults for memory at 2GB and possibly CPU as well are too low to run the entire DRLS REMS workflow. If not enough resources are provided, you may notice containers unexpectedly crashing and stopping. Exact requirements for these resource values will depend on your machine. That said, as a baseline starting point, the system runs relatively smoothly at 15GB memory and 6 CPU Processors on MITRE issued Mac Devices.**
 
