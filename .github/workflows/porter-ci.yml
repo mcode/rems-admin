@@ -12,13 +12,13 @@ jobs:
     steps:
 
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - run: 'echo "COMPOSE_PROJECT_NAME=rems_porter" >> .env; echo "PORTER_ALLOW_DOCKER_HOST_ACCESS=true" >> .env'
       shell: bash
 
     - name: Install Porter
-      run: curl -L https://cdn.porter.sh/canary/install-linux.sh | bash
+      run: curl -L https://cdn.porter.sh/latest/install-linux.sh | bash
 
     - name: Set Porter path
       run: echo "~/.porter" >> $GITHUB_PATH
