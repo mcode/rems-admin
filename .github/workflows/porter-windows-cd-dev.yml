@@ -1,4 +1,4 @@
-name: Porter Windows Docker Image CD
+name: Porter Windows Docker Image Development CD
 
 on:
   push:
