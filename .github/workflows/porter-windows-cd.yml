@@ -2,7 +2,7 @@ name: Porter Windows Docker Image CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
