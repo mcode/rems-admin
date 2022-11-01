@@ -56,8 +56,8 @@ services:
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
   # # Create rems container
-  rems: # Name of our service
-    image: codexrems/rems:REMSvCurrent
+  rems-administrator: # Name of our service
+    image: codexrems/rems-administrator:REMSvCurrent
     container_name: rems_prod_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container

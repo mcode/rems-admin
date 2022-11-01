@@ -97,7 +97,7 @@ services:
 
 
   # Create rems container
-  rems: # Name of our service
+  rems-administrator: # Name of our service
     build: 
       context: '.'
       dockerfile: Dockerfile.dev     
