@@ -1,8 +1,8 @@
-name: Porter Invocation Docker Image CD
+name: Porter Invocation Docker Image Development CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   workflow_dispatch:
 
 jobs:
@@ -35,4 +35,4 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
         
     - name: Publish Invocation Image
-      run: porter publish --force --tag REMSvCurrent
+      run: porter publish --force --tag REMSvDevelopment

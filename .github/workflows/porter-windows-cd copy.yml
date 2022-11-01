@@ -2,7 +2,7 @@ name: Porter Windows Docker Image CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   workflow_dispatch:
 
 jobs:
@@ -25,4 +25,4 @@ jobs:
         context: .
         file: Dockerfile.porter-windows
         push: true
-        tags: codexrems/fullstack_rems-windows:REMSvCurrent
+        tags: codexrems/fullstack_rems-windows:REMSvDevelopment
