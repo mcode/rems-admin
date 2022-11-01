@@ -1,0 +1,58 @@
+{
+  "name": "REMS Administrator",
+  "version": "1.0.0",
+  "description": "A starter project emphasizing best practices for creating CDS Services",
+  "main": "main.js",
+  "author": "MITRE Corporation",
+  "private": true,
+  "contributors": [
+    "Patrick LaRocque <plarocque@mitre.org>"
+  ],
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "develop": "node src/scripts/nodemon.js",
+    "start": "node src/scripts/serve.js",
+    "test": "jest",
+    "prettier": "prettier \"src/**/*.js\" --write",
+    "changelog": "conventional-changelog -p angular -s -i CHANGELOG.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/asymmetrik/carejourney-cds.git"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/config/env/test.js"
+    ],
+    "verbose": true,
+    "collectCoverage": true,
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/src/profiles"
+    ]
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "conventional-changelog-cli": "^2.0.34",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "lodash": "^4.17.19",
+    "moment": "^2.24.0",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.4",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.0.0",
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5"
+  }
+}
