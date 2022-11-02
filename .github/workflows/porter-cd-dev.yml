@@ -1,4 +1,4 @@
-name: Porter Invocation Docker Image Development CD
+name: Porter Invocation Docker Development Image CD
 
 on:
   push:
