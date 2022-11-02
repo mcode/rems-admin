@@ -8,7 +8,7 @@ Please include the Jira Ticket Number and Link for this issue/task.
 
 ## Checklist before requesting a review
 - [ ] I have performed a self-review of my code
-- [ ] Ensure the target / base branch for any feature PR is set to `dev` not master (the only exception to this is releases from `dev` and hotfix branches)
+- [ ] Ensure the target / base branch for any feature PR is set to `dev` not main (the only exception to this is releases from `dev` and hotfix branches)
 
 ## Workflow 
 
