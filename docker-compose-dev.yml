@@ -126,6 +126,18 @@ services:
       - rems_dev_pharmacy-information-system-backend-nodeModules:/home/node/app/pharmacy-information-system/backend/node_modules
       - rems_dev_pharmacy-information-system-logs:/home/node/app/pharmacy-information-system/logs
 
+  ###
+  # 11/02/2022 - Pharmacy-information-system as it stands (defined above) will be phased out and replaced with 'pims'.
+  # The new UI for pims is name pims-ui and is defined directly below. The backend will come a bit later.
+  ###
+  pims-ui:
+    build:
+      context: ../pims
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_pims_ui
+    ports:
+      - "3009:3009"
+
   pharmacy-information-system-database: # Name of our service
     image: mongo
     container_name: rems_dev_pharmacy-information-system-database
