@@ -24,4 +24,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: codexrems/rems-administrator:REMSvDevelopment
+        tags: codexrems/rems-administrator:REMSvExperimental

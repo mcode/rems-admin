@@ -25,4 +25,4 @@ jobs:
         context: .
         file: Dockerfile.porter-windows
         push: true
-        tags: codexrems/fullstack_rems-windows:REMSvDevelopment
+        tags: codexrems/fullstack_rems-windows:REMSvExperimental
