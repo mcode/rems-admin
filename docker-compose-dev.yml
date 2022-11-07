@@ -107,49 +107,50 @@ services:
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
 
-  pharmacy-information-system: # Name of our service
-    build: 
-      context: ../pharmacy-information-system
-      dockerfile: Dockerfile.dev     
-    container_name: rems_dev_pharmacy-information-system
-    environment:
-      - PORT=3010
-      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
-      - CRD_BASE_URL=http://crd:8090/
-    ports: # Port binding to host from docker container
-      - "4200:4200" 
-      - "3010:3010"
-      - "3011:3011"
-    volumes:
-      - rems_dev_pharmacy-information-system-sync:/home/node/app/pharmacy-information-system:nocopy #  nocopy is important
-      - rems_dev_pharmacy-information-system-nodeModules:/home/node/app/pharmacy-information-system/node_modules
-      - rems_dev_pharmacy-information-system-backend-nodeModules:/home/node/app/pharmacy-information-system/backend/node_modules
-      - rems_dev_pharmacy-information-system-logs:/home/node/app/pharmacy-information-system/logs
+  # pharmacy-information-system: # Name of our service
+  #   build: 
+  #     context: ../pharmacy-information-system
+  #     dockerfile: Dockerfile.dev     
+  #   container_name: rems_dev_pharmacy-information-system
+  #   environment:
+  #     - PORT=3010
+  #     - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
+  #     - CRD_BASE_URL=http://crd:8090/
+  #   ports: # Port binding to host from docker container
+  #     - "4200:4200" 
+  #     - "3010:3010"
+  #     - "3011:3011"
+  #   volumes:
+  #     - rems_dev_pharmacy-information-system-sync:/home/node/app/pharmacy-information-system:nocopy #  nocopy is important
+  #     - rems_dev_pharmacy-information-system-nodeModules:/home/node/app/pharmacy-information-system/node_modules
+  #     - rems_dev_pharmacy-information-system-backend-nodeModules:/home/node/app/pharmacy-information-system/backend/node_modules
+  #     - rems_dev_pharmacy-information-system-logs:/home/node/app/pharmacy-information-system/logs
 
-  ###
-  # 11/02/2022 - Pharmacy-information-system as it stands (defined above) will be phased out and replaced with 'pims'.
-  # The new UI for pims is name pims-ui and is defined directly below. The backend will come a bit later.
-  ###
-  pims-ui:
+  pims:
     build:
       context: ../pims
       dockerfile: Dockerfile.dev
-    container_name: rems_dev_pims_ui
+    container_name: rems_dev_pims
     ports:
       - "3009:3009"
-
-  pharmacy-information-system-database: # Name of our service
-    image: mongo
-    container_name: rems_dev_pharmacy-information-system-database
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
-    expose:
-      - "27017"
-    ports: # Port binding to host from docker container
-      - "27017:27017" 
     volumes:
-      - rems_dev_pharmacy-infomation-system-database:/data/db
+      - rems_dev_pims-sync:/home/node/app/pims:nocopy
+      - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
+      # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
+      - rems_dev_pims-logs:/home/node/app/pims/logs
+
+  # pharmacy-information-system-database: # Name of our service
+  #   image: mongo
+  #   container_name: rems_dev_pharmacy-information-system-database
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+  #     MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+  #   expose:
+  #     - "27017"
+  #   ports: # Port binding to host from docker container
+  #     - "27017:27017" 
+  #   volumes:
+  #     - rems_dev_pharmacy-infomation-system-database:/data/db
 
 volumes:
   rems_dev_test-ehr-sync:
@@ -162,8 +163,9 @@ volumes:
     external: true
   rems_dev_rems-sync:
     external: true
-  rems_dev_pharmacy-information-system-sync:
+  rems_dev_pims-sync:
     external: true
+  
   rems_dev_keycloak-data:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
@@ -185,7 +187,7 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pharmacy-information-system-nodeModules:
-  rems_dev_pharmacy-information-system-backend-nodeModules:
-  rems_dev_pharmacy-information-system-logs:
-  rems_dev_pharmacy-infomation-system-database:
+  rems_dev_pims-nodeModules:
+  # rems_dev_pims-backend-nodeModules:
+  rems_dev_pims-logs:
+  # rems_dev_pims-database:
