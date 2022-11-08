@@ -12,21 +12,23 @@ services:
     volumes:
       - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    build: 
+    build:
       context: ../test-ehr
-      dockerfile: Dockerfile.keycloak 
+      dockerfile: Dockerfile.keycloak
 
   # Create test ehr container
-  test-ehr: # Name of our service
+  test-ehr:
+    # Name of our service
     container_name: rems_dev_test-ehr
-    ports: # Port binding to host from docker container
+    ports:
+      # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
       - "8081:8081"
     environment:
       - DOCKER_PROFILE=true
-    build: 
+    build:
       context: ../test-ehr
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     volumes:
       - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - rems_dev_test-ehr-gradle:/test-ehr/.gradle
@@ -37,14 +39,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
   # Create crd container
-  crd: # Name of our service
-    build: 
+  crd:
+    # Name of our service
+    build:
       context: ../CRD
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_crd
-    ports: # Port binding to host from docker container
+    ports:
+      # Port binding to host from docker container
       - "8090:8090" # Bind port 3000 of host to 3000 of container
       - "8091:8091"
     environment:
@@ -60,16 +63,17 @@ services:
       - rems_dev_crd-operations-build:/CRD/operations/build
       - rems_dev_crd-resources-build:/CRD/resources/build
 
-
   # Create crd request generator container
-  crd-request-generator: # Name of our service
-    build: 
+  crd-request-generator:
+    # Name of our service
+    build:
       context: ../crd-request-generator
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
-    ports: # Port binding to host from docker container
+    ports:
+      # Port binding to host from docker container
       - "3000:3000" # Bind port 3000 of host to 3000 of container
       - "3001:3001"
     volumes:
@@ -79,14 +83,15 @@ services:
       - rems_dev_crd-request-generator-build:/home/node/app/crd-request-generator/build
       - rems_dev_crd-request-generator-logs:/home/node/app/crd-request-generator/logs
 
-
   # Create dtr container
-  dtr: # Name of our service
-    build: 
+  dtr:
+    # Name of our service
+    build:
       context: ../dtr
-      dockerfile: Dockerfile.dev     
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_dtr
-    ports: # Port binding to host from docker container
+    ports:
+      # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
       - "3006:3006"
     volumes:
@@ -95,14 +100,15 @@ services:
       - rems_dev_dtr-databaseData:/home/node/app/dtr/databaseData
       - rems_dev_dtr-logs:/home/node/app/dtr/logs
 
-
   # Create rems container
-  rems-administrator: # Name of our service
-    build: 
+  rems-administrator:
+    # Name of our service
+    build:
       context: '.'
-      dockerfile: Dockerfile.dev     
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_rems
-    ports: # Port binding to host from docker container
+    ports:
+      # Port binding to host from docker container
       - "9020:9020" # Bind port 3000 of host to 3000 of container
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
@@ -132,13 +138,12 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_pims
     ports:
-      - "3009:3009"
+      - "4200:3000" #4200 was the frontend port for the old pims
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
       # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
-
   # pharmacy-information-system-database: # Name of our service
   #   image: mongo
   #   container_name: rems_dev_pharmacy-information-system-database
@@ -165,7 +170,7 @@ volumes:
     external: true
   rems_dev_pims-sync:
     external: true
-  
+
   rems_dev_keycloak-data:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
@@ -187,7 +192,6 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pims-nodeModules:
-  # rems_dev_pims-backend-nodeModules:
-  rems_dev_pims-logs:
-  # rems_dev_pims-database:
+  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
+
+  rems_dev_pims-logs: # rems_dev_pims-database:
