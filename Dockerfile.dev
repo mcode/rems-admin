@@ -1,4 +1,5 @@
-FROM ubuntu:latest
+FROM node:14-alpine 
 WORKDIR /REMS
 COPY . .
-CMD ./dockerRunner.sh
+RUN npm install
+CMD ./dockerRunnerDev.sh
