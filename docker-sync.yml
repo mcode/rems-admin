@@ -24,3 +24,7 @@ syncs:
   rems_dev_pharmacy-information-system-sync:  
     src: '../pharmacy-information-system'
     sync_excludes: ['node_modules', 'backend/node_modules', 'logs']
+
+  rems_dev_pims-sync:  
+    src: '../pims'
+    sync_excludes: ['node_modules', 'backend/node_modules', 'logs']
