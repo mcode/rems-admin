@@ -1,5 +1,4 @@
 import { Bundle } from "fhir/r4";
-import { Resource } from "fhir/r4";
 import { Url } from "url";
 import OrderSignRequestPrefetch from "./Prefetch/OrderSignRequestPrefetch";
 // https://cds-hooks.hl7.org/1.0/#fhir-resource-access
