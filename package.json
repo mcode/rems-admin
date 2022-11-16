@@ -1,5 +1,5 @@
 {
-  "name": "REMS Administrator",
+  "name": "rems-administrator",
   "version": "1.0.0",
   "description": "A starter project emphasizing best practices for creating CDS Services",
   "main": "main.js",
