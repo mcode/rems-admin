@@ -5,3 +5,4 @@ package-lock.json
 COVERAGE/
 logs/
 node_modules/
+dist/

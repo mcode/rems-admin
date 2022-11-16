@@ -1,6 +1,6 @@
-const { initialize } = require('./server');
-const container = require('./lib/winston.js');
-const config = require('./config');
+import { initialize } from './server';
+import container from './lib/winston'
+import config from './config';
 
 const remsService = require('./hooks/rems.hook');
 
@@ -10,7 +10,7 @@ const remsService = require('./hooks/rems.hook');
  * @summary Setup server and start the application
  * @function main
  */
-module.exports = async function main() {
+export default async function main() {
   let logger = container.get('application');
 
   // Build our server
