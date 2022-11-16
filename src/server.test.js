@@ -11,7 +11,7 @@ describe('REMSServer class', () => {
     // Mock express and body parser
     jest.mock('body-parser', () => ({
       urlencoded: jest.fn(),
-      json: jest.fn(),
+      json: jest.fn()
     }));
 
     jest.mock('express', () => {
@@ -21,7 +21,7 @@ describe('REMSServer class', () => {
         get: jest.fn(),
         listen: jest.fn(),
         options: jest.fn(),
-        post: jest.fn(),
+        post: jest.fn()
       }));
       // Mock the static directory function
       mock.static = jest.fn();
@@ -67,11 +67,11 @@ describe('REMSServer class', () => {
         hook: 'patient-view',
         name: 'foo',
         description: 'bar',
-        id: 'foobar',
+        id: 'foobar'
       },
       handler: (req, res) => {
         res.json('hello world');
-      },
+      }
     };
 
     server.registerService(mockService);
@@ -81,8 +81,8 @@ describe('REMSServer class', () => {
         hook: 'patient-view',
         name: 'foo',
         description: 'bar',
-        id: 'foobar',
-      },
+        id: 'foobar'
+      }
     ]);
   });
   test('Method: listen', () => {

@@ -9,9 +9,9 @@ describe('hook: test rems', () => {
       id: 'rems-order-sign',
       prefetch: {
         patient: 'Patient/{{context.patientId}}',
-        request:'MedicationRequest?_id={{context.draftOrders.MedicationRequest.id}}',
+        request: 'MedicationRequest?_id={{context.draftOrders.MedicationRequest.id}}',
         practitioner: 'Practitioner/{{context.userId}}'
-      },
+      }
     };
     expect(getREMSHook).toHaveProperty('definition');
     expect(getREMSHook).toHaveProperty('handler');

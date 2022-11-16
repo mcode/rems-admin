@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 let logger = container.get('application');
 
-const initialize = (config) => {
+const initialize = config => {
   const logLevel = _.get(config, 'logging.level');
   return new REMSServer().configureLogstream(logLevel).configureMiddleware();
 };
@@ -54,7 +54,7 @@ class REMSServer {
       log
         ? log
         : morgan('combined', {
-            stream: { write: (message) => logger[level](message) },
+            stream: { write: message => logger[level](message) }
           })
     );
 

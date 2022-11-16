@@ -24,8 +24,8 @@ describe('Logger Class', () => {
     jest.mock('../config', () => ({
       logging: {
         level: 'debug',
-        directory: 'logs',
-      },
+        directory: 'logs'
+      }
     }));
 
     const config = require('../config');
