@@ -27,6 +27,7 @@ describe('REMSServer class', () => {
       mock.static = jest.fn();
       return mock;
     });
+
     server = new REMSServer();
   });
 
@@ -39,6 +40,7 @@ describe('REMSServer class', () => {
     expect(server).toHaveProperty('app');
     expect(server).toHaveProperty('listen');
   });
+
   test('method: configureMiddleware', () => {
     let set = jest.spyOn(server.app, 'set');
     let use = jest.spyOn(server.app, 'use');
@@ -53,6 +55,7 @@ describe('REMSServer class', () => {
 
     expect(use).toHaveBeenCalledTimes(3);
   });
+
   test('method: configureLogstream', () => {
     let use = jest.spyOn(server.app, 'use');
 
@@ -85,18 +88,20 @@ describe('REMSServer class', () => {
       }
     ]);
   });
+
   test('Method: listen', () => {
     let listen = jest.spyOn(server.app, 'listen');
     let callback = jest.fn();
     // Start listening on a port and pass the callback through
-    server.listen({ port: 3000 }, callback);
+    let serverListen = server.listen({ port: 3000 }, callback);
     expect(listen).toHaveBeenCalledTimes(1);
     expect(listen.mock.calls[0][0]).toBe(3000);
     expect(listen.mock.calls[0][1]).toBe(callback);
+    serverListen.close();
   });
+
   test('should be able to initilize a server', () => {
     const newServer = initialize();
-
     expect(newServer).toBeInstanceOf(REMSServer);
     expect(newServer).toHaveProperty('app');
     expect(newServer).toHaveProperty('listen');
