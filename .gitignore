@@ -6,3 +6,4 @@ COVERAGE/
 logs/
 node_modules/
 dist/
+.idea/
