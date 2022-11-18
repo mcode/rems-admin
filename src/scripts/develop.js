@@ -8,7 +8,7 @@ nodemon({
   ext: 'js json',
   verbose: true,
   watch: ['src/**/*.json', 'src/**/*.js'],
-  ignore: ['node_modules'],
+  ignore: ['node_modules']
 });
 
 nodemon

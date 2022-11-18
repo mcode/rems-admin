@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 let logger = container.get('application');
 
-const initialize = (config) => {
+const initialize = config => {
   const logLevel = _.get(config, 'logging.level');
   return new REMSServer().configureLogstream(logLevel).configureMiddleware();
 };
@@ -54,7 +54,7 @@ class REMSServer {
       log
         ? log
         : morgan('combined', {
-            stream: { write: (message) => logger[level](message) },
+            stream: { write: message => logger[level](message) }
           })
     );
 
@@ -81,9 +81,7 @@ class REMSServer {
   listen({ port, discoveryEndpoint = '/cds-services' }, callback) {
     this.app.get(discoveryEndpoint, (req, res) => res.json({ services: this.services }));
     this.app.get('/', (req, res) => res.send('Welcome to the REMS Administrator'));
-    this.app.listen(port, callback);
-
-    return this;
+    return this.app.listen(port, callback);
   }
 }
 

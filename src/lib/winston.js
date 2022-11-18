@@ -13,7 +13,7 @@ let applicationTransports = [];
 let transportConsole = new transports.Console({
   level: logging.level,
   timestamp: true,
-  colorize: true,
+  colorize: true
 });
 
 applicationTransports.push(transportConsole);
@@ -25,7 +25,7 @@ if (logging.directory) {
     datePattern: 'YYYY-MM-DD-HH',
     level: logging.level,
     zippedArchive: true,
-    maxSize: '20m',
+    maxSize: '20m'
   });
 
   applicationTransports.push(transportDailyFile);
@@ -34,7 +34,7 @@ if (logging.directory) {
 // Add a default application logger
 container.add('application', {
   format: format.combine(format.timestamp(), format.logstash()),
-  transports: applicationTransports,
+  transports: applicationTransports
 });
 
 /**

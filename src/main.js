@@ -16,8 +16,7 @@ module.exports = async function main() {
   // Build our server
   logger.info('Initializing REMS Administrator');
 
-  const app = initialize(config)
-    .registerService(remsService);
+  const app = initialize(config).registerService(remsService);
 
   const { server: serverConfig } = config;
 
