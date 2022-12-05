@@ -25,6 +25,12 @@
     "url": "git+ssh://git@bitbucket.org/asymmetrik/carejourney-cds.git"
   },
   "jest": {
+    "preset":"ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "transformIgnorePatterns": ["<rootDir>/node_modules/"],
     "testPathIgnorePatterns": [
       "<rootDir>/src/config/env/test.js"
     ],
@@ -55,20 +61,23 @@
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
+    "@types/jest": "^27.5.2",
     "@types/lodash": "^4.14.188",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.9",
     "@types/nodemon": "^1.19.2",
-    "eslint": "^8.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^6.10.1",
     "jest": "^27.4.5",
     "jest-extended": "^1.2.0",
     "json-diff": "^0.9.0",
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
-    "ts-node": "^10.9.1",
     "ts-jest": "^27.1.2",
+    "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.3"
   }
 }

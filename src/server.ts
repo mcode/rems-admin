@@ -1,12 +1,12 @@
-import express from 'express'
-import cors from 'cors'
-import bodyParser from 'body-parser'
-import container from './lib/winston'
-import morgan from 'morgan'
-import _ from 'lodash'
-import Hook from './hooks/Hook'
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import container from './lib/winston';
+import morgan from 'morgan';
+import _ from 'lodash';
+import Hook from './hooks/Hook';
 
-let logger = container.get('application');
+const logger = container.get('application');
 
 const initialize = (config: any) => {
   const logLevel = _.get(config, 'logging.level');
@@ -20,8 +20,8 @@ const initialize = (config: any) => {
  * @class Server
  */
 class REMSServer {
-  app: any
-  services: Hook[]
+  app: express.Application;
+  services: Hook[];
   /**
    * @method constructor
    * @description Setup defaults for the server instance
@@ -53,19 +53,19 @@ class REMSServer {
    * @method configureLogstream
    * @description Enable streaming logs via morgan
    */
-  configureLogstream({ log, level = 'info' } : {log?:any, level?:string} = {}) {
+  configureLogstream({ log, level = 'info' }: { log?: any; level?: string } = {}) {
     this.app.use(
       log
         ? log
         : morgan('combined', {
-            stream: { write: (message) => logger.log(level, message)},
+            stream: { write: message => logger.log(level, message) }
           })
     );
 
     return this;
   }
 
-  registerService({ definition, handler } : {definition: any, handler: any}) {
+  registerService({ definition, handler }: { definition: any; handler: any }) {
     this.services.push(definition);
     this.app.post(`/cds-services/${definition.id}`, handler);
 
@@ -83,11 +83,13 @@ class REMSServer {
    * @param {function} [callback] - Optional callback for listen
    */
   listen({ port, discoveryEndpoint = '/cds-services' }: any, callback: any) {
-    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) => res.json({ services: this.services }));
-    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) => res.send('Welcome to the REMS Administrator'));
-    this.app.listen(port, callback);
-
-    return this;
+    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
+      res.json({ services: this.services })
+    );
+    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
+      res.send('Welcome to the REMS Administrator')
+    );
+    return this.app.listen(port, callback);
   }
 }
 

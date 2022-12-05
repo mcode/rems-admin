@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   server: {
     port: 8090,
     discoveryEndpoint: '/cds-services'

@@ -1,3 +1,3 @@
-export default interface ServicePrefetch{
-    patient?: string
+export default interface ServicePrefetch {
+  patient?: string;
 }
