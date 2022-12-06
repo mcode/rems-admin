@@ -1,8 +1,7 @@
-const { initialize } = require('./server');
-const container = require('./lib/winston.js');
-const config = require('./config');
-
-const remsService = require('./hooks/rems.hook');
+import { initialize } from './server';
+import container from './lib/winston';
+import config from './config';
+import remsService from './hooks/rems.hook';
 
 /**
  * @name exports
@@ -10,8 +9,8 @@ const remsService = require('./hooks/rems.hook');
  * @summary Setup server and start the application
  * @function main
  */
-module.exports = async function main() {
-  let logger = container.get('application');
+export default async function main() {
+  const logger = container.get('application');
 
   // Build our server
   logger.info('Initializing REMS Administrator');
@@ -24,4 +23,4 @@ module.exports = async function main() {
   app.listen(serverConfig, () => {
     logger.info('Application listening on port: ' + serverConfig.port);
   });
-};
+}

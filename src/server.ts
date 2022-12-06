@@ -1,13 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const container = require('./lib/winston.js');
-const morgan = require('morgan');
-const _ = require('lodash');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import container from './lib/winston';
+import morgan from 'morgan';
+import _ from 'lodash';
+import Hook from './hooks/Hook';
 
-let logger = container.get('application');
+const logger = container.get('application');
 
-const initialize = config => {
+const initialize = (config: any) => {
   const logLevel = _.get(config, 'logging.level');
   return new REMSServer().configureLogstream(logLevel).configureMiddleware();
 };
@@ -19,10 +20,13 @@ const initialize = config => {
  * @class Server
  */
 class REMSServer {
+  app: express.Application;
+  services: Hook[];
   /**
    * @method constructor
    * @description Setup defaults for the server instance
    */
+
   constructor() {
     this.app = express();
     this.services = [];
@@ -37,7 +41,7 @@ class REMSServer {
     this.app.set('showStackError', true);
     this.app.set('jsonp callback', true);
     this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-    this.app.use(bodyParser.json({ limit: '50mb', extended: true }));
+    this.app.use(bodyParser.json({ limit: '50mb' }));
 
     this.app.use(cors());
     this.app.options('*', cors());
@@ -49,19 +53,19 @@ class REMSServer {
    * @method configureLogstream
    * @description Enable streaming logs via morgan
    */
-  configureLogstream({ log, level = 'info' } = {}) {
+  configureLogstream({ log, level = 'info' }: { log?: any; level?: string } = {}) {
     this.app.use(
       log
         ? log
         : morgan('combined', {
-            stream: { write: message => logger[level](message) }
+            stream: { write: message => logger.log(level, message) }
           })
     );
 
     return this;
   }
 
-  registerService({ definition, handler }) {
+  registerService({ definition, handler }: { definition: any; handler: any }) {
     this.services.push(definition);
     this.app.post(`/cds-services/${definition.id}`, handler);
 
@@ -78,13 +82,17 @@ class REMSServer {
    * @param {number} port - Defualt port to listen on
    * @param {function} [callback] - Optional callback for listen
    */
-  listen({ port, discoveryEndpoint = '/cds-services' }, callback) {
-    this.app.get(discoveryEndpoint, (req, res) => res.json({ services: this.services }));
-    this.app.get('/', (req, res) => res.send('Welcome to the REMS Administrator'));
+  listen({ port, discoveryEndpoint = '/cds-services' }: any, callback: any) {
+    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
+      res.json({ services: this.services })
+    );
+    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
+      res.send('Welcome to the REMS Administrator')
+    );
     return this.app.listen(port, callback);
   }
 }
 
 // Start the application
 
-module.exports = { REMSServer, initialize };
+export { REMSServer, initialize };
