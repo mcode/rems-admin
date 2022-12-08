@@ -21,6 +21,9 @@
 		},
 		{
 			"path": "../pharmacy-information-system"
+		},
+		{
+			"path": "../pims"
 		}
 	],
 	"launch": {
