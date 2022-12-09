@@ -10,6 +10,7 @@ describe('VsacCache', () => {
   let client = new VsacCache('./tmp', "test_key");
 
   beforeEach(() => {
+    client.clearCache();
     client.onlyVsac = false;
     jest.resetModules();
   });
@@ -31,10 +32,9 @@ describe('VsacCache', () => {
 
 
   test('should be able to cache valuesets in Library Resources', async () => {
-    client.clearCache();
+
 
     const mockRequest = nock('http://cts.nlm.nih.gov/fhir');
-    console.log('Bearer ' + Buffer.from(":test_key").toString('base64'));
 
     mockRequest.get("/ValueSet/2.16.840.1.113762.1.4.1219.85/$expand").reply(200, JSON.stringify(valueSet));
     mockRequest.get("/ValueSet/2.16.840.1.113762.1.4.1219.35/$expand").reply(200, JSON.stringify(valueSet));
@@ -56,9 +56,8 @@ describe('VsacCache', () => {
   });
 
   test('should be able to cache valuesets in Questionnaire Resources', async () => {
-    client.clearCache();
+
     const mockRequest = nock('http://terminology.hl7.org/');
-    console.log('Bearer ' + Buffer.from(":test_key").toString('base64'));
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
@@ -78,7 +77,7 @@ describe('VsacCache', () => {
 
 
   test('should be not load valuesets already cached unless forced', async () => {
-    client.clearCache();
+
     let mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(200, JSON.stringify(valueSet));
     try {
@@ -109,9 +108,8 @@ describe('VsacCache', () => {
   });
 
   test('should be able to handle errors downloading valuesests', async () => {
-    client.clearCache();
+
     const mockRequest = nock('http://terminology.hl7.org/');
-    console.log('Bearer ' + Buffer.from(":test_key").toString('base64'));
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(404, "");
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
@@ -128,7 +126,6 @@ describe('VsacCache', () => {
   });
 
   test("Should not attempt tp download non-vsac valuesets if configured to do so", async () => {
-    client.clearCache();
     client.onlyVsac = true;
     const err = await client.downloadAndCacheValueset("http://localhost:9999/vs/1234");
     expect(err.get("error")).toEqual("Cannot download non vsac valuesets: http://localhost:9999/vs/1234")
