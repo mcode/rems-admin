@@ -8,11 +8,13 @@ class VsacCache {
   cacheDir: string;
   apiKey: string;
   baseUrl: string;
+  onlyVsac: boolean;
 
-  constructor(cacheDir: string, apiKey: string, baseUrl = 'http://cts.nlm.nih.gov/fhir/') {
+  constructor(cacheDir: string, apiKey: string, baseUrl = 'http://cts.nlm.nih.gov/fhir/', onlyVsac = false) {
     this.cacheDir = cacheDir;
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
+    this.onlyVsac = onlyVsac;
   }
 
 
@@ -117,9 +119,11 @@ class VsacCache {
     const headers: any = {
       "Accept": "application/json+fhir"
     };
+    let isVsac = false;
     // this will only add headers to vsac urls
     if (connonical.startsWith(this.baseUrl)) {
       headers['Authorization'] = "Basic " + Buffer.from(':' + this.apiKey).toString('base64');
+      isVsac = true;
     }
     // this will try to download valuesets that are not in vsac as well based on the 
     // connonical url passed in. 
@@ -129,16 +133,20 @@ class VsacCache {
     }
     // axios cleanup 
     await process.nextTick(() => { });
-
-    try {
-      console.log("Downloading vs " + url)
-      const vs = await axios.get(url, {
-        headers: headers
-      });
-      retValue.set("valueSet", vs.data);
-    } catch (error: any) {
-      retValue.set("error", error)
+    if ((this.onlyVsac && isVsac) || !this.onlyVsac) {
+      try {
+        console.log("Downloading vs " + url)
+        const vs = await axios.get(url, {
+          headers: headers
+        });
+        retValue.set("valueSet", vs.data);
+      } catch (error: any) {
+        retValue.set("error", error)
+      }
+    }else{
+      retValue.set("error", "Cannot download non vsac valuesets: "+ url);
     }
+
     return retValue;
   }
 
