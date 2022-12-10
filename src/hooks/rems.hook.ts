@@ -162,7 +162,7 @@ function buildErrorCard(reason: string) {
 const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS order-sign hook');
   try {
-    hydrate(hookPrefetch, req.body).then((hydratedPrefetch) => {
+    hydrate(hookPrefetch, req.body).then(hydratedPrefetch => {
       const context = req.body.context;
       const contextRequest = context.draftOrders?.entry?.[0].resource;
       const patient = hydratedPrefetch?.patient;
@@ -198,7 +198,7 @@ const handler = (req: TypedRequestBody, res: any) => {
         contextRequest &&
         contextRequest.id &&
         prefetchRequest.id.replace('MedicationRequest/', '') !==
-        contextRequest.id.replace('MedicationRequest/', '')
+          contextRequest.id.replace('MedicationRequest/', '')
       ) {
         res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
         return;
@@ -219,8 +219,9 @@ const handler = (req: TypedRequestBody, res: any) => {
             } else {
               // link is SMART
               // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-              e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${contextRequest.insurance?.[0].reference
-                }`;
+              e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
+                contextRequest.insurance?.[0].reference
+              }`;
               card.addLink(e);
             }
           });
