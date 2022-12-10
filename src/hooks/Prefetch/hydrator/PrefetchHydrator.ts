@@ -50,7 +50,14 @@ function replaceTokens(str: string, json: any): string {
 function resolveToken(token: string, context: OrderSignRequest) {
     const fulfilledToken = replaceTokens(token, context);
     const ehrUrl = `${context.fhirServer}/${fulfilledToken}`;
-    const response = fetch(ehrUrl);
+    const access_token = context.fhirAuthorization.access_token;
+    const options = {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+        },
+      };
+    const response = fetch(ehrUrl, options);
     return response.then((e) => {return e.json();});
 }
 function hydrate(template: OrderSignPrefetch, request: OrderSignRequest) {
@@ -58,6 +65,8 @@ function hydrate(template: OrderSignPrefetch, request: OrderSignRequest) {
     if(!prefetch) {
         prefetch = {};
     }
+    // Find unfulfilled prefetch elements and resolve them using
+    // the defined prefetch template
     const promises = Object.keys(template).map((key) => {
         if(!Object.prototype.hasOwnProperty.call(prefetch, key)) {
             // prefetch was not fulfilled

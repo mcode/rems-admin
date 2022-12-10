@@ -169,8 +169,6 @@ const handler = (req: TypedRequestBody, res: any) => {
       const prefetchRequest = hydratedPrefetch?.request;
       const practitioner = hydratedPrefetch?.practitioner;
       const npi = practitioner?.identifier;
-
-
       console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
       console.log('    Patient: ' + patient?.id);
 
