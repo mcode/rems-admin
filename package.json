@@ -49,6 +49,7 @@
     ]
   },
   "dependencies": {
+    "@projecttacoma/node-fhir-server-core": "^2.2.8",
     "@types/fhir": "^0.0.35",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.34",

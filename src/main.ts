@@ -7,6 +7,8 @@ import { TingoDatabase } from './lib/TingoDatabase';
 import { MongoDatabase } from './lib/MongoDatabase';
 import constants from './constants'
 import { Globals } from './globals'
+import { FhirUtilities } from './fhir/utilities';
+
 /**
  * @name exports
  * @static
@@ -40,6 +42,10 @@ export default async function main() {
   }
   Globals.databaseClient = dbClient.client;
   Globals.database = dbClient.database;
+
+  // load the database with the default resources
+  console.log("Loading FHIR Resources from: " + config.general.resourcePath);
+  FhirUtilities.loadResources(config.general.resourcePath);
 
   const app = initialize(config).registerService(remsService);
 

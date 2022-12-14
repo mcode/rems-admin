@@ -1,4 +1,5 @@
 import { Database } from "./Database";
+import * as fs from 'fs';
 const tingoDb = require('tingodb')();
 
 export class TingoDatabase extends Database {
@@ -11,6 +12,9 @@ export class TingoDatabase extends Database {
 
   connect = () =>
     new Promise((resolve, reject) => {
+      // create the database folder
+      fs.mkdirSync(this.location, { recursive: true })
+
       // Connect to tingo
       console.log("TingoDatabase connect: " + this.location);
       this.database = new tingoDb.Db(this.location, {})

@@ -6,11 +6,23 @@ import morgan from 'morgan';
 import _ from 'lodash';
 import Hook from './hooks/Hook';
 
+const { Server } = require('@projecttacoma/node-fhir-server-core');
+
 const logger = container.get('application');
 
 const initialize = (config: any) => {
   const logLevel = _.get(config, 'logging.level');
-  return new REMSServer().configureLogstream(logLevel).configureMiddleware();
+  const app = express();
+  //return new REMSServer(config.fhirServerConfig, app).configureLogstream(logLevel).configureMiddleware();
+  return new REMSServer(config.fhirServerConfig, app)
+    .configureLogstream(logLevel)
+    .configureMiddleware()
+    .configureSession()
+    .configureHelmet()
+    .configurePassport()
+    .setPublicDirectory()
+    .setProfileRoutes()
+    .setErrorRoutes();
 };
 
 /**
@@ -19,7 +31,7 @@ const initialize = (config: any) => {
  * @summary Main Server for the application
  * @class Server
  */
-class REMSServer {
+class REMSServer extends Server {
   app: express.Application;
   services: Hook[];
   /**
@@ -27,8 +39,10 @@ class REMSServer {
    * @description Setup defaults for the server instance
    */
 
-  constructor() {
-    this.app = express();
+  constructor(config: any, app: any) {
+    super(config, app);
+    //this.app = express();
+    this.app = app;
     this.services = [];
     return this;
   }
@@ -38,6 +52,7 @@ class REMSServer {
    * @description Enable all the standard middleware
    */
   configureMiddleware() {
+    super.configureMiddleware();
     this.app.set('showStackError', true);
     this.app.set('jsonp callback', true);
     this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -54,6 +69,7 @@ class REMSServer {
    * @description Enable streaming logs via morgan
    */
   configureLogstream({ log, level = 'info' }: { log?: any; level?: string } = {}) {
+    super.configureLogstream
     this.app.use(
       log
         ? log
@@ -89,7 +105,8 @@ class REMSServer {
     this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
       res.send('Welcome to the REMS Administrator')
     );
-    return this.app.listen(port, callback);
+    //return this.app.listen(port, callback);
+    return super.listen(port, callback);
   }
 }
 
