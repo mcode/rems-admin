@@ -109,7 +109,7 @@ services:
     container_name: rems_dev_rems
     ports:
       # Port binding to host from docker container
-      - "9020:9020" # Bind port 3000 of host to 3000 of container
+      - "9020:8090" # Bind port 3000 of host to 3000 of container
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
 
