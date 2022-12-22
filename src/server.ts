@@ -12,17 +12,16 @@ const logger = container.get('application');
 
 const initialize = (config: any) => {
   const logLevel = _.get(config, 'logging.level');
-  const app = express();
+  // const app = express();
   //return new REMSServer(config.fhirServerConfig, app).configureLogstream(logLevel).configureMiddleware();
-  return new REMSServer(config.fhirServerConfig, app)
+  return new REMSServer(config.fhirServerConfig)
     .configureLogstream(logLevel)
     .configureMiddleware()
     .configureSession()
     .configureHelmet()
     .configurePassport()
     .setPublicDirectory()
-    .setProfileRoutes()
-    .setErrorRoutes();
+    .setProfileRoutes();
 };
 
 /**
@@ -32,17 +31,15 @@ const initialize = (config: any) => {
  * @class Server
  */
 class REMSServer extends Server {
-  app: express.Application;
   services: Hook[];
   /**
    * @method constructor
    * @description Setup defaults for the server instance
    */
 
-  constructor(config: any, app: any) {
-    super(config, app);
+  constructor(config: any) {
+    super(config);
     //this.app = express();
-    this.app = app;
     this.services = [];
     return this;
   }
