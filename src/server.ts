@@ -5,6 +5,7 @@ import container from './lib/winston';
 import morgan from 'morgan';
 import _ from 'lodash';
 import Hook from './hooks/Hook';
+import remsService from './hooks/rems.hook';
 
 const { Server } = require('@projecttacoma/node-fhir-server-core');
 
@@ -12,16 +13,15 @@ const logger = container.get('application');
 
 const initialize = (config: any) => {
   const logLevel = _.get(config, 'logging.level');
-  // const app = express();
-  //return new REMSServer(config.fhirServerConfig, app).configureLogstream(logLevel).configureMiddleware();
   return new REMSServer(config.fhirServerConfig)
-    .configureLogstream(logLevel)
     .configureMiddleware()
     .configureSession()
     .configureHelmet()
     .configurePassport()
     .setPublicDirectory()
-    .setProfileRoutes();
+    .setProfileRoutes()
+    .registerCdsHooks(config.server)
+    .setErrorRoutes();
 };
 
 /**
@@ -39,7 +39,6 @@ class REMSServer extends Server {
 
   constructor(config: any) {
     super(config);
-    //this.app = express();
     this.services = [];
     return this;
   }
@@ -80,12 +79,25 @@ class REMSServer extends Server {
 
   registerService({ definition, handler }: { definition: any; handler: any }) {
     this.services.push(definition);
-    this.app.post(`/cds-services/${definition.id}`, handler);
+    this.app.post(`${this.cdsHooksEndpoint}/${definition.id}`, handler);
 
     //TODO: remove this after request generator is updated to a new order-sign prefetch
     // add a post endpoint to match the old CRD server
-    this.app.post(`/r4/cds-services/${definition.hook}-crd`, handler);
+    this.app.post(`/r4${this.cdsHooksEndpoint}/${definition.hook}-crd`, handler);
 
+    return this;
+  }
+
+  registerCdsHooks({ discoveryEndpoint = '/cds-services' }: any) {
+    this.cdsHooksEndpoint = discoveryEndpoint;
+    this.registerService(remsService);
+
+    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
+      res.json({ services: this.services })
+    );
+    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
+      res.send('Welcome to the REMS Administrator')
+    );
     return this;
   }
 
@@ -95,15 +107,8 @@ class REMSServer extends Server {
    * @param {number} port - Defualt port to listen on
    * @param {function} [callback] - Optional callback for listen
    */
-  listen({ port, discoveryEndpoint = '/cds-services' }: any, callback: any) {
-    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
-      res.json({ services: this.services })
-    );
-    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
-      res.send('Welcome to the REMS Administrator')
-    );
-    //return this.app.listen(port, callback);
-    return super.listen(port, callback);
+  listen({ port }: any, callback: any) {
+    return this.app.listen(port, callback);
   }
 }
 

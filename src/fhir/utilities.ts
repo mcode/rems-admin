@@ -124,6 +124,7 @@ export class FhirUtilities {
 
 
     static loadResources(resourcePath: string) {
+        console.log("Loading FHIR Resources from: " + resourcePath);
         var process = require("process");
     
         // Loop through all the files in the temp directory

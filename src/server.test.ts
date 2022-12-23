@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { initialize, REMSServer } from './server';
 import config from './config';
+import express from 'express';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
@@ -28,7 +29,7 @@ describe('REMSServer class', () => {
       return mock;
     });
 
-    server = new REMSServer();
+    server = new REMSServer(config.fhirServerConfig);
   });
 
   afterEach(() => {
@@ -47,13 +48,13 @@ describe('REMSServer class', () => {
 
     server.configureMiddleware();
 
-    expect(set).toHaveBeenCalledTimes(5);
+    expect(set).toHaveBeenCalledTimes(6);
     expect(set.mock.calls[0][0]).toBe('showStackError');
     expect(set.mock.calls[0][1]).toBe(true);
-    expect(set.mock.calls[1][0]).toBe('jsonp callback');
-    expect(set.mock.calls[1][1]).toBe(true);
+    expect(set.mock.calls[5][0]).toBe('jsonp callback');
+    expect(set.mock.calls[5][1]).toBe(true);
 
-    expect(use).toHaveBeenCalledTimes(3);
+    expect(use).toHaveBeenCalledTimes(8);
   });
 
   test('method: configureLogstream', () => {

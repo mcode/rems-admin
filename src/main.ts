@@ -1,7 +1,6 @@
 import { initialize } from './server';
 import container from './lib/winston';
 import config from './config';
-import remsService from './hooks/rems.hook';
 import { Database } from './lib/Database';
 import { TingoDatabase } from './lib/TingoDatabase';
 import { MongoDatabase } from './lib/MongoDatabase';
@@ -44,10 +43,9 @@ export default async function main() {
   Globals.database = dbClient.database;
 
   // load the database with the default resources
-  console.log("Loading FHIR Resources from: " + config.general.resourcePath);
   FhirUtilities.loadResources(config.general.resourcePath);
 
-  const app = initialize(config).registerService(remsService);
+  const app = initialize(config);
 
   // Start the application
   app.listen(serverConfig, () => {
