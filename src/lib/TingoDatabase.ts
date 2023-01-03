@@ -1,6 +1,8 @@
 import { Database } from './Database';
 import * as fs from 'fs';
+ /* eslint-disable */
 const tingoDb = require('tingodb')();
+ /* eslint-enable */
 
 export class TingoDatabase extends Database {
 

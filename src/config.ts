@@ -1,5 +1,7 @@
+ /* eslint-disable */
 const { VERSIONS } = require('@projecttacoma/node-fhir-server-core').constants;
 const env = require('var');
+ /* eslint-enable */
 
 
 // Set up whitelist

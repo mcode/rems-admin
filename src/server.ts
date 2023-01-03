@@ -5,7 +5,9 @@ import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
 
+ /* eslint-disable */
 const { Server } = require('@projecttacoma/node-fhir-server-core');
+ /* eslint-enable */
 
 const logger = container.get('application');
 
