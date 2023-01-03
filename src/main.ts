@@ -4,8 +4,8 @@ import config from './config';
 import { Database } from './lib/Database';
 import { TingoDatabase } from './lib/TingoDatabase';
 import { MongoDatabase } from './lib/MongoDatabase';
-import constants from './constants'
-import { Globals } from './globals'
+import constants from './constants';
+import { Globals } from './globals';
 import { FhirUtilities } from './fhir/utilities';
 
 /**
@@ -23,7 +23,7 @@ export default async function main() {
   const { server: serverConfig, database: databaseConfig } = config;
 
   // Setup the database
-  var dbClient: Database;
+  let dbClient: Database;
   switch (databaseConfig.selected) {
     case constants.TINGO_DB:
       dbClient = new TingoDatabase(databaseConfig.tingoConfig);

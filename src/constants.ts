@@ -120,4 +120,4 @@ export default {
     VISIONPRESCRIPTION: 'VisionPrescription',
     CLIENT: 'Client',
   },
-}
+};

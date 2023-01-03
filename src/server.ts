@@ -1,9 +1,7 @@
-import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import container from './lib/winston';
 import morgan from 'morgan';
-import _ from 'lodash';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
 
@@ -12,7 +10,7 @@ const { Server } = require('@projecttacoma/node-fhir-server-core');
 const logger = container.get('application');
 
 const initialize = (config: any) => {
-  const logLevel = _.get(config, 'logging.level');
+  //const logLevel = _.get(config, 'logging.level');
   return new REMSServer(config.fhirServerConfig)
     .configureMiddleware()
     .configureSession()
@@ -65,7 +63,7 @@ class REMSServer extends Server {
    * @description Enable streaming logs via morgan
    */
   configureLogstream({ log, level = 'info' }: { log?: any; level?: string } = {}) {
-    super.configureLogstream
+    super.configureLogstream;
     this.app.use(
       log
         ? log

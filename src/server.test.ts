@@ -1,8 +1,5 @@
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
 import { initialize, REMSServer } from './server';
 import config from './config';
-import express from 'express';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
