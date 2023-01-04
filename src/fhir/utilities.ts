@@ -1,6 +1,4 @@
-/* eslint-disable */
-const { resolveSchema } = require('@projecttacoma/node-fhir-server-core');
-/* eslint-enaable */
+import { resolveSchema } from '@projecttacoma/node-fhir-server-core';
 import * as moment from 'moment';
 import 'moment-timezone';
 

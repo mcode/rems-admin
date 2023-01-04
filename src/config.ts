@@ -1,7 +1,5 @@
-/* eslint-disable */
-const { VERSIONS } = require('@projecttacoma/node-fhir-server-core').constants;
-const env = require('var');
-/* eslint-enable */
+import { constants as fhirConstants } from '@projecttacoma/node-fhir-server-core';
+import env from 'var';
 
 // Set up whitelist
 const whitelist_env =
@@ -95,23 +93,23 @@ export default {
     profiles: {
       Patient: {
         service: './src/services/patient.service.ts',
-        versions: [VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']]
       },
       library: {
         service: './src/services/library.service.ts',
-        versions: [VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']]
       },
       questionnaire: {
         service: './src/services/questionnaire.service.ts',
-        versions: [VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']]
       },
       questionnaireresponse: {
         service: './src/services/questionnaireresponse.service.ts',
-        versions: [VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']]
       },
       valueset: {
         service: './src/services/valueset.service.ts',
-        versions: [VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']]
       }
     }
   }

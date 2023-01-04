@@ -18,7 +18,12 @@
       "resolveJsonModule": true,
       "isolatedModules": true,
       "outDir": "dist",
-      "jsx": "react-jsx"
+      "jsx": "react-jsx",
+      "paths": {
+        "*": [
+          "src/typings/*"
+        ]
+      }
     },
     "include": [
       "src"

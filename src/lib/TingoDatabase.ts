@@ -1,8 +1,6 @@
 import { Database } from './Database';
 import * as fs from 'fs';
-/* eslint-disable */
-const tingoDb = require('tingodb')();
-/* eslint-enable */
+import tingodb from 'tingodb';
 
 export class TingoDatabase extends Database {
   constructor(config: any) {
@@ -18,7 +16,8 @@ export class TingoDatabase extends Database {
 
       // Connect to tingo
       console.log('TingoDatabase connect: ' + this.location);
-      this.database = new tingoDb.Db(this.location, {});
+      const tingo = new tingodb();
+      this.database = new tingo.Db(this.location, {});
       this.client = '';
       return resolve(this.database);
     });

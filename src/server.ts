@@ -4,10 +4,7 @@ import container from './lib/winston';
 import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
-
-/* eslint-disable */
-const { Server } = require('@projecttacoma/node-fhir-server-core');
-/* eslint-enable */
+import { Server } from '@projecttacoma/node-fhir-server-core';
 
 const logger = container.get('application');
 
