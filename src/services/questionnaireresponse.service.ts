@@ -2,7 +2,6 @@ import constants from '../constants';
 import { Globals } from '../globals';
 import { FhirUtilities } from '../fhir/utilities';
 
-
 module.exports.searchById = (args: any) =>
   new Promise((resolve, reject) => {
     const { base_version, id } = args;
@@ -12,7 +11,9 @@ module.exports.searchById = (args: any) =>
 
     // Grab an instance of our DB and collection
     const db = Globals.database;
-    const collection = db.collection(`${constants.COLLECTION.QUESTIONNAIRERESPONSE}_${base_version}`);
+    const collection = db.collection(
+      `${constants.COLLECTION.QUESTIONNAIRERESPONSE}_${base_version}`
+    );
     // Query our collection for this observation
     collection.findOne({ id: id.toString() }, (err: any, questionnaireResponse: any) => {
       if (err) {
@@ -26,7 +27,7 @@ module.exports.searchById = (args: any) =>
     });
   });
 
-module.exports.create = (args: any, req: any ) =>
+module.exports.create = (args: any, req: any) =>
   new Promise((resolve, reject) => {
     console.log('QuestionnaireResponse >>> create');
     const resource = req.req.body;

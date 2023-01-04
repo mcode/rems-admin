@@ -1,17 +1,16 @@
- /* eslint-disable */
+/* eslint-disable */
 const { VERSIONS } = require('@projecttacoma/node-fhir-server-core').constants;
 const env = require('var');
- /* eslint-enable */
-
+/* eslint-enable */
 
 // Set up whitelist
-const whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host: string) => host.trim())) || false;
+const whitelist_env =
+  (env.WHITELIST && env.WHITELIST.split(',').map((host: string) => host.trim())) || false;
 
 // If no whitelist is present, disable cors
 // If it's length is 1, set it to a string, so * works
 // If there are multiple, keep them as an array
 const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
-
 
 export default {
   server: {
@@ -39,14 +38,14 @@ export default {
       options: {
         //auto_reconnect: true,
         useUnifiedTopology: true,
-        useNewUrlParser: true,
-      },
-    },
+        useNewUrlParser: true
+      }
+    }
   },
   fhirServerConfig: {
     auth: {
       // This servers URI
-      resourceServer: env.RESOURCE_SERVER,
+      resourceServer: env.RESOURCE_SERVER
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
       //
@@ -62,11 +61,11 @@ export default {
       // allow Access-Control-Allow-Origin
       corsOptions: {
         maxAge: 86400,
-        origin: whitelist,
-      },
+        origin: whitelist
+      }
     },
     logging: {
-      level: env.LOGGING_LEVEL,
+      level: env.LOGGING_LEVEL
     },
     //
     // If you want to set up conformance statement with security enabled
@@ -75,12 +74,12 @@ export default {
     security: [
       {
         url: 'authorize',
-        valueUri: `${env.AUTH_SERVER_URI}/authorize`,
+        valueUri: `${env.AUTH_SERVER_URI}/authorize`
       },
       {
         url: 'token',
-        valueUri: `${env.AUTH_SERVER_URI}/token`,
-      },
+        valueUri: `${env.AUTH_SERVER_URI}/token`
+      }
       // optional - registration
     ],
     //
@@ -96,24 +95,24 @@ export default {
     profiles: {
       Patient: {
         service: './src/services/patient.service.ts',
-        versions: [VERSIONS['4_0_0']],
+        versions: [VERSIONS['4_0_0']]
       },
       library: {
-          service: './src/services/library.service.ts',
-          versions: [VERSIONS['4_0_0']],
+        service: './src/services/library.service.ts',
+        versions: [VERSIONS['4_0_0']]
       },
       questionnaire: {
-          service: './src/services/questionnaire.service.ts',
-          versions: [VERSIONS['4_0_0']],
+        service: './src/services/questionnaire.service.ts',
+        versions: [VERSIONS['4_0_0']]
       },
       questionnaireresponse: {
-          service: './src/services/questionnaireresponse.service.ts',
-          versions: [VERSIONS['4_0_0']],
+        service: './src/services/questionnaireresponse.service.ts',
+        versions: [VERSIONS['4_0_0']]
       },
       valueset: {
-          service: './src/services/valueset.service.ts',
-          versions: [VERSIONS['4_0_0']],
-      },
-    },
+        service: './src/services/valueset.service.ts',
+        versions: [VERSIONS['4_0_0']]
+      }
+    }
   }
 };

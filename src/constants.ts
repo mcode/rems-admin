@@ -1,4 +1,3 @@
-
 export default {
   MONGO_DB: 'mongo',
   TINGO_DB: 'tingo',
@@ -118,6 +117,6 @@ export default {
     TESTSCRIPT: 'TestScript',
     VALUESET: 'ValueSet',
     VISIONPRESCRIPTION: 'VisionPrescription',
-    CLIENT: 'Client',
-  },
+    CLIENT: 'Client'
+  }
 };

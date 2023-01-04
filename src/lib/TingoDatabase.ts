@@ -1,11 +1,10 @@
 import { Database } from './Database';
 import * as fs from 'fs';
- /* eslint-disable */
+/* eslint-disable */
 const tingoDb = require('tingodb')();
- /* eslint-enable */
+/* eslint-enable */
 
 export class TingoDatabase extends Database {
-
   constructor(config: any) {
     super(config);
     // read anything else needed from the config here
@@ -13,7 +12,7 @@ export class TingoDatabase extends Database {
   }
 
   connect = () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       // create the database folder
       fs.mkdirSync(this.location, { recursive: true });
 
@@ -23,5 +22,4 @@ export class TingoDatabase extends Database {
       this.client = '';
       return resolve(this.database);
     });
-
 }

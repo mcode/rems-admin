@@ -2,7 +2,6 @@ import constants from '../constants';
 import { Globals } from '../globals';
 import { FhirUtilities } from '../fhir/utilities';
 
-
 module.exports.searchById = (args: any) =>
   new Promise((resolve, reject) => {
     const { base_version, id } = args;
@@ -26,7 +25,7 @@ module.exports.searchById = (args: any) =>
     });
   });
 
-module.exports.create = ( args: any,  req: any ) =>
+module.exports.create = (args: any, req: any) =>
   new Promise((resolve, reject) => {
     console.log('Library >>> create');
     const resource = req.req.body;
