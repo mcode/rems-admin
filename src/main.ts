@@ -36,7 +36,6 @@ export default async function main() {
     await dbClient.connect();
   } catch (dbErr: any) {
     console.error(dbErr.message);
-    console.error();
     process.exit(1);
   }
   Globals.databaseClient = dbClient.client;

@@ -122,53 +122,156 @@ export class FhirUtilities {
     });
   }
 
+  static loadFile(filePath: string, file: any) {
+    const extension = re.exec(filePath);
+    if (extension) {
+      if (extension[1].toLowerCase() === 'json') {
+        if (file !== 'TopicMetadata.json') {
+          console.log("'%s' is a JSON Resource file.", filePath);
+          fs.readFile(filePath, 'utf8', (err: any, jsonString: string) => {
+            if (err) {
+              console.error('Failed to read file:', err);
+              return;
+            }
+            try {
+              const resource = JSON.parse(jsonString);
+              FhirUtilities.store(
+                resource,
+                function () {
+                  return;
+                },
+                function () {
+                  return;
+                }
+              );
+            } catch (parseError: any) {
+              console.warn('Failed to parse json file: ' + filePath);
+            }
+          });
+        }
+      }
+    }
+  }
+
   static loadResources(resourcePath: string) {
     console.log('Loading FHIR Resources from: ' + resourcePath);
 
-    // Loop through all the files in the temp directory
-    fs.readdir(resourcePath, function (err: any, files: any) {
-      if (err) {
-        console.error('Could not list the directory.', err);
+    // Loop through all the files in the directory looking for folders
+    fs.readdir(resourcePath, function (rootError: any, rootFiles: any) {
+      if (rootError) {
+        console.error('Could not list the directory.', rootError);
         process.exit(1);
       }
 
-      files.forEach(function (file: any) {
-        // Make one pass and make the file complete
-        const filePath = path.join(resourcePath, file);
+      rootFiles.forEach(function (rootFile: any) {
+        const rootFilePath = path.join(resourcePath, rootFile);
 
-        fs.stat(filePath, function (error: any, stat: any) {
-          if (error) {
-            console.error('Error getting file statistics.', error);
+        fs.stat(rootFilePath, function (rootFileError: any, rootFileStat: any) {
+          if (rootFileError) {
+            console.error('Error getting root folder file statistics.', rootFileError);
             return;
           }
 
-          if (stat.isFile()) {
-            const extension = re.exec(filePath);
-            if (extension) {
-              if (extension[1].toLowerCase() === 'json') {
-                if (file !== 'TopicMetadata.json') {
-                  console.log("'%s' is a JSON Resource file.", filePath);
-                  fs.readFile(filePath, 'utf8', (err: any, jsonString: string) => {
-                    if (err) {
-                      console.error('Failed to read file:', err);
-                      return;
-                    }
-                    const resource = JSON.parse(jsonString);
-                    FhirUtilities.store(
-                      resource,
-                      function () {
-                        return;
-                      },
-                      function () {
-                        return;
-                      }
-                    );
-                  });
-                }
+          if (rootFileStat.isDirectory()) {
+            // loop through all the fhir versions looking for R4
+            fs.readdir(rootFilePath, function (rulesErr: any, rulesFiles: any) {
+              if (rulesErr) {
+                console.error('Error getting rule folder file list.', rulesErr);
               }
-            }
-          } else if (stat.isDirectory()) {
-            FhirUtilities.loadResources(filePath);
+
+              rulesFiles.forEach(function (rulesFile: any) {
+                const rulesFilePath = path.join(rootFilePath, rulesFile);
+
+                fs.stat(rulesFilePath, function (rulesFileError: any, rulesFileStat: any) {
+                  if (rulesFileError) {
+                    console.error('Error getting rules folder file statistics.', rulesFileError);
+                    return;
+                  }
+
+                  if (rulesFileStat.isDirectory()) {
+                    // only process the R4 directory
+                    if (rulesFile === 'R4') {
+                      fs.readdir(
+                        rulesFilePath,
+                        function (fhirVersionErr: any, fhirVersionFiles: any) {
+                          if (fhirVersionErr) {
+                            console.error('Error getting fhir folder file list.', fhirVersionErr);
+                            return;
+                          }
+
+                          // loop through all the folders in the R4 folder
+                          fhirVersionFiles.forEach(function (fhirVersionFile: any) {
+                            const fhirVersionFilePath = path.join(rulesFilePath, fhirVersionFile);
+
+                            fs.stat(
+                              fhirVersionFilePath,
+                              function (fhirVersionFileError: any, fhirVersionFileStat: any) {
+                                if (fhirVersionFileError) {
+                                  console.error(
+                                    'Error getting fhir version file statistics.',
+                                    fhirVersionFileError
+                                  );
+                                  return;
+                                }
+
+                                if (fhirVersionFileStat.isDirectory()) {
+                                  if (fhirVersionFile === 'resources') {
+                                    console.log(fhirVersionFilePath);
+
+                                    fs.readdir(
+                                      fhirVersionFilePath,
+                                      function (resourceFilesErr: any, resourceFiles: any) {
+                                        if (resourceFilesErr) {
+                                          console.error(
+                                            'Error getting resource folder file list.',
+                                            resourceFilesErr
+                                          );
+                                          return;
+                                        }
+
+                                        resourceFiles.forEach(function (resourceFile: any) {
+                                          const resourceFilePath = path.join(
+                                            fhirVersionFilePath,
+                                            resourceFile
+                                          );
+
+                                          fs.stat(
+                                            resourceFilePath,
+                                            function (
+                                              resourceFileError: any,
+                                              resourceFileStat: any
+                                            ) {
+                                              if (resourceFileError) {
+                                                console.error(
+                                                  'Error getting resource file statistics.',
+                                                  resourceFileError
+                                                );
+                                                return;
+                                              }
+
+                                              if (resourceFileStat.isFile()) {
+                                                FhirUtilities.loadFile(
+                                                  resourceFilePath,
+                                                  resourceFile
+                                                );
+                                              }
+                                            }
+                                          );
+                                        });
+                                      }
+                                    );
+                                  }
+                                }
+                              }
+                            );
+                          });
+                        }
+                      );
+                    }
+                  }
+                });
+              });
+            });
           }
         });
       });
