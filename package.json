@@ -61,6 +61,7 @@
     "mongodb": "^4.12.1",
     "morgan": "^1.9.1",
     "tingodb": "^0.6.1",
+    "uuid": "^9.0.0",
     "var": "^0.4.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.2.1"
@@ -73,6 +74,7 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.9",
     "@types/nodemon": "^1.19.2",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.28.0",

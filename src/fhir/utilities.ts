@@ -1,6 +1,7 @@
 import { resolveSchema } from '@projecttacoma/node-fhir-server-core';
 import * as moment from 'moment';
 import 'moment-timezone';
+import { v1 as uuidv1 } from 'uuid';
 
 import constants from '../constants';
 import { Globals } from '../globals';
@@ -42,7 +43,7 @@ export class FhirUtilities {
     let id = '';
     if (!resource.id) {
       // If no resource ID was provided, generate one.
-      id = self.crypto.randomUUID();
+      id = uuidv1();
     } else {
       id = resource.id;
     }
