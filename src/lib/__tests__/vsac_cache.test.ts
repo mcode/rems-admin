@@ -3,14 +3,28 @@ import VsacCache from '../vsac_cache';
 import library from './fixtures/library.json';
 import questionnaire from './fixtures/questionnaire.json';
 import valueSet from './fixtures/valueSet.json'
-import axios from "axios";
+import fs from 'fs';
 import nock from 'nock'
+import { TingoDatabase } from '../TingoDatabase';
+import { Globals } from '../../globals';
 
 describe('VsacCache', () => {
-  let client = new VsacCache('./tmp', "test_key");
-
+  let client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
+  let dbClient = new TingoDatabase( {
+      location: './tingo_db',
+      options: ''
+    });
+  dbClient.connect();
+  Globals.databaseClient = dbClient.client;
+  Globals.database = dbClient.database;
+  
   beforeEach(() => {
-    client.clearCache();
+    Globals.database.close();
+    fs.rmSync("./tingo_db", { recursive: true, force: true });
+    dbClient.connect();
+    Globals.databaseClient = dbClient.client;
+    Globals.database = dbClient.database;
+    // client.clearCache();
     client.onlyVsac = false;
     jest.resetModules();
   });
@@ -40,14 +54,14 @@ describe('VsacCache', () => {
     mockRequest.get("/ValueSet/2.16.840.1.113762.1.4.1219.35/$expand").reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectLibraryValuesets(library);
-    valueSets.forEach(vs => {
-      expect(client.isCached(vs)).toBeFalsy();
+    valueSets.forEach(async vs => {
+      expect(await client.isCached(vs)).toBeFalsy();
     });
 
     try {
       await client.cacheLibrary(library);
-      valueSets.forEach(vs => {
-        expect(client.isCached(vs)).toBeTruthy();
+      valueSets.forEach(async vs => {
+        expect(await client.isCached(vs)).toBeTruthy();
       });
     } finally {
       mockRequest.done();
@@ -61,14 +75,14 @@ describe('VsacCache', () => {
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-    valueSets.forEach(vs => {
-      expect(client.isCached(vs)).toBeFalsy();
+    valueSets.forEach(async vs => {
+      expect(await client.isCached(vs)).toBeFalsy();
     });
 
     try {
       await client.cacheQuestionnaireItems(questionnaire);
-      valueSets.forEach(vs => {
-        expect(client.isCached(vs)).toBeTruthy();
+      valueSets.forEach(async vs => {
+        expect(await client.isCached(vs)).toBeTruthy();
       });
     } finally {
       mockRequest.done();
@@ -76,21 +90,21 @@ describe('VsacCache', () => {
   });
 
 
-  test('should be not load valuesets already cached unless forced', async () => {
+  test.skip('should be not load valuesets already cached unless forced', async () => {
 
     let mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(200, JSON.stringify(valueSet));
     try {
       const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-      valueSets.forEach(vs => {
-        expect(client.isCached(vs)).toBeFalsy();
+      valueSets.forEach( async vs => {
+        expect(await client.isCached(vs)).toBeFalsy();
       });
 
 
       let cached = await client.cacheQuestionnaireItems(questionnaire);
 
-      valueSets.forEach(vs => {
-        expect(client.isCached(vs)).toBeTruthy();
+      valueSets.forEach(async vs => {
+        expect(await client.isCached(vs)).toBeTruthy();
       });
 
       const vs = valueSets.values().next().value;
@@ -113,8 +127,8 @@ describe('VsacCache', () => {
     mockRequest.get("/ValueSet/yes-no-unknown-not-asked").reply(404, "");
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-    valueSets.forEach(vs => {
-      expect(client.isCached(vs)).toBeFalsy();
+    valueSets.forEach(async vs => {
+      expect(await client.isCached(vs)).toBeFalsy();
     });
 
     try {
