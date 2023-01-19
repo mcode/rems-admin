@@ -62,10 +62,10 @@ class VsacCache {
    */
   collectQuestionnaireValuesets(obj: any) {
     const items = obj.item;
-    let valuesets = new Set<string>()
+    let valuesets = new Set<string>();
     items.forEach(async (item: any) => {
       if (item.answerValueSet) {
-        valuesets.add(item.answerValueSet)
+        valuesets.add(item.answerValueSet);
       }
       if (item.item) {
         valuesets = new Set<string>([...valuesets, ...this.collectQuestionnaireValuesets(item)]);
@@ -82,7 +82,7 @@ class VsacCache {
    * @returns a Map with the return values from caching the valuesets. 
    */
   async cacheValuesets(valueSets: Set<string> | [], forceReload = false) {
-    const values = Array.from(valueSets)
+    const values = Array.from(valueSets);
     const results = new Map<string, any>();
     return await Promise.all(values.map(async vs => {
       return results.set(vs, await this.downloadAndCacheValueset(vs, forceReload));
@@ -98,19 +98,19 @@ class VsacCache {
   async downloadAndCacheValueset(idOrUrl: string, forceReload = false) {
     if (forceReload || !(await this.isCached(idOrUrl))) {
       const vs = await this.downloadValueset(idOrUrl);
-      if (vs.get("error")) {
-        console.log("Error Downloading ", idOrUrl)
-        console.log(vs.get("error").message);
+      if (vs.get('error')) {
+        console.log('Error Downloading ', idOrUrl);
+        console.log(vs.get('error').message);
       }
-      else if (vs.get("valueSet")) {
+      else if (vs.get('valueSet')) {
 
-        await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get("valueSet"));
-        vs.set("cached", true);
+        await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get('valueSet'));
+        vs.set('cached', true);
       }
       return vs;
     }
     const ret = new Map<string, any>();
-    ret.set("cached", false);
+    ret.set('cached', false);
     return ret;
   }
 
@@ -121,36 +121,36 @@ class VsacCache {
    */
   async downloadValueset(idOrUrl: string) {
     const retValue = new Map<string, any>();
-    let vsUrl = this.gtValuesetURL(idOrUrl);
+    const vsUrl = this.gtValuesetURL(idOrUrl);
     const headers: any = {
-      "Accept": "application/json+fhir"
+      'Accept': 'application/json+fhir'
     };
     let isVsac = false;
     // this will only add headers to vsac urls
     if (vsUrl.startsWith(this.baseUrl)) {
-      headers['Authorization'] = "Basic " + Buffer.from(':' + this.apiKey).toString('base64');
+      headers['Authorization'] = 'Basic ' + Buffer.from(':' + this.apiKey).toString('base64');
       isVsac = true;
     }
     // this will try to download valuesets that are not in vsac as well based on the 
     // connonical url passed in. 
     let url = vsUrl;
     if (vsUrl.startsWith(this.baseUrl)) {
-      url = url + "/$expand";
+      url = url + '/$expand';
     }
     // axios cleanup 
-    await process.nextTick(() => { });
+    await process.nextTick(() => { const v = 1;});
     if ((this.onlyVsac && isVsac) || !this.onlyVsac) {
       try {
-        console.log("Downloading vs " + url)
+        console.log('Downloading vs ' + url);
         const vs = await axios.get(url, {
           headers: headers
         });
-        retValue.set("valueSet", vs.data);
+        retValue.set('valueSet', vs.data);
       } catch (error: any) {
-        retValue.set("error", error)
+        retValue.set('error', error);
       }
     } else {
-      retValue.set("error", "Cannot download non vsac valuesets: " + url);
+      retValue.set('error', 'Cannot download non vsac valuesets: ' + url);
     }
 
     return retValue;
@@ -162,7 +162,7 @@ class VsacCache {
    * @returns true or false
    */
   async isCached(idOrUrl: string) {
-    let id = this.getValuesetId(idOrUrl);
+    const id = this.getValuesetId(idOrUrl);
 
      // Grab an instance of our DB and collection
      const db = Globals.database;
@@ -188,7 +188,7 @@ class VsacCache {
    * @param vs the valueset to cache
    */
   async storeValueSet( id: string, vs: any) {
-    if(!vs.id){vs.id = id}
+    if(!vs.id){vs.id = id;}
     await new Promise((resolve, reject) => FhirUtilities.store(vs, resolve, reject));
   }
 
@@ -201,7 +201,7 @@ class VsacCache {
     // is this a url or an id
     if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://')) {
       const url = new URL(idOrUrl);
-      let parts = url.pathname.split("/")
+      const parts = url.pathname.split('/');
       return parts[parts.length - 1];
     }
     return idOrUrl;
@@ -218,7 +218,7 @@ class VsacCache {
      return idOrUrl;
     }
     let path = `${this.baseUrl}/ValueSet/${idOrUrl}`;
-    path = path.replace("//","/");
+    path = path.replace('//','/');
     return path ;
   }
   /**
@@ -230,12 +230,14 @@ class VsacCache {
      // drop the collection
     try{
      const db = Globals.database;    
-      let collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}`);
+      const collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}`);
       if(collection){collection.drop(console.log);
-        let history_collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}_History`);
+        const history_collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}_History`);
         if(history_collection){history_collection.drop(console.log);}
       }
-    }catch(e){ }
+    }catch(e){ 
+      console.error(e);
+    }
   }
 }
 

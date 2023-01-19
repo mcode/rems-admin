@@ -7,7 +7,7 @@ import { Globals } from '../globals';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 const re = /(?:\.([^.]+))?$/;
 
