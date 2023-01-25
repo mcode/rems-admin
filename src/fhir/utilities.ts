@@ -1,6 +1,7 @@
 import { resolveSchema } from '@projecttacoma/node-fhir-server-core';
 import * as moment from 'moment';
 import 'moment-timezone';
+import { v1 as uuidv1 } from 'uuid';
 
 import constants from '../constants';
 import { Globals } from '../globals';
