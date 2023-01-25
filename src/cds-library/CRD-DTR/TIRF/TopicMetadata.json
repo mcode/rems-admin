@@ -1,0 +1,17 @@
+{
+    "topic": "TIRF",
+    "payers": [
+        "cms"
+    ],
+    "mappings": [
+        {
+            "codeSystem": "rxnorm",
+            "codes":[
+                "1237051"
+            ]
+        }
+    ],
+    "fhirVersions": [
+        "R4"
+    ]
+}

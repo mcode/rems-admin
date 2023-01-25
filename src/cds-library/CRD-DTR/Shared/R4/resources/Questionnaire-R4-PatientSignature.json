@@ -1,0 +1,76 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "patient-signature",
+  "name": "Patient Signature",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+      "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPatientInfo-prepopulation"
+    }
+  ],
+  "status": "draft",
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "gtable"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "SIGPAT",
+      "text": "Patient Signature",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "SIGPAT.1",
+          "text": "Signature",
+          "type": "string",
+          "required": true
+        },
+        {
+          "linkId": "SIGPAT.2",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".FullName"
+              }
+            }
+          ],
+          "text": "Name (Printed)",
+          "type": "string",
+          "required": true
+        },
+        {
+          "linkId": "SIGPAT.3",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".Today"
+              }
+            }
+          ],
+          "text": "Date",
+          "type": "date",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

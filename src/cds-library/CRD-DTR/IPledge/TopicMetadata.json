@@ -1,0 +1,17 @@
+{
+    "topic": "IPledge",
+    "payers": [
+        "cms"
+    ],
+    "mappings": [
+        {
+            "codeSystem": "rxnorm",
+            "codes":[
+                "6064"
+            ]
+        }
+    ],
+    "fhirVersions": [
+        "R4"
+    ]
+}
