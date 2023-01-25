@@ -40,28 +40,28 @@ services:
       - "host.docker.internal:host-gateway"
 
   # Create crd container
-  crd:
-    # Name of our service
-    build:
-      context: ../CRD
-      dockerfile: Dockerfile.dev
-    container_name: rems_dev_crd
-    ports:
-      # Port binding to host from docker container
-      - "8090:8090" # Bind port 3000 of host to 3000 of container
-      - "8091:8091"
-    environment:
-      VSAC_API_KEY: ${VSAC_API_KEY}
-    volumes:
-      - rems_dev_crd-sync:/CRD:nocopy #  nocopy is important
-      - rems_dev_crd-logs:/CRD/logs
-      - rems_dev_crd-gradle:/CRD/.gradle
-      - rems_dev_crd-server-gradle:/CRD/server/.gradle
-      - rems_dev_crd-server-build:/CRD/server/build
-      - rems_dev_crd-server-bin:/CRD/server/bin
-      - rems_dev_crd-server-ValueSetCache:/CRD/server/ValueSetCache
-      - rems_dev_crd-operations-build:/CRD/operations/build
-      - rems_dev_crd-resources-build:/CRD/resources/build
+  # crd:
+  #   # Name of our service
+  #   build:
+  #     context: ../CRD
+  #     dockerfile: Dockerfile.dev
+  #   container_name: rems_dev_crd
+  #   ports:
+  #     # Port binding to host from docker container
+  #     - "8090:8090" # Bind port 3000 of host to 3000 of container
+  #     - "8091:8091"
+  #   environment:
+  #     VSAC_API_KEY: ${VSAC_API_KEY}
+  #   volumes:
+  #     - rems_dev_crd-sync:/CRD:nocopy #  nocopy is important
+  #     - rems_dev_crd-logs:/CRD/logs
+  #     - rems_dev_crd-gradle:/CRD/.gradle
+  #     - rems_dev_crd-server-gradle:/CRD/server/.gradle
+  #     - rems_dev_crd-server-build:/CRD/server/build
+  #     - rems_dev_crd-server-bin:/CRD/server/bin
+  #     - rems_dev_crd-server-ValueSetCache:/CRD/server/ValueSetCache
+  #     - rems_dev_crd-operations-build:/CRD/operations/build
+  #     - rems_dev_crd-resources-build:/CRD/resources/build
 
   # Create crd request generator container
   crd-request-generator:
@@ -160,8 +160,8 @@ services:
 volumes:
   rems_dev_test-ehr-sync:
     external: true
-  rems_dev_crd-sync:
-    external: true
+  # rems_dev_crd-sync:
+  #   external: true
   rems_dev_crd-request-generator-sync:
     external: true
   rems_dev_dtr-sync:
@@ -177,14 +177,14 @@ volumes:
   rems_dev_test-ehr-build:
   rems_dev_test-ehr-target:
   rems_dev_test-ehr-logs:
-  rems_dev_crd-logs:
-  rems_dev_crd-gradle:
-  rems_dev_crd-server-gradle:
-  rems_dev_crd-server-build:
-  rems_dev_crd-server-bin:
-  rems_dev_crd-server-ValueSetCache:
-  rems_dev_crd-operations-build:
-  rems_dev_crd-resources-build:
+  # rems_dev_crd-logs:
+  # rems_dev_crd-gradle:
+  # rems_dev_crd-server-gradle:
+  # rems_dev_crd-server-build:
+  # rems_dev_crd-server-bin:
+  # rems_dev_crd-server-ValueSetCache:
+  # rems_dev_crd-operations-build:
+  # rems_dev_crd-resources-build:
   rems_dev_crd-request-generator-nodeModules:
   rems_dev_crd-request-generator-databaseData:
   rems_dev_crd-request-generator-build:

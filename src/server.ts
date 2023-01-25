@@ -1,16 +1,24 @@
-import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import container from './lib/winston';
 import morgan from 'morgan';
-import _ from 'lodash';
 import Hook from './hooks/Hook';
+import remsService from './hooks/rems.hook';
+import { Server } from '@projecttacoma/node-fhir-server-core';
 
 const logger = container.get('application');
 
 const initialize = (config: any) => {
-  const logLevel = _.get(config, 'logging.level');
-  return new REMSServer().configureLogstream(logLevel).configureMiddleware();
+  //const logLevel = _.get(config, 'logging.level');
+  return new REMSServer(config.fhirServerConfig)
+    .configureMiddleware()
+    .configureSession()
+    .configureHelmet()
+    .configurePassport()
+    .setPublicDirectory()
+    .setProfileRoutes()
+    .registerCdsHooks(config.server)
+    .setErrorRoutes();
 };
 
 /**
@@ -19,16 +27,15 @@ const initialize = (config: any) => {
  * @summary Main Server for the application
  * @class Server
  */
-class REMSServer {
-  app: express.Application;
+class REMSServer extends Server {
   services: Hook[];
   /**
    * @method constructor
    * @description Setup defaults for the server instance
    */
 
-  constructor() {
-    this.app = express();
+  constructor(config: any) {
+    super(config);
     this.services = [];
     return this;
   }
@@ -38,6 +45,7 @@ class REMSServer {
    * @description Enable all the standard middleware
    */
   configureMiddleware() {
+    super.configureMiddleware();
     this.app.set('showStackError', true);
     this.app.set('jsonp callback', true);
     this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -54,6 +62,7 @@ class REMSServer {
    * @description Enable streaming logs via morgan
    */
   configureLogstream({ log, level = 'info' }: { log?: any; level?: string } = {}) {
+    super.configureLogstream;
     this.app.use(
       log
         ? log
@@ -67,12 +76,25 @@ class REMSServer {
 
   registerService({ definition, handler }: { definition: any; handler: any }) {
     this.services.push(definition);
-    this.app.post(`/cds-services/${definition.id}`, handler);
+    this.app.post(`${this.cdsHooksEndpoint}/${definition.id}`, handler);
 
     //TODO: remove this after request generator is updated to a new order-sign prefetch
     // add a post endpoint to match the old CRD server
-    this.app.post(`/r4/cds-services/${definition.hook}-crd`, handler);
+    this.app.post(`/r4${this.cdsHooksEndpoint}/${definition.hook}-crd`, handler);
 
+    return this;
+  }
+
+  registerCdsHooks({ discoveryEndpoint = '/cds-services' }: any) {
+    this.cdsHooksEndpoint = discoveryEndpoint;
+    this.registerService(remsService);
+
+    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
+      res.json({ services: this.services })
+    );
+    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
+      res.send('Welcome to the REMS Administrator')
+    );
     return this;
   }
 
@@ -82,13 +104,7 @@ class REMSServer {
    * @param {number} port - Defualt port to listen on
    * @param {function} [callback] - Optional callback for listen
    */
-  listen({ port, discoveryEndpoint = '/cds-services' }: any, callback: any) {
-    this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
-      res.json({ services: this.services })
-    );
-    this.app.get('/', (req: any, res: { send: (arg0: string) => any }) =>
-      res.send('Welcome to the REMS Administrator')
-    );
+  listen({ port }: any, callback: any) {
     return this.app.listen(port, callback);
   }
 }

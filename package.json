@@ -25,12 +25,14 @@
     "url": "git+ssh://git@bitbucket.org/asymmetrik/carejourney-cds.git"
   },
   "jest": {
-    "preset":"ts-jest",
+    "preset": "ts-jest",
     "testEnvironment": "node",
     "transform": {
       "^.+\\.ts?$": "ts-jest"
     },
-    "transformIgnorePatterns": ["<rootDir>/node_modules/"],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
     "testPathIgnorePatterns": [
       "<rootDir>/src/config/env/test.js"
     ],
@@ -47,6 +49,7 @@
     ]
   },
   "dependencies": {
+    "@projecttacoma/node-fhir-server-core": "^2.2.8",
     "@types/fhir": "^0.0.35",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.34",
@@ -54,7 +57,12 @@
     "express": "^4.17.1",
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
+    "moment-timezone": "^0.5.40",
+    "mongodb": "^4.12.1",
     "morgan": "^1.9.1",
+    "tingodb": "^0.6.1",
+    "uuid": "^9.0.0",
+    "var": "^0.4.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.2.1"
   },
@@ -66,6 +74,7 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.9",
     "@types/nodemon": "^1.19.2",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "eslint": "^8.28.0",

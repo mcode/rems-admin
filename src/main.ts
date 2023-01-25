@@ -1,7 +1,12 @@
 import { initialize } from './server';
 import container from './lib/winston';
 import config from './config';
-import remsService from './hooks/rems.hook';
+import { Database } from './lib/Database';
+import { TingoDatabase } from './lib/TingoDatabase';
+import { MongoDatabase } from './lib/MongoDatabase';
+import constants from './constants';
+import { Globals } from './globals';
+import { FhirUtilities } from './fhir/utilities';
 
 /**
  * @name exports
@@ -15,9 +20,31 @@ export default async function main() {
   // Build our server
   logger.info('Initializing REMS Administrator');
 
-  const app = initialize(config).registerService(remsService);
+  const { server: serverConfig, database: databaseConfig } = config;
 
-  const { server: serverConfig } = config;
+  // Setup the database
+  let dbClient: Database;
+  switch (databaseConfig.selected) {
+    case constants.TINGO_DB:
+      dbClient = new TingoDatabase(databaseConfig.tingoConfig);
+      break;
+    case constants.MONGO_DB:
+    default:
+      dbClient = new MongoDatabase(databaseConfig.mongoConfig);
+  }
+  try {
+    await dbClient.connect();
+  } catch (dbErr: any) {
+    console.error(dbErr.message);
+    process.exit(1);
+  }
+  Globals.databaseClient = dbClient.client;
+  Globals.database = dbClient.database;
+
+  // load the database with the default resources
+  FhirUtilities.loadResources(config.general.resourcePath);
+
+  const app = initialize(config);
 
   // Start the application
   app.listen(serverConfig, () => {

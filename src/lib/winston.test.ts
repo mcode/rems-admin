@@ -6,7 +6,6 @@
  */
 import container from './winston';
 import config from '../config';
-import winston, { Container, transport, transports } from 'winston';
 
 describe('Logger Class', () => {
   beforeEach(() => {
