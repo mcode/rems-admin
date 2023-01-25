@@ -25,6 +25,9 @@
     "url": "git+ssh://git@bitbucket.org/asymmetrik/carejourney-cds.git"
   },
   "jest": {
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs"
+    },
     "preset": "ts-jest",
     "testEnvironment": "node",
     "transform": {
@@ -51,10 +54,12 @@
   "dependencies": {
     "@projecttacoma/node-fhir-server-core": "^2.2.8",
     "@types/fhir": "^0.0.35",
+    "axios": "^1.2.1",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.34",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fhirpath": "^3.2.0",
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.40",
@@ -77,11 +82,13 @@
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
+    "axios-mock-adapter": "^1.21.2",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^6.10.1",
     "jest": "^27.4.5",
     "jest-extended": "^1.2.0",
     "json-diff": "^0.9.0",
+    "nock": "^13.2.9",
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
     "ts-jest": "^27.1.2",

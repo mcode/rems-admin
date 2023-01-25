@@ -8,6 +8,7 @@ import { Globals } from '../globals';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
+import crypto from 'crypto';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -43,7 +44,7 @@ export class FhirUtilities {
     let id = '';
     if (!resource.id) {
       // If no resource ID was provided, generate one.
-      id = uuidv1();
+      id = crypto.randomUUID();
     } else {
       id = resource.id;
     }
@@ -77,6 +78,7 @@ export class FhirUtilities {
     }
 
     const Resource = resolveSchema(baseVersion, resource.resourceType);
+
     const fhirResource = new Resource(resource);
 
     // Create the resource's metadata
@@ -87,7 +89,7 @@ export class FhirUtilities {
     });
 
     if (collectionString === '') {
-      return reject('    Unsupported FHIR Resource Type');
+      reject('    Unsupported FHIR Resource Type');
     }
     const collection = db.collection(collectionString);
 
@@ -104,7 +106,8 @@ export class FhirUtilities {
     collection.insert(doc, (err: any) => {
       if (err) {
         console.log('    Error with %s.create: ', resource.resourceType, err.message);
-        return reject(err);
+        reject(err);
+        return;
       } else {
         console.log('    Successfully added ' + resource.resourceType + ' -- ' + id);
       }
@@ -113,12 +116,13 @@ export class FhirUtilities {
       const history_collection = db.collection(historyCollectionString);
 
       // Insert our patient record to history but don't assign _id
-      return history_collection.insert(history_doc, (err2: any) => {
+      history_collection.insert(history_doc, (err2: any) => {
         if (err2) {
           console.log('    Error with %sHistory.create: ', resource.resourceType, err2.message);
-          return reject(err2);
+          reject(err2);
+          return;
         }
-        return resolve({ id: doc.id, resource_version: doc.meta.versionId });
+        resolve({ id: doc.id, resource_version: doc.meta.versionId });
       });
     });
   }
