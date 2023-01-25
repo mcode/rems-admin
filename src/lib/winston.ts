@@ -15,7 +15,11 @@ const applicationTransports = [];
 // Create a console transport
 const transportConsole = new transports.Console({
   level: logConfig.level,
-  format: winston.format.combine(winston.format.colorize(), winston.format.json())
+  format: winston.format.combine(
+    winston.format.prettyPrint(),
+    winston.format.json(),
+    winston.format.splat()
+  )
 });
 
 applicationTransports.push(transportConsole);
