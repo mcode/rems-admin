@@ -15,7 +15,7 @@ import { Globals } from '../globals';
 import { FhirUtilities } from './utilities';
 import container from '../lib/winston';
 import config from '../config';
-import axios from 'axios'
+import axios from 'axios';
 
 interface ResourceTable {
   [key: string]: FhirResource;
@@ -81,7 +81,6 @@ export class QuestionnaireUtilities {
 
   // Input object fetchedLibraries modified to contain all related artifacts
   static async getAllRelatedLibraries(library: Library, fetchedLibraries: LibraryMap) {
-    const newLibraries = [];
     if (library.relatedArtifact) {
       for (const artifact of library.relatedArtifact) {
         if (artifact.type === 'depends-on' && artifact.resource) {
