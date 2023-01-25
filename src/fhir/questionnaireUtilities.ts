@@ -15,6 +15,7 @@ import { Globals } from '../globals';
 import { FhirUtilities } from './utilities';
 import container from '../lib/winston';
 import config from '../config';
+import axios from 'axios'
 
 interface ResourceTable {
   [key: string]: FhirResource;
@@ -103,7 +104,7 @@ export class QuestionnaireUtilities {
   static async fetchValueSetFromVSAC(url: string) {
     const username = 'apikey';
     const password = config.general.VsacApiKey;
-    const response = await fetch(url, {
+    const response = await axios(url, {
       method: 'GET',
       headers: {
         Authorization: `Basic ${Buffer.from(username + ':' + password).toString('base64')}`,
@@ -111,7 +112,7 @@ export class QuestionnaireUtilities {
       }
     });
     try {
-      const body: ValueSet = await response.json();
+      const body: ValueSet = await response.data;
       // the url returns with http but it should be https? This might be a product of not using the ticket API here
       // nevertheless, to search by url on our own database, the url must match what's in the library resource.
       // so here the http version of the url is replaced by the one used to fetch the resource (https version of the url)
