@@ -1,6 +1,6 @@
 import OrderSignRequest from '../../OrderSignRequest';
 import OrderSignPrefetch from '../OrderSignPrefetch';
-import axios from 'axios'
+import axios from 'axios';
 function jsonPath(json: any, path: string) {
   // Use a regular expression to find array accessors in the form of "[i]"
   const arrayRegex = /\[(\d+)\]/g;
