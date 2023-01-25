@@ -1,6 +1,6 @@
 import OrderSignRequest from '../../OrderSignRequest';
 import OrderSignPrefetch from '../OrderSignPrefetch';
-import OrderSignRequestPrefetch from '../OrderSignRequestPrefetch';
+import axios from 'axios'
 function jsonPath(json: any, path: string) {
   // Use a regular expression to find array accessors in the form of "[i]"
   const arrayRegex = /\[(\d+)\]/g;
@@ -57,9 +57,9 @@ function resolveToken(token: string, context: OrderSignRequest) {
       Authorization: `Bearer ${access_token}`
     }
   };
-  const response = fetch(ehrUrl, options);
+  const response = axios(ehrUrl, options);
   return response.then(e => {
-    return e.json();
+    return e.data;
   });
 }
 function hydrate(template: OrderSignPrefetch, request: OrderSignRequest) {
