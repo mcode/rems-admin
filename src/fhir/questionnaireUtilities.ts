@@ -103,17 +103,14 @@ export class QuestionnaireUtilities {
     }
   }
   static async fetchValueSetFromVSAC(url: string) {
-    const headers = new Headers();
     const username = 'apikey';
     const password = config.general.VsacApiKey;
-    headers.set(
-      'Authorization',
-      'Basic ' + Buffer.from(username + ':' + password).toString('base64')
-    );
-    headers.set('Content-Type', 'application/json');
     const response = await fetch(url, {
       method: 'GET',
-      headers: headers
+      headers: {
+        'Authorization': `Basic ${Buffer.from(username + ':' + password).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
     });
     try {
       const body: ValueSet = await response.json();
