@@ -8,10 +8,8 @@ import {
   Parameters,
   Questionnaire,
   QuestionnaireItem,
-  Resource,
   ValueSet
 } from 'fhir/r4';
-import { values } from 'lodash';
 import constants from '../constants';
 import { Globals } from '../globals';
 import { FhirUtilities } from './utilities';
@@ -108,7 +106,7 @@ export class QuestionnaireUtilities {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Authorization': `Basic ${Buffer.from(username + ':' + password).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(username + ':' + password).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -127,7 +125,7 @@ export class QuestionnaireUtilities {
   // On load of new library, finds ValueSets in codefilters and
   // loads them as well
   static async processLibraryCodeFilters(library: Library, fetchedSets: ValueSetMap) {
-    const returnValue = [];
+    const returnValue: ValueSet[] = [];
     const dataReqs: DataRequirement[] = library.dataRequirement || [];
     for (const dataReq of dataReqs) {
       const filters = dataReq.codeFilter || [];
