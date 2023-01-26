@@ -4,7 +4,6 @@ import container from './lib/winston';
 import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
-// import etasuService from './services/etasu.service'
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import { Globals } from './globals';
 import { uid } from 'uid';
@@ -17,7 +16,6 @@ const logger = container.get('application');
 const initialize = (config: any) => {
   //const logLevel = _.get(config, 'logging.level');
   return new REMSServer(config.fhirServerConfig)
-    .configureEtasuEndpoints()
     .configureMiddleware()
     .configureSession()
     .configureHelmet()
@@ -25,6 +23,7 @@ const initialize = (config: any) => {
     .setPublicDirectory()
     .setProfileRoutes()
     .registerCdsHooks(config.server)
+    .configureEtasuEndpoints()
     .setErrorRoutes();
 
 };
@@ -329,15 +328,14 @@ class REMSServer extends Server {
     }
     );
 
-    this.app.post('/etasu/met', (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.post('/etasu/met', async (req: any, res: { send: (arg0: string) => any }) => {
       let returnedRemsRequestDoc: any;
       let returnedMetReqDoc: any;
       let returnRemsRequest = false;
       const requestBody = req.body;
 
-
       // extract params and questionnaire response identifier
-      let params = this.getResource(requestBody, requestBody.entry[0].resource.focus.parameters.reference.textValue);
+      let params = this.getResource(requestBody, requestBody.entry[0].resource.focus.parameters.reference);
       let questionnaireResponse = this.getQuestionnaireResponse(requestBody);
       let questionnaireStringArray = questionnaireResponse.questionnaire.split("/");
       let requirementId = questionnaireStringArray[questionnaireStringArray.length - 1];
@@ -365,16 +363,23 @@ class REMSServer extends Server {
       let presciption = this.getResource(requestBody, prescriptionReference);
       let prescriptionSystem = presciption.medicationCodeableConcept.coding[0].system;
       let prescriptionCode = presciption.medicationCodeableConcept.coding[0].code;
-      const drug = medicationCollection.findOne({ code: prescriptionCode, codeSystem: prescriptionSystem });
-
+  
+      const drug = await medicationCollection.findOne({ code: prescriptionCode, codeSystem: prescriptionSystem }
+      //   , (err: any, result: any) => {
+      //   if (err) console.log(err);
+      //   console.log('Found Drug Info: ');
+      //   console.log(result)
+      //   return result;
+      // }
+      );
       // iterate through each requirement of the drug
       for (let requirement of drug.requirements) {
         // figure out which stakeholder the req corresponds to 
         let reqStakeholder = requirement.stakeholderType;
-        let reqStakeholderReference = reqStakeholder.equals("prescriber") ? practitionerReference : (reqStakeholder.equals("pharmacist") ? pharmacistReference : patientReference);
+        let reqStakeholderReference = reqStakeholder === "prescriber" ? practitionerReference : (reqStakeholder === "pharmacist" ? pharmacistReference : patientReference);
 
         // if the requirement is the one submitted continue
-        if (requirement.resourceId.equals(requirementId)) {
+        if (requirement.resourceId === requirementId) {
 
           // if the req submitted is a patient enrollment form and requires creating a new case
           if (requirement.createNewCase) {
@@ -401,10 +406,12 @@ class REMSServer extends Server {
               case_numbers: [case_number],
             };
 
-            const matchedMetReq = metRequirementsCollection.insert(metReq, (err: any, result: any) => {
-              if (err) console.log(err);
-              console.log('Inserted Matched Met Requirement');
-            });
+            const matchedMetReq = await metRequirementsCollection.insert(metReq
+            //   , (err: any, result: any) => {
+            //   if (err) console.log(err);
+            //   console.log('Inserted Matched Met Requirement');
+            // }
+            );
             
             remsRequest.requirements.push(
               {
@@ -418,12 +425,12 @@ class REMSServer extends Server {
             // iterate through all other reqs again to create corresponding false metReqs / assign to existing 
             for (let requirement2 of drug.requirements) {
               // skip if the req found is the same as in the outer loop and has already been processed
-              if (!requirement2.resourceId.equals(requirementId)) {
+              if (!requirement2.resourceId === requirementId) {
                 // figure out which stakeholder the req corresponds to 
                 let reqStakeholder2 = requirement2.stakeholderType;
-                let reqStakeholder2Reference = reqStakeholder2.equals("prescriber") ? practitionerReference : (reqStakeholder2.equals("pharmacist") ? pharmacistReference : patientReference);
+                let reqStakeholder2Reference = reqStakeholder2 === "prescriber" ? practitionerReference : (reqStakeholder2 === "pharmacist" ? pharmacistReference : patientReference);
                 
-                const matchedMetReq2 = metRequirementsCollection.findOne({stakeholderId: reqStakeholder2Reference, requirementName: requirement2.name, drugName: drug.name});
+                const matchedMetReq2 = await metRequirementsCollection.findOne({stakeholderId: reqStakeholder2Reference, requirementName: requirement2.name, drugName: drug.name});
                 if (matchedMetReq2) {
                   remsRequest.requirements.push(
                     {
@@ -437,7 +444,7 @@ class REMSServer extends Server {
                     remsRequestCompletedStatus = "Pending";
                   }
                   matchedMetReq2.case_numbers.push(case_number);
-                  metRequirementsCollection.update({_id: matchedMetReq2._id}, matchedMetReq2);
+                  await metRequirementsCollection.update({_id: matchedMetReq2._id}, matchedMetReq2);
                 } else {
                  // create the metReq that was submitted
                  let newMetReq = {
@@ -451,10 +458,12 @@ class REMSServer extends Server {
 
                 remsRequestCompletedStatus = "Pending";
 
-                const newMetReqDoc = metRequirementsCollection.insert(newMetReq, (err: any, result: any) => {
-                  if (err) console.log(err);
-                  console.log('Inserted New Met Requirement');
-                });
+                const newMetReqDoc = await metRequirementsCollection.insert(newMetReq
+                //   , (err: any, result: any) => {
+                //   if (err) console.log(err);
+                //   console.log('Inserted New Met Requirement');
+                // }
+                );
 
                 remsRequest.requirements.push(
                   {
@@ -469,23 +478,25 @@ class REMSServer extends Server {
             }
 
             remsRequest.status = remsRequestCompletedStatus;
-            returnedRemsRequestDoc = remsCaseCollection.insert(remsRequest, (err: any, result: any) => {
-              if (err) console.log(err);
-              console.log('Inserted Rems Case');
-            });
+            returnedRemsRequestDoc = await remsCaseCollection.insert(remsRequest
+            //   , (err: any, result: any) => {
+            //   if (err) console.log(err);
+            //   console.log('Inserted Rems Case');
+            // }
+            );
           } else {
-            const matchedMetReq3 = metRequirementsCollection.findOne({stakeholderId: reqStakeholderReference, requirementName: requirement.name, drugName: drug.name});
+            const matchedMetReq3 = await metRequirementsCollection.findOne({stakeholderId: reqStakeholderReference, requirementName: requirement.name, drugName: drug.name});
             if (matchedMetReq3) {
               matchedMetReq3.completed = true;
               matchedMetReq3.completedQuestionnaire = questionnaireResponse;
-              returnedMetReqDoc = metRequirementsCollection.update({_id: matchedMetReq3._id}, matchedMetReq3);
+              returnedMetReqDoc = await metRequirementsCollection.update({_id: matchedMetReq3._id}, matchedMetReq3);
 
-              const remsRequestsToUpdate = remsCaseCollection.find({case_number: {$in: matchedMetReq3.case_numbers}})
+              const remsRequestsToUpdate = await remsCaseCollection.find({case_number: {$in: matchedMetReq3.case_numbers}})
 
               for (let remsRequestToUpdate of remsRequestsToUpdate) {
                 let foundUncompleted = false;
                 remsRequestToUpdate.requirements.forEach((req4: any) => {
-                  if(req4.metRequirementId.equals(matchedMetReq3._id)) {
+                  if(req4.metRequirementId === matchedMetReq3._id) {
                     req4.completed = true;
                   }
                   if(!req4.completed){
@@ -493,11 +504,11 @@ class REMSServer extends Server {
                   }
                 });
 
-                if(!foundUncompleted && remsRequestToUpdate.status.equals("Pending")) {
+                if(!foundUncompleted && remsRequestToUpdate.status === "Pending") {
                   remsRequestToUpdate.status = "Approved";
                 }
 
-                remsCaseCollection.update({_id: remsRequestToUpdate._id}, remsRequestToUpdate);
+                await remsCaseCollection.update({_id: remsRequestToUpdate._id}, remsRequestToUpdate);
 
               }
 
@@ -512,10 +523,12 @@ class REMSServer extends Server {
               case_numbers: [],
             };
 
-            returnedMetReqDoc = metRequirementsCollection.insert(newMetReq3, (err: any, result: any) => {
-              if (err) console.log(err);
-              console.log('Inserted New Met Requirement');
-            });
+            returnedMetReqDoc = await metRequirementsCollection.insert(newMetReq3
+            //   , (err: any, result: any) => {
+            //   if (err) console.log(err);
+            //   console.log('Inserted New Met Requirement');
+            // }
+            );
             }
           }
           break;
@@ -526,7 +539,7 @@ class REMSServer extends Server {
       if (returnRemsRequest) {
         res.send(returnedRemsRequestDoc);
       } else  {
-        res.send(returnedRemsRequestDoc);
+        res.send(returnedMetReqDoc);
       }
     });
 
