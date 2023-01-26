@@ -3,6 +3,7 @@ import { Url } from 'url';
 import OrderSignRequestPrefetch from './Prefetch/OrderSignRequestPrefetch';
 // https://cds-hooks.hl7.org/1.0/#fhir-resource-access
 interface FhirAuthorization {
+  access_token: string;
   token_type: string;
   expires_in: number;
   scope: string;

@@ -5,7 +5,6 @@ describe('hook: test rems', () => {
   test('should have definition and handler', () => {
     const prefetch = {
       patient: 'Patient/{{context.patientId}}',
-      request: 'MedicationRequest?_id={{context.draftOrders.MedicationRequest.id}}',
       practitioner: 'Practitioner/{{context.userId}}'
     };
     const expectedDefinition = new OrderSign(
