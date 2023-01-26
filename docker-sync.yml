@@ -6,9 +6,9 @@ syncs:
     src: ../test-ehr
     sync_excludes: ['.gradle', 'bin', 'build', 'target', 'logs']
 
-  # rems_dev_crd-sync:
-  #   src: '../CRD'
-  #   sync_excludes: ['logs', '.gradle', 'server/.gradle', 'server/bin', 'server/build', 'server/ValueSetCache', 'operations/build', 'resources/build']
+  rems_dev_crd-sync:
+    src: '../CRD'
+    sync_excludes: ['logs', '.gradle', 'server/.gradle', 'server/bin', 'server/build', 'server/ValueSetCache', 'operations/build', 'resources/build']
 
   rems_dev_crd-request-generator-sync:
     src: '../crd-request-generator'
