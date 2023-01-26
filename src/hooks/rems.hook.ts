@@ -8,55 +8,55 @@ import config from '../config';
 import { hydrate } from './Prefetch/hydrator/PrefetchHydrator';
 
 interface CardRule {
-  links: Link[]
-  summary?: string
+  links: Link[];
+  summary?: string;
 }
 const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
 // TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
 // the app doesn't necessarily have to use CQL for this.
 const codeMap: { [key: string]: CardRule[] } = {
-  '2183126': [{
-    links: [
-      {
-        label: 'Documentation Requirements',
-        type: 'absolute',
-        url: new URL(
-          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_08_04_REMS_Full.pdf'
-        )
-      },
-      {
-        label: 'Medication Guide',
-        type: 'absolute',
-        url: new URL(
-          'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio_Med&inline=true'
-        )
-      },
-      {
-        label: 'Patient Guide',
-        type: 'absolute',
-        url: new URL(
-          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
-        )
-      },
-      {
-        label: 'Patient Status Update Form',
-        appContext:
-          'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
-        type: 'smart',
-        url: new URL(config.smart.endpoint)
-      },
-      {
-        label: 'Patient Enrollment Form',
-        appContext:
-          'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
-        type: 'smart',
-        url: new URL(config.smart.endpoint)
-      }
-    ],
-  },
-  {
-    links:
-      [
+  '2183126': [
+    {
+      links: [
+        {
+          label: 'Documentation Requirements',
+          type: 'absolute',
+          url: new URL(
+            'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_08_04_REMS_Full.pdf'
+          )
+        },
+        {
+          label: 'Medication Guide',
+          type: 'absolute',
+          url: new URL(
+            'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio_Med&inline=true'
+          )
+        },
+        {
+          label: 'Patient Guide',
+          type: 'absolute',
+          url: new URL(
+            'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
+          )
+        },
+        {
+          label: 'Patient Status Update Form',
+          appContext:
+            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
+          type: 'smart',
+          url: new URL(config.smart.endpoint)
+        },
+        {
+          label: 'Patient Enrollment Form',
+          appContext:
+            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
+          type: 'smart',
+          url: new URL(config.smart.endpoint)
+        }
+      ]
+    },
+    {
+      links: [
         {
           label: 'Documentation Requirements',
           type: 'absolute',
@@ -91,10 +91,10 @@ const codeMap: { [key: string]: CardRule[] } = {
             'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
-        },
+        }
       ],
-    summary: "Prescriber Forms"
-  }
+      summary: 'Prescriber Forms'
+    }
   ],
   '6064': [
     {
@@ -134,7 +134,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
-      ],
+      ]
     },
     {
       links: [
@@ -160,7 +160,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(config.smart.endpoint)
         }
       ],
-      summary: "Prescriber Forms"
+      summary: 'Prescriber Forms'
     }
   ],
   '1237051': [
@@ -194,7 +194,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
-      ],
+      ]
     },
     {
       links: [
@@ -210,7 +210,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'absolute',
           url: new URL(
             'https://tirfstorageproduction.blob.core.windows.net/tirf-public/tirf-prfaq-frequently-asked-questions.pdf?skoid=417a7522-f809-43c4-b6a8-6b192d44b69e&sktid=59fc620e-de8c-4745-abcc-18182d1bf20e&skt=2022-09-20T19%3A06%3A53Z&ske=2022-09-26T19%3A11%3A53Z&sks=b&skv=2020-04-08&sv=2020-04-08&st=2021-03-21T21%3A35%3A43Z&se=2031-03-21T23%3A59%3A59Z&sr=b&sp=rc&sig=fqtDzsm7qi1G8MKau210Y3gNet%2Fi20zw2EThKODdEUM%3D'
-            )
+          )
         },
         {
           label: 'Prescriber Enrollment Form',
@@ -317,7 +317,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       contextRequest &&
       contextRequest.id &&
       prefetchRequest.id.replace('MedicationRequest/', '') !==
-      contextRequest.id.replace('MedicationRequest/', '')
+        contextRequest.id.replace('MedicationRequest/', '')
     ) {
       res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
       return;
@@ -329,24 +329,30 @@ const handler = (req: TypedRequestBody, res: any) => {
         return e.code === medicationCode.code && e.system === medicationCode.system;
       });
       if (returnCard) {
-        const cardArray: Card[] = []
+        const cardArray: Card[] = [];
         const codeRule = codeMap[medicationCode.code];
-        for(const rule of codeRule){
-            const card = new Card(rule.summary || medicationCode.display || 'Rems', CARD_DETAILS, source, 'info');
-            rule.links.forEach(e => {
-              if (e.type == 'absolute') {
-                // no construction needed
-                card.addLink(e);
-              } else {
-                // link is SMART
-                // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-                e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${contextRequest.insurance?.[0].reference
-                  }`;
-                card.addLink(e);
-              }
-            });
-            cardArray.push(card)
-          }
+        for (const rule of codeRule) {
+          const card = new Card(
+            rule.summary || medicationCode.display || 'Rems',
+            CARD_DETAILS,
+            source,
+            'info'
+          );
+          rule.links.forEach(e => {
+            if (e.type == 'absolute') {
+              // no construction needed
+              card.addLink(e);
+            } else {
+              // link is SMART
+              // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+              e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
+                contextRequest.insurance?.[0].reference
+              }`;
+              card.addLink(e);
+            }
+          });
+          cardArray.push(card);
+        }
         res.json({
           cards: cardArray
         });
