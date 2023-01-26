@@ -42,14 +42,14 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Patient Status Update Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TuralioRemsPatientStatus',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         },
         {
           label: 'Patient Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
@@ -81,14 +81,14 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Prescriber Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         },
         {
           label: 'Prescriber Knowledge Assessment',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
@@ -130,7 +130,7 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Patient Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
@@ -155,7 +155,7 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Prescriber Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
@@ -190,7 +190,7 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Patient Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
@@ -215,14 +215,14 @@ const codeMap: { [key: string]: CardRule[] } = {
         {
           label: 'Prescriber Enrollment Form',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         },
         {
           label: 'Prescriber Knowledge Assessment',
           appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
+            'questionnaire=http://localhost:9020/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
