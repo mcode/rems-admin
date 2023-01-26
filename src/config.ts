@@ -22,7 +22,8 @@ export default {
     level: 'info'
   },
   general: {
-    resourcePath: 'CDS-Library/CRD-DTR'
+    resourcePath: 'src/cds-library/CRD-DTR',
+    VsacApiKey: env.VSAC_KEY
   },
   database: {
     selected: 'tingo',
@@ -101,7 +102,16 @@ export default {
       },
       questionnaire: {
         service: './src/services/questionnaire.service.ts',
-        versions: [fhirConstants.VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']],
+        operation: [
+          {
+            name: 'questionnaire-package',
+            route: '/:id/$questionnaire-package',
+            method: 'POST',
+            reference:
+              'https://build.fhir.org/ig/HL7/davinci-dtr/OperationDefinition-Questionnaire-for-Order.html'
+          }
+        ]
       },
       questionnaireresponse: {
         service: './src/services/questionnaireresponse.service.ts',

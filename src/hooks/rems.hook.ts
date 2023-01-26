@@ -36,14 +36,14 @@ const codeMap: { [key: string]: Link[] } = {
     {
       label: 'Patient Status Update Form',
       appContext:
-        'questionnaire=http://localhost:8090/fhir/r4/Questionnaire/TuralioRemsPatientStatus',
+        'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
       type: 'smart',
       url: new URL(config.smart.endpoint)
     },
     {
       label: 'Patient Enrollment Form',
       appContext:
-        'questionnaire=http://localhost:8090/fhir/r4/Questionnaire/TuralioRemsPatientEnrollment',
+        'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
       type: 'smart',
       url: new URL(config.smart.endpoint)
     }
@@ -80,7 +80,7 @@ const codeMap: { [key: string]: Link[] } = {
     {
       label: 'Patient Enrollment Form',
       appContext:
-        'questionnaire=http://localhost:8090/fhir/r4/Questionnaire/IPledgeRemsPatientEnrollment',
+        'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
       type: 'smart',
       url: new URL(config.smart.endpoint)
     }
@@ -110,7 +110,7 @@ const codeMap: { [key: string]: Link[] } = {
     {
       label: 'Patient Enrollment Form',
       appContext:
-        'questionnaire=http://localhost:8090/fhir/r4/Questionnaire/TIRFRemsPatientEnrollment',
+        'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
       type: 'smart',
       url: new URL(config.smart.endpoint)
     }

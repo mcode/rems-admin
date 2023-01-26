@@ -1,0 +1,723 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "IPledgeRemsPatientEnrollment",
+    "name": "IPledgeRemsPatientEnrollment",
+    "title": "IPledge Rems Patient Enrollment",
+    "status": "draft",
+    "subjectType": [
+      "Patient"
+    ],
+    "date": "2020-05-20",
+    "publisher": "Da Vinci DTR",
+    "extension": [
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/IPledge-prepopulation"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPatientInfo-prepopulation"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPractitionerInfo-prepopulation"
+        }
+    ],
+    "item": [
+        {
+            "linkId": "1",
+            "type": "group",
+            "text": "Determine Patient Category",
+            "item": [
+                {
+                    "linkId": "1.1",
+                    "text": "Before enrolling your patient in the iPLEDGE REMS, you must determine if this is a patient who can become pregnant. In the iPLEDGE REMS, the definition of a patient who can become pregnant is: • A patient who has not had a hysterectomy and/or bilateral oophorectomy • The patient is not post-menopausal • A patient who has not yet started menstruating • A patient who has had a tubal sterilization • A transgender male with viable female reproductive organs",
+                    "type": "display"
+                },
+                {
+                    "linkId": "1.2",
+                    "text": "Determine patient category",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "1.2.1",
+                            "text": "Patient who can get pregnant",
+                            "type": "boolean",
+                            "initial": [
+                                {
+                                    "valueBoolean": false
+                                }
+                            ],
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "2",
+            "type": "group",
+            "text": "Pregnancy Test Results",
+            "item": [
+                {
+                    "linkId": "2.1",
+                    "text": "Enter in-office test results",
+                    "type": "display"
+                },
+                {
+                    "linkId": "2.2",
+                    "text": "In office pregnancy test result",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "77386006",
+                                "system": "http://snomed.info/sct",
+                                "display": "In-office pregnancy test is positive"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "60001007",
+                                "system": "http://snomed.info/sct",
+                                "display": "In-office pregnancy test is negative"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.3",
+                    "text": "Date of in-office positive or negative pregnancy test (MM/DD/YYYY)",
+                    "type": "date",
+                    "required": true
+                }
+            ],
+            "enableWhen": [
+                {
+                  "question": "1.2.1",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+            ]
+        },
+        {
+            "linkId": "3",
+            "type": "group",
+            "text": "Determine Risk Category",
+            "item": [
+                {
+                    "linkId": "3.1",
+                    "text": "You have indicated that this patient is a patient who cannot become pregnant. The questions that follow will assign a risk category for this patient, based on the reproductive potential according to the requirements of the iPLEDGE REMS. All patients who cannot get pregnant are considered patients who can get pregnant unless one or more of the following applies: 1. Patient is cisgender male (born a male, aka cis-male) 2. Patient has had a hysterectomy 3. Patient has had a bilateral oophorectomy 4. Patient is post-menopausal",
+                    "type": "display"
+                }, 
+                {
+                    "linkId": "3.2",
+                    "text": "Please note that the following conditions DO NOT qualify a patient to be moved from the patient who can become pregnant risk category •  Tubal sterilization • Male vasectomy • Abstinence • Patient has not had a first menstrual period (pre-menarche) • Patient is currently in menopause (but not yet post-menopausal)",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.3",
+                    "text": "Please acknowledge your understanding of the qualification criteria as presented in order to proceed with assigning a risk category for this patient.",
+                    "type": "boolean"
+                }
+            ],
+            "enableWhen": [
+                {
+                  "question": "1.2.1",
+                  "operator": "=",
+                  "answerBoolean": false
+                }
+            ]
+        },
+        {
+            "linkId": "4",
+            "type": "group",
+            "text": "Confirm Risk Category",
+            "item": [
+                {
+                    "linkId": "4.1",
+                    "text": "Is the patient cisgender male (born a male, aka cis-male)",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "4.2",
+                    "text": "Has the patient had a hysterectomy?",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "4.3",
+                    "text": "Has the patient had a bilateral oophorectomy?",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "4.4",
+                    "text": "For the iPLEDGE REMS, a patient is considered post-menopausal upon cessation of previously occurring menses as a result of ovarian failure with documentation of hormonal deficiency by a certified healthcare provider (i.e., spontaneous menopause). Hormonal deficiency should be properly documented in the case of spontaneous menopause as follows: 1. If age > 54 years and with absence of normal menses: serum FSH (Follicle Stimulating Hormone) level elevated to within the post-menopausal range based on the laboratory reference range where the hormonal assay is performed 2. If age < 54 years and with the absence of normal menses: negative serum or urine -hCG with concurrently elevated serum FSH (Follicle Stimulating Hormone) level in the post-menopausal, depressed estradiol (E2) level in the post-menopausal range, and absent serum progesterone level, based on the laboratory reference ranges where the hormonal assay is performed.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "4.5",
+                    "text": "Using the definition above, is the patient post-menopausal?",
+                    "type": "boolean",
+                    "required": true
+                }
+            ],
+            "enableWhen": [
+                {
+                  "question": "1.2.1",
+                  "operator": "=",
+                  "answerBoolean": false
+                }
+            ]
+        },
+        {
+            "linkId": "5",
+            "type": "group",
+            "text": "Enter Patient Information",
+            "item": [
+                {
+                    "linkId": "5.1",
+                    "text": "First Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"BasicPatientInfoPrepopulation\".FirstName"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.2",
+                    "text": "Middle Initial",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".MiddleInitial"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.3",
+                    "text": "Last Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".LastName"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.4",
+                    "text": "Address Line 1",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".Line"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.5",
+                    "text": "Address Line 2",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "linkId": "5.6",
+                    "text": "City",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".City"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.7",
+                    "text": "State",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".State"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.8",
+                    "text": "Zip",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".Zip"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.9",
+                    "text": "Mobile Phone Number",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".Phone"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.10",
+                    "text": "E-mail",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "5.11",
+                    "text": "Date of Birth",
+                    "type": "date",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".DateOfBirth"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "5.12",
+                    "text": "Preferred Method of Communication",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "email",
+                                "system": "http://hl7.org/fhir/contact-point-system",
+                                "display": "Email"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "sms",
+                                "system": "http://hl7.org/fhir/contact-point-system",
+                                "display": "Text Message"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "6",
+            "type": "group",
+            "text": "Informed Consent (For All Patients)",
+            "item": [
+                {
+                    "linkId": "6.1",
+                    "text": "To be completed by the patient (and parent or guardian if the patient is under age 18) and signed by the doctor. Read each item below and check the box provided if you understand each item and agree to follow your doctor's instructions. A parent or guardian of a patient under age 18 must also read and understand each item before signing the agreement. Do not sign this agreement, and do not take isotretinoin if there is anything that you do not understand about all the information you have received about using isotretinoin.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "6.2",
+                    "text": "1. I understand that isotretinoin is a medicine used in patients 12 years of age and older, who are not pregnant for the treatment of severe nodular acne that cannot be cleared up by any other acne treatments, including antibiotics. In severe nodular acne, many red, swollen, tender lumps form in the skin. If untreated, severe nodular acne can lead to permanent scars.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.3",
+                    "text": "2. My doctor has told me about my choices for treating my acne",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.4",
+                    "text": "3. I understand that there are serious side effects that may happen while I am taking isotretinoin. These have been explained to me. These side effects include serious birth defects in babies of pregnant patients. [Note: There is a second informed consent about birth defects (for patients who can get pregnant)].",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.5",
+                    "text": "4. I understand that some patients while taking isotretinoin or soon after stopping isotetrinoin, have become depressed or developed other serious mental problems. Symptoms of depression include sad, anxious or empty mood, irritability, acting on dangerous impulses, anger, loss of pleasure or interest in social or sport activities, sleeping too much or too little, changes in weight or appetite, school or work performance going down, or trouble concentrating. Some patients taking isotretinoin have had thoughts about hurting themselves or putting an end to their own lives (suicidal thoughts). Some people tried to end their own lives, and some people have ended their own lives. There were reports that some of these people did not appear depressed. There have been reports of patients on isotretinoin becoming aggressive or violent. Some people have had other signs of depression while taking isotretinoin (see #7).",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.6",
+                    "text": "5. Before I start taking isotretinoin, I agree to tell my doctor if I have ever had symptoms of depression (see #7), been psychotic, attempted suicide, had any other mental problems, or take medicine for any of these problems. Being psychotic means having a loss of contact with reality, such as hearing voices or seeing things that are not there.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.7",
+                    "text": "6. Before I start taking isotretinoin, I agree to tell my doctor if, to the best of my knowledge, anyone in my family has ever had symptoms of depression, been psychotic, attempted suicide, or had any other serious mental problems.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.8",
+                    "text": "7. Once I start taking isotretinoin, I agree to stop using isotretinoin and tell my doctor right away if any of the following signs and symptoms of depression or psychosis happen. • Start to feel sad or have crying spells • Lose interest in activities I once enjoyed • Sleep too much or have trouble sleeping • Become more irritable, angry, or aggressive than usual (for example, temper outbursts, thoughts of violence) • Have a change in my appetite or body weight • Have trouble concentrating • Withdraw from my friends or family • Feel like I have no energy • Have feelings of worthlessness or guilt • Start having thoughts about hurting myself or taking my own life (suicidal thoughts) • Start acting on dangerous impulses • Start seeing or hearing things that are not real",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.9",
+                    "text": "8. I agree to return to see my doctor every month I take isotretinoin to get a new prescription for isotretinoin, to check my progress, and to check for signs of side effects.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.10",
+                    "text": "9. Isotretinoin wil be prescribed just for me - I will not share isotretinoin with other people because it may cause serious side effects, including birth defects.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.11",
+                    "text": "10. I will not give blood while taking isotretinoin or for 1 moth after I stop taking isotretinoin. I understand that if someone who is pregnant gets my donated blood, their baby may be exposed to isotretinoin and may be born with serious birth defects.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.12",
+                    "text": "11. I have read the iPLEDGE REMS Fact Sheet and other materials my provider provided me containing important safety information about isotretinoin. I understand all the information I received.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "6.13",
+                    "text": "12. My doctor and I have decided I should take isotretinoin. I understand that I must be qualified in the iPLEDGE REMS to have my prescription filled each month. I understand that I can stop taking isotretinoin at any time. I agree to tell my doctor if I stop taking isotretinoin.",
+                    "type": "boolean",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "linkId": "7",
+            "type": "group",
+            "text": "Informed Consent About Birth Defects (For Patients Who Can Get Pregnant)",
+            "item": [
+                {
+                    "linkId": "7.1",
+                    "text": "About Birth Defects (for patients who can get pregnant): To be completed by the patient (and their parent or guardian if the patient is under age 18) and signed by their doctor. Read each item below and check in the box provided to show that you understand each item and agree to follow your doctor's instructions. Do not sign this consent, and do not take isotretinoin if there is anything that you do not understand. A parent or guardian of a minor patient (under 18) must also read and check each item before signing the consent.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "7.2",
+                    "text": "1. I understand that there is a very high chance that my unborn baby could have life-threatening birth defects if I am pregnant or become pregnant while taking isotretinoin. This can happen with any amount and even if take for short periods of time. This is why I must not be pregnant while taking isotretinoin.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.3",
+                    "text": "2. I understand that I must not get pregnant one month before, during the entire time of my treatment, and for one month after the end of my treatment with isotretinoin.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.4",
+                    "text": "3. I understand that I must completely avoid having any sexual contact (penis-vaginal) with a partner who could get me pregnant, or I must use two separate effective forms of birth control (contraception) at the same time. The only exceptions are if I have had any surgery to remove the uterus (a hysterectomy) or both of my ovaries (bilateral oophorectomy), or my doctor has medically confirmed that I am post-menopausal.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.5",
+                    "text": "4. I understand that hormonal birth control products are among the most effective forms of birth control. Combination birth control pills and other hormonal products include skin patches, shots, under-the-skin implants, vaginal rings, and intrauterine devices (IUDs). Any method of birth control can fail. That is why I must use two different birth control forms at the same time, starting one month before, during, and for one month after stopping therapy every time I have sexual contact (penis-vaginal) with a partner who could get me pregnant, even if one of the forms I choose is hormonal birth control.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.6",
+                    "text": "5. I understand that the following are effective forms of birth control:",
+                    "type": "boolean",
+                    "required": true,
+                    "item": [
+                        {
+                            "linkId": "7.6.1",
+                            "text": "Primary forms: • tying my tubes (tubal sterilization) • male vasectomy • intrauterine device • hormonal (combination birth control pills, skin patches, shots, under-the-skin implants, or vaginal rings)",
+                            "type": "display"
+                        },
+                        {
+                            "linkId": "7.6.2",
+                            "text": "Secondary forms, barrier: • male latex condom with or without spermicide • diaphragm with spermicide • cervical cap with spermicide",
+                            "type": "display"
+                        },
+                        {
+                            "linkId": "7.6.3",
+                            "text": "Other: • vaginal sponge (contains spermicide)",
+                            "type": "display"
+                        },
+                        {
+                            "linkId": "7.6.4",
+                            "text": "A diaphragm and cervical cap must each be used with spermicide, a special cream that kills sperm. I understand that at least one of my two forms of birth control must be a primary method.",
+                            "type": "display"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "7.7",
+                    "text": "6. I will talk to my doctor about any medicines, including herbal products I plan to take during my isotretinoin treatment, because hormonal birth control forms may not work if I am taking certain medicines or herbal products.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.8",
+                    "text": "7. I may receive a free birth control counseling session from a doctor or other family planning expert. My isotretinoin doctor can give me an iPLEDGE REMS Contraception Counseling Guide for this free consultation.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.9",
+                    "text": "8. I must begin using the birth control forms I have chosen as described above at least one month before I start taking isotretinoin.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.10",
+                    "text": "9. I cannot get my first prescription for isotretinoin unless my doctor has told me that I have two negative pregnancy test results. The first pregnancy test should be done when my doctor decides to prescribe isotretinoin. The second pregnancy test must be done in a lab during the first 5 days of my menstrual period right before starting isotretinoin therapy treatment, or as instructed by my doctor. I will then have one pregnancy test; in a lab: • every month during treatment • at the end of treatment • and 1 month after stopping treatment. I must not start taking isotretinoin until I am  sure that I am not pregnant, have negative results from two pregnancy tests, and the second test has been done in a lab.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.11",
+                    "text": "10. I have read and understand the materials my doctor has provided to me, including the iPLEDGE REMS Guide for Patients who Can Get Pregnant and iPLEDGE REMS Fact Sheet. I have received information on emergency birth control.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.12",
+                    "text": "11. I must stop taking isotretinoin right away and call my doctor if I get pregnant, miss my expected menstrual period, stop using birth control, or have sexual contact (penis-vaginal) with a partner who could get me pregnant, without using my two birth control forms at any time.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.13",
+                    "text": "12. My doctor provided me with information about the purpose and importance of providing information to the iPLEDGE REMS should I become pregnant while taking isotretinoin or within one month of the last dose. I understand that if I become pregnant, information about my pregnancy, my health, and my baby's health may be shared with the makers of isotretinoin, authorized parties who maintain the iPLEDGE REMS for the makers of isotretinoin, and government health regulatory authorities.",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.14",
+                    "text": "13. I understand that being qualified to receive isotretinoin in the iPLEDGE REMS means that I: • have had two negative urine or blood pregnancy tests before receiving the first isotretinoin prescription. The second test must be done in a lab. I must have a negative result from a urine or blood pregnancy test done in a lab repeated each month before I receive another isotretinoin prescription • have chosen and agreed to use two forms of effective birth control at the same time. At least one method must be a primary method of birth control unless I have chosen never to have sexual contact (penis-vaginal) with a partner who could get me pregnant (abstinence), or I have undergone a hysterectomy or bilateral oophorectomy, or I have been medically confirmed to be post-menopausal. I must use two forms of birth control for at least one month before I start isotretinoin therapy. I must receive counseling, repeated on a monthly basis, about birth control and behaviors associated with an increased risk of pregnancy • have signed an Informed Consent For Patients Who Can Get Pregnant (for patients who can get pregnant) that contains warnings about the chance of possible birth defects if I am pregnant or becoming pregnant and my unborn baby is exposed to isotretinoin • have been informed of and understand the purpose and importance of providing information to the iPLEDGE REMS should I become pregnant while taking isotretinoin or within 1 month of the last dose • have interacted with the iPLEDGE REMS before starting isotretinoin and on a monthly basis to answer questions on the program requirements and to enter my two chosen forms of birth control",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "7.15",
+                    "text": "14. My doctor has answered all my questions about isotretinoin, and I understand that it is my responsibility not to get pregnant one month before, during isotretinoin treatment, or for one month after I stop taking isotretinoin.",
+                    "type": "boolean",
+                    "required": true
+                }
+                
+            ],
+            "enableWhen": [
+                {
+                  "question": "1.2.1",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+            ]
+        },
+        {
+            "linkId": "8",
+            "type": "group",
+            "text": "Patient Attestation",
+            "item": [
+                {
+                    "linkId": "8.1",
+                    "text": "Patient Attestation",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueString": "Patient Attestation"
+                        },
+                        {
+                            "valueString": "Parent or Guardian Attestation"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "8.2",
+                    "text": "I now allow my doctor to begin my treatment with isotretinoin.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "8.3",
+                    "text": "Patient Initials",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "8.4",
+                    "text": "Patient Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPatientInfoPrepopulation\".FullName"
+                          }
+                        }
+                    ]
+                }, 
+                {
+                    "linkId": "8.5",
+                    "text": "Patient Signature",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "8.6",
+                    "text": "I authorize the above signature to be the legally binding equivalent of my handwritten signature.",
+                    "type": "display"
+                }
+            ]
+        },
+        {
+            "linkId": "9",
+            "type": "group",
+            "text": "Patient Counseling",
+            "item": [
+                {
+                    "linkId": "9.1",
+                    "text": "I have counseled this patient on the following: • Requirement to use 2 effective forms of birth control together correctly all the time • Drug should not be shared with anyone, even any drug remaining after treatment • Blood should not be donated while taking isotretinoin • Patient REMS requirements",
+                    "type": "boolean",
+                    "required": true,
+                    "enableWhen": [
+                        {
+                          "question": "1.2.1",
+                          "operator": "=",
+                          "answerBoolean": true
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.2",
+                    "text": "I have counseled this patient on the following: • Drug should not be shared with anyone, even any drug remaining after treatment • Blood should not be donated while taking isotretinoin • Patient REMS requirements",
+                    "type": "boolean",
+                    "required": true,
+                    "enableWhen": [
+                        {
+                          "question": "1.2.1",
+                          "operator": "=",
+                          "answerBoolean": false
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.3",
+                    "text": "I have prescribed (maximum) 30-day supply of isotretinoin",
+                    "type": "boolean",
+                    "required": true,
+                    "enableWhen": [
+                        {
+                          "question": "1.2.1",
+                          "operator": "=",
+                          "answerBoolean": false
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.4",
+                    "text": "In my opinion, this patient understands and is capable of complying with the requirements of the iPLEDGE REMS",
+                    "type": "boolean",
+                    "required": true
+                },
+                {
+                    "linkId": "9.5",
+                    "text": "I have: • fully explained to the patient, the nature and purpose of isotretinoin treatment, including its benefits and risks to patients who can get pregnant • provided the patient with the appropriate educational materials, such as the iPLEDGE REMS Fact Sheet and asked the patient if there are any questions regarding treatment with isotretinoin • answered those questions to the best of my ability",
+                    "type": "display",
+                    "enableWhen": [
+                        {
+                          "question": "1.2.1",
+                          "operator": "=",
+                          "answerBoolean": true
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.6",
+                    "text": "I have: • fully explained to the patient, the nature and purpose of isotretinoin treatment, including its benefits and risks • provided the patient with the appropriate educational materials, such as the iPLEDGE REMS Fact Sheet and asked the patient if there are any questions regarding treatment with isotretinoin • answered those questions to the best of my ability",
+                    "type": "display",
+                    "enableWhen": [
+                        {
+                          "question": "1.2.1",
+                          "operator": "=",
+                          "answerBoolean": false
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.7",
+                    "text": "Doctor Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".FullName"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "9.8",
+                    "text": "Doctor Signature",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "9.9",
+                    "text": "I authorize the above signature to be the legally binding equivalent to my handwritten signature.",
+                    "type": "display"
+                }
+            ]
+        }
+    ]
+}

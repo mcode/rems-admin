@@ -1,0 +1,17 @@
+{
+    "topic": "Turalio",
+    "payers": [
+        "cms"
+    ],
+    "mappings": [
+        {
+            "codeSystem": "rxnorm",
+            "codes":[
+                "2183126"
+            ]
+        }
+    ],
+    "fhirVersions": [
+        "R4"
+    ]
+}

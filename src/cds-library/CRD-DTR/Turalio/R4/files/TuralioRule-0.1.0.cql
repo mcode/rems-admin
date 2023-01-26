@@ -1,0 +1,76 @@
+library TuralioRule version '0.1.0'
+using FHIR version '4.0.0'
+include FHIRHelpers version '4.0.0' called FHIRHelpers
+
+
+parameter Patient Patient
+parameter medication_request MedicationRequest
+parameter medication_dispense MedicationDispense
+parameter medication_statement MedicationStatement
+
+define RULE_APPLIES:
+    true
+
+define PRIORAUTH_REQUIRED:
+  false
+
+define DOCUMENTATION_REQUIRED:
+  true
+
+define RESULT_InfoLink:
+    'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_08_04_REMS_Full.pdf'
+define INFO_PATIENT_MedicationGuide:
+    'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio_Med&inline=true'
+define INFO_PATIENT_PatientGuide:
+    'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
+define INFO_PRESCRIBER_PrescribingInformation:
+    'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio&inline=true'
+define INFO_PRESCRIBER_ProgramOverview:
+    'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Program_Overview.pdf'
+define INFO_PRESCRIBER_PrescriberTraining:
+    'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Prescriber_Training.pdf'
+
+define RESULT_QuestionnaireOrderUri:
+    'Questionnaire/TuralioRemsPatientEnrollment'  
+
+define RESULT_QuestionnaireDispenseUri:
+    'Questionnaire/TuralioRemsPatientEnrollment'  
+
+define RESULT_QuestionnaireProgressNoteUri:
+    'Questionnaire/TuralioRemsPatientStatus'
+
+define RESULT_QuestionnairePrescriberEnrollmentUri:
+    'Questionnaire/TuralioPrescriberEnrollmentForm'
+
+define RESULT_QuestionnairePrescriberKnowledgeAssessmentUri:
+    'Questionnaire/TuralioPrescriberKnowledgeAssessment'
+
+define RESULT_requestId:
+  medication_request
+
+define RESULT_dispense:
+  medication_dispense
+
+define "MedicationCodingFromParameter": Coalesce(medication_request.medication.coding, medication_dispense.medication.coding)
+
+define "MedicationStatementCodingFromParamter": medication_statement.medication.coding
+  
+define ALTERNATIVE_THERAPY:
+  if MedicationCodingFromParameter.code.value in { '105611', '239983' }
+  then Code { code: '197388', display: 'Azathioprine 50 MG Oral', system: 'http://www.nlm.nih.gov/research/umls/rxnorm' }
+  else null
+
+define DRUG_INTERACTION:
+  if MedicationCodingFromParameter.code.value in { '105585' } 
+    and MedicationStatementCodingFromParamter.code.value in { '105611', '197388', '239983' }
+    then true
+  else if MedicationCodingFromParameter.code.value in { '105611', '197388', '239983' } 
+    and MedicationStatementCodingFromParamter.code.value in { '105585' }
+    then true
+  else false
+
+define REQUESTED_DRUG_CODE:
+  MedicationCodingFromParameter
+
+define STATEMENT_DRUG_CODE:
+  MedicationStatementCodingFromParamter
