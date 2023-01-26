@@ -287,77 +287,77 @@ const handler = (req: TypedRequestBody, res: any) => {
       console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
       console.log('    Patient: ' + patient?.id);
 
-    console.log('    MedicationRequest: ' + prefetchRequest?.id);
-    console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
-    console.log('    Patient: ' + patient?.id);
+      console.log('    MedicationRequest: ' + prefetchRequest?.id);
+      console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
+      console.log('    Patient: ' + patient?.id);
 
-    // verify a MedicationRequest was sent
-    if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
-      res.json(buildErrorCard('DraftOrders does not contain a MedicationRequest'));
-      return;
-    }
+      // verify a MedicationRequest was sent
+      if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
+        res.json(buildErrorCard('DraftOrders does not contain a MedicationRequest'));
+        return;
+      }
 
-    // verify ids
-    if (
-      patient?.id &&
-      patient.id.replace('Patient/', '') !== context.patientId.replace('Patient/', '')
-    ) {
-      res.json(buildErrorCard('Context patientId does not match prefetch Patient ID'));
-      return;
-    }
-    if (
-      practitioner?.id &&
-      practitioner.id.replace('Practitioner/', '') !== context.userId.replace('Practitioner/', '')
-    ) {
-      res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
-      return;
-    }
-    if (
-      prefetchRequest?.id &&
-      contextRequest &&
-      contextRequest.id &&
-      prefetchRequest.id.replace('MedicationRequest/', '') !==
-        contextRequest.id.replace('MedicationRequest/', '')
-    ) {
-      res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
-      return;
-    }
+      // verify ids
+      if (
+        patient?.id &&
+        patient.id.replace('Patient/', '') !== context.patientId.replace('Patient/', '')
+      ) {
+        res.json(buildErrorCard('Context patientId does not match prefetch Patient ID'));
+        return;
+      }
+      if (
+        practitioner?.id &&
+        practitioner.id.replace('Practitioner/', '') !== context.userId.replace('Practitioner/', '')
+      ) {
+        res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
+        return;
+      }
+      if (
+        prefetchRequest?.id &&
+        contextRequest &&
+        contextRequest.id &&
+        prefetchRequest.id.replace('MedicationRequest/', '') !==
+          contextRequest.id.replace('MedicationRequest/', '')
+      ) {
+        res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
+        return;
+      }
 
-    const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
-    if (medicationCode && medicationCode.code) {
-      const returnCard = validCodes.some(e => {
-        return e.code === medicationCode.code && e.system === medicationCode.system;
-      });
-      if (returnCard) {
-        const cardArray: Card[] = [];
-        const codeRule = codeMap[medicationCode.code];
-        for (const rule of codeRule) {
-          const card = new Card(
-            rule.summary || medicationCode.display || 'Rems',
-            CARD_DETAILS,
-            source,
-            'info'
-          );
-          rule.links.forEach(e => {
-            if (e.type == 'absolute') {
-              // no construction needed
-              card.addLink(e);
-            } else {
-              // link is SMART
-              // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-              e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
-                contextRequest.insurance?.[0].reference
-              }`;
-              card.addLink(e);
-            }
-          });
-          cardArray.push(card);
-        }
-        res.json({
-          cards: cardArray
+      const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
+      if (medicationCode && medicationCode.code) {
+        const returnCard = validCodes.some(e => {
+          return e.code === medicationCode.code && e.system === medicationCode.system;
         });
-      } else {
-        res.json(buildErrorCard('Unsupported code'));
+        if (returnCard) {
+          const cardArray: Card[] = [];
+          const codeRule = codeMap[medicationCode.code];
+          for (const rule of codeRule) {
+            const card = new Card(
+              rule.summary || medicationCode.display || 'Rems',
+              CARD_DETAILS,
+              source,
+              'info'
+            );
+            rule.links.forEach(e => {
+              if (e.type == 'absolute') {
+                // no construction needed
+                card.addLink(e);
+              } else {
+                // link is SMART
+                // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+                e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
+                  contextRequest.insurance?.[0].reference
+                }`;
+                card.addLink(e);
+              }
+            });
+            cardArray.push(card);
+          }
+          res.json({
+            cards: cardArray
+          });
+        } else {
+          res.json(buildErrorCard('Unsupported code'));
         }
       } else {
         res.json(buildErrorCard('MedicationRequest does not contain a code'));
