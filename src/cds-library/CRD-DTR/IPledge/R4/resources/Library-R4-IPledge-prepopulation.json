@@ -1,0 +1,99 @@
+{
+    "resourceType": "Library",
+    "id": "IPledge-prepopulation",
+    "url": "http://hl7.org/fhir/us/davinci-dtr/Library/IPledge-prepopulation",
+    "name": "IPledge-prepopulation",
+    "version": "0.1.0",
+    "title": "IPledge Prepopulation",
+    "status": "draft",
+    "type": {
+        "coding": [
+            {
+                "code": "logic-library"
+            }
+        ]
+    },
+    "relatedArtifact": [
+        {
+            "type": "depends-on",
+            "resource": "Library/FHIRHelpers-4.0.0"
+        },
+        {
+          "type": "depends-on",
+          "resource": "Library/CDS_Connect_Commons_for_FHIRv400"
+        },
+        {
+          "type": "depends-on",
+          "resource": "Library/DTRHelpers"
+        }
+    ],
+    "dataRequirement": [
+        {
+            "type": "Condition",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.81"
+                }
+            ]
+        },
+        {
+            "type": "Condition",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.198"
+                }
+            ]
+        },
+        {
+            "type": "Procedure",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.90"
+                }
+            ]
+        },
+        {
+            "type": "MedicationRequest",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.192"
+                }
+            ]
+        },
+        {
+            "type": "MedicationRequest",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.193"
+                }
+            ]
+        },
+        {
+            "type": "Observation"
+        },
+        {
+            "type": "MedicationStatement",
+            "codeFilter": [
+                {
+                    "path": "code",
+                    "valueSet": "https://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.197"
+                }
+            ]
+        }
+    ],
+    "content": [
+        {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBJUGxlZGdlUHJlcG9wdWxhdGlvbiAgdmVyc2lvbiAnMC4xLjAnCnVzaW5nIEZISVIgdmVyc2lvbiAnNC4wLjAnCmluY2x1ZGUgRkhJUkhlbHBlcnMgdmVyc2lvbiAnNC4wLjAnIGNhbGxlZCBGSElSSGVscGVycwppbmNsdWRlIENEU19Db25uZWN0X0NvbW1vbnNfZm9yX0ZISVJ2NDAwIHZlcnNpb24gJzEuMC4yJyBjYWxsZWQgQ0RTCmluY2x1ZGUgRFRSSGVscGVycyB2ZXJzaW9uICcwLjEuMCcgY2FsbGVkIERUUgoKY29kZXN5c3RlbSAiSUNELTEwLUNNIjogJ2h0dHA6Ly9obDcub3JnL2ZoaXIvc2lkL2ljZC0xMC1jbScKY29kZXN5c3RlbSAiTE9JTkMiOiAnaHR0cDovL2xvaW5jLm9yZycKY29kZXN5c3RlbSAiU05PTUVELUNUIjogJ2h0dHA6Ly9zbm9tZWQuaW5mby9zY3QnCmNvZGVzeXN0ZW0gIlJYTk9STSI6ICdodHRwOi8vd3d3Lm5sbS5uaWguZ292L3Jlc2VhcmNoL3VtbHMvcnhub3JtJwo="
+        },
+        {
+            "contentType": "application/elm+json",
+            "data": "eyJsaWJyYXJ5Ijp7ImFubm90YXRpb24iOlt7InRyYW5zbGF0b3JPcHRpb25zIjoiIiwidHlwZSI6IkNxbFRvRWxtSW5mbyJ9LHsibGlicmFyeUlkIjoiSVBsZWRnZVByZXBvcHVsYXRpb24iLCJsaWJyYXJ5VmVyc2lvbiI6IjAuMS4wIiwic3RhcnRMaW5lIjo0LCJzdGFydENoYXIiOjEsImVuZExpbmUiOjQsImVuZENoYXIiOjY3LCJtZXNzYWdlIjoiQ291bGQgbm90IGxvYWQgc291cmNlIGZvciBsaWJyYXJ5IENEU19Db25uZWN0X0NvbW1vbnNfZm9yX0ZISVJ2NDAwLiIsImVycm9yVHlwZSI6ImluY2x1ZGUiLCJlcnJvclNldmVyaXR5IjoiZXJyb3IiLCJ0YXJnZXRJbmNsdWRlTGlicmFyeUlkIjoiQ0RTX0Nvbm5lY3RfQ29tbW9uc19mb3JfRkhJUnY0MDAiLCJ0YXJnZXRJbmNsdWRlTGlicmFyeVZlcnNpb25JZCI6IjEuMC4yIiwidHlwZSI6IkNxbFRvRWxtRXJyb3IifSx7ImxpYnJhcnlJZCI6IklQbGVkZ2VQcmVwb3B1bGF0aW9uIiwibGlicmFyeVZlcnNpb24iOiIwLjEuMCIsInN0YXJ0TGluZSI6NSwic3RhcnRDaGFyIjoxLCJlbmRMaW5lIjo1LCJlbmRDaGFyIjo0NSwibWVzc2FnZSI6IkNvdWxkIG5vdCBsb2FkIHNvdXJjZSBmb3IgbGlicmFyeSBEVFJIZWxwZXJzLiIsImVycm9yVHlwZSI6ImluY2x1ZGUiLCJlcnJvclNldmVyaXR5IjoiZXJyb3IiLCJ0YXJnZXRJbmNsdWRlTGlicmFyeUlkIjoiRFRSSGVscGVycyIsInRhcmdldEluY2x1ZGVMaWJyYXJ5VmVyc2lvbklkIjoiMC4xLjAiLCJ0eXBlIjoiQ3FsVG9FbG1FcnJvciJ9XSwiaWRlbnRpZmllciI6eyJpZCI6IklQbGVkZ2VQcmVwb3B1bGF0aW9uIiwidmVyc2lvbiI6IjAuMS4wIn0sInNjaGVtYUlkZW50aWZpZXIiOnsiaWQiOiJ1cm46aGw3LW9yZzplbG0iLCJ2ZXJzaW9uIjoicjEifSwidXNpbmdzIjp7ImRlZiI6W3sibG9jYWxJZGVudGlmaWVyIjoiU3lzdGVtIiwidXJpIjoidXJuOmhsNy1vcmc6ZWxtLXR5cGVzOnIxIn0seyJsb2NhbElkZW50aWZpZXIiOiJGSElSIiwidXJpIjoiaHR0cDovL2hsNy5vcmcvZmhpciIsInZlcnNpb24iOiI0LjAuMCJ9XX0sImluY2x1ZGVzIjp7ImRlZiI6W3sibG9jYWxJZGVudGlmaWVyIjoiRkhJUkhlbHBlcnMiLCJwYXRoIjoiRkhJUkhlbHBlcnMiLCJ2ZXJzaW9uIjoiNC4wLjAifV19LCJjb2RlU3lzdGVtcyI6eyJkZWYiOlt7Im5hbWUiOiJJQ0QtMTAtQ00iLCJpZCI6Imh0dHA6Ly9obDcub3JnL2ZoaXIvc2lkL2ljZC0xMC1jbSIsImFjY2Vzc0xldmVsIjoiUHVibGljIn0seyJuYW1lIjoiTE9JTkMiLCJpZCI6Imh0dHA6Ly9sb2luYy5vcmciLCJhY2Nlc3NMZXZlbCI6IlB1YmxpYyJ9LHsibmFtZSI6IlNOT01FRC1DVCIsImlkIjoiaHR0cDovL3Nub21lZC5pbmZvL3NjdCIsImFjY2Vzc0xldmVsIjoiUHVibGljIn0seyJuYW1lIjoiUlhOT1JNIiwiaWQiOiJodHRwOi8vd3d3Lm5sbS5uaWguZ292L3Jlc2VhcmNoL3VtbHMvcnhub3JtIiwiYWNjZXNzTGV2ZWwiOiJQdWJsaWMifV19fX0="
+        }
+    ]
+}

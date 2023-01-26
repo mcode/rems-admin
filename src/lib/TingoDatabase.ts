@@ -19,6 +19,6 @@ export class TingoDatabase extends Database {
       const tingo = new tingodb();
       this.database = new tingo.Db(this.location, {});
       this.client = '';
-      return resolve(this.database);
+      resolve(this.database);
     });
 }
