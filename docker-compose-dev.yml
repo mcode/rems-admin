@@ -144,32 +144,27 @@ services:
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
       # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
-  # pharmacy-information-system-database: # Name of our service
-  #   image: mongo
-  #   container_name: rems_dev_pharmacy-information-system-database
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-  #     MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
-  #   expose:
-  #     - "27017"
-  #   ports: # Port binding to host from docker container
-  #     - "27017:27017" 
-  #   volumes:
-  #     - rems_dev_pharmacy-infomation-system-database:/data/db
+  pims-remsadmin-mongo: # Name of our service
+     image: mongo:6.0
+     container_name: pims-remsadmin-mongo
+     environment:
+        MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+        MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+     ports: 
+      - "27018:27017" 
+     volumes:
+      - pims-remsadmin-mongo:/data/db
+        # - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
 
 volumes:
   rems_dev_test-ehr-sync:
-    external: true
   # rems_dev_crd-sync:
   #   external: true
   rems_dev_crd-request-generator-sync:
-    external: true
   rems_dev_dtr-sync:
-    external: true
   rems_dev_rems-sync:
-    external: true
   rems_dev_pims-sync:
-    external: true
+    #external: true
 
   rems_dev_keycloak-data:
   rems_dev_test-ehr-gradle:
@@ -195,3 +190,4 @@ volumes:
   rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
 
   rems_dev_pims-logs: # rems_dev_pims-database:
+  pims-remsadmin-mongo:
