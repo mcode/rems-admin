@@ -1,5 +1,5 @@
 export default interface OrderSignPrefetch {
-  patient?: string;
-  request?: string;
-  practitioner?: string;
+  [key: string]: string;
+  patient: string;
+  practitioner: string;
 }
