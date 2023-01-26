@@ -1,0 +1,421 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "IPledgeRemsPrescriberEnrollmentForm",
+    "name": "IPledgeRemsPrescriberEnrollmentForm",
+    "title": "IPledge Rems Prescriber Enrollment Form",
+    "status": "draft",
+    "subjectType": [
+      "Practitioner"
+    ],
+    "date": "2022-05-28",
+    "publisher": "FDA-REMS",
+    "extension": [
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/IPledgePrescriberEnrollment-prepopulation"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPractitionerInfo-prepopulation"
+        }
+    ],
+    "item": [
+        {
+            "linkId": "1",
+            "type": "group",
+            "text": "Prescriber Information",
+            "item": [
+                {
+                    "linkId": "1.1",
+                    "text": "Attention: This enrollment page is for licensed prescribers only. If you are a patient, you must be enrolled in iPLEDGE REMS by your prescriber. The iPLEDGE REMS will require prescribers to provide a National Provider Identifier (NPI). If your NPI is not on file with the iPLEDGE REMS, you will be prompted to enter your NPI upon first log-in to the iPLEDGE REMS. Failure to supply this identifier may result in your patients' prescriptions not being authorized for dispensing.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "1.2",
+                    "text": "NPI Number",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".NPI"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.3",
+                    "text": "First Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".FirstName"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.4",
+                    "text": "MI",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".MiddleInitial"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.5",
+                    "text": "Last Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".LastName"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.6",
+                    "text": "Suffix",
+                    "type": "open-choice",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".Credentials"
+                            }
+                        }
+                    ],
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "MD",
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                                "display": "MD"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DO",
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                                "display": "DO"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NP",
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                                "display": "NP"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "PA",
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                                "display": "PA"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "Other",
+                                "display": "Other"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.7",
+                    "text": "Specialty",
+                    "type": "open-choice",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".Specialty"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.8",
+                    "text": "Practice Name",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".OrgName"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.9",
+                    "text": "Address Line 1",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".Line"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.10",
+                    "text": "Address Line 2",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "linkId": "1.11",
+                    "text": "City",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".City"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.12",
+                    "text": "State",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".State"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.13",
+                    "text": "Zip",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".Zip"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.14",
+                    "text": "Phone Number",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".Phone"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.15",
+                    "text": "Ext",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "linkId": "1.16",
+                    "text": "Fax Number",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".Fax"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.17",
+                    "text": "Email",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                        {
+                          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                          "valueExpression": {
+                            "language": "text/cql",
+                            "expression": "\"BasicPractitionerInfoPrepopulation\".Email"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "1.18",
+                    "text": "Preferred Method of Communication",
+                    "type": "choice",
+                    "required": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".PreferredCommunication"
+                            }
+                        }
+                    ],
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "email",
+                                "system": "http://hl7.org/fhir/contact-point-system",
+                                "display": "Email"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "phone",
+                                "system": "http://hl7.org/fhir/contact-point-system",
+                                "display": "Phone"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "2",
+            "type": "group",
+            "text": "Prescriber Certification (if applicable)",
+            "item": [
+                {
+                    "linkId": "2.1",
+                    "text": "Prescriber Certification Type",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".ThirdPartyCredentials"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.2",
+                    "text": "Prescriber Certification Issuer",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                            "valueExpression": {
+                                "language": "text/cql",
+                                "expression": "\"IPledgePrescriberEnrollmentPrepopulation\".ThirdPartyIssuer"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "3",
+            "type": "group",
+            "text": "Prescriber Attestation",
+            "item": [
+                {
+                    "linkId": "3.1",
+                    "text": "Prescribers can only activate their enrollment by affirming that they meet requirements and will comply with all iPLEDGE REMS requirements by attesting to the following points:",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.2",
+                    "text": "I know the risk and severity of fetal injury/birth defects from isotretinoin.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.3",
+                    "text": "I know the risk factors for unplanned pregnancy and the effective measures for avoidance of unplanned pregnancy.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.4",
+                    "text": "I have the expertise to provide the patient with detailed pregnancy prevention counseling, or I will refer the patient to an expert for such counseling, reimbursed by the manufacturer.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.5",
+                    "text": "I will comply with the iPLEDGE REMS requirements described in the booklet, iPLEDGE REMS Prescriber Guide.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.6",
+                    "text": "Before beginning treatment of patients who can become pregnant with isotretinoin, and on a monthly basis, the patient will be counseled to avoid pregnancy by using two forms of contraception simultaneously and continuously for at least one month prior to initiation of isotretinoin treatment, during isotretinoin treatment and for one month after discontinuing isotretinoin treatment, unless the patient commits to continuous abstinence, not having any sexual contact with a partner that could result in pregnancy.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.7",
+                    "text": "I will not prescribe isotretinoin to any patient who can become pregnant until verifying the patient has a negative screening pregnancy test and monthly CLIA-certified (Clinical Laboratory Improvement Amendment) pregnancy tests. Patients should have a pregnancy test at the completion of the entire course of isotretinoin and another pregnancy test one month later.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.8",
+                    "text": "I will report any pregnancy case that I become aware of while the patient who can become pregnant is on isotretinoin or one month after the last dose to the pregnancy registry.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "3.9",
+                    "type": "choice",
+                    "answerOption": [
+                        {
+                            "valueString": "I attest to the statements above"
+                        },
+                        {
+                            "valueString": "I do not attest to the statements above"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

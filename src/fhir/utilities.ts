@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
+import { QuestionnaireUtilities } from './questionnaireUtilities';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -58,6 +59,7 @@ export class FhirUtilities {
       case 'Library':
         collectionString = `${constants.COLLECTION.LIBRARY}_${baseVersion}`;
         historyCollectionString = `${constants.COLLECTION.LIBRARY}_${baseVersion}_History`;
+        await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
         break;
       case 'Patient':
         collectionString = `${constants.COLLECTION.PATIENT}_${baseVersion}`;
