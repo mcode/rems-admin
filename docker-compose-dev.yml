@@ -144,7 +144,8 @@ services:
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
       # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
-  pims-remsadmin-mongo: # Name of our service
+  
+  pims-remsadmin-mongo:
      image: mongo:6.0
      container_name: pims-remsadmin-mongo
      environment:
@@ -154,7 +155,8 @@ services:
       - "27018:27017" 
      volumes:
       - pims-remsadmin-mongo:/data/db
-        # - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+  
   mongo-express:
     image: mongo-express
     depends_on:
