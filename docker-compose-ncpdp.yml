@@ -1,0 +1,141 @@
+version: '3.6'
+services:
+  keycloak:
+    container_name: rems_dev_keycloak
+    # command: ["-Djboss.http.port=8180"]
+    ports:
+      - '8180:8080'
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+    volumes:
+      - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
+      - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
+    build:
+      context: ../test-ehr
+      dockerfile: Dockerfile.keycloak
+
+  # Create test ehr container
+  test-ehr:
+    # Name of our service
+    container_name: rems_dev_test-ehr
+    build:
+      context: ../test-ehr
+      dockerfile: Dockerfile.dev
+    ports:
+      # Port binding to host from docker container
+      - '8080:8080' # Bind port 3000 of host to 3000 of container
+      - "8081:8081"
+    environment:
+      - DOCKER_PROFILE=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Create crd container
+  crd:
+    # Name of our service
+    build:
+      context: ../CRD
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_crd
+    ports:
+      # Port binding to host from docker container
+      - "8090:8090" # Bind port 3000 of host to 3000 of container
+      - "8091:8091"
+    environment:
+      VSAC_API_KEY: ${VSAC_API_KEY}
+  
+  # Create crd request generator container
+  crd-request-generator:
+    # Name of our service
+    build:
+      context: ../crd-request-generator
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_crd-request-generator
+    environment:
+      - REACT_APP_REMS_CONFIG=true
+    ports:
+      # Port binding to host from docker container
+      - "3000:3000" # Bind port 3000 of host to 3000 of container
+      - "3001:3001"
+
+  crd-request-generator-new:
+    # Name of our service
+    build:
+      context: ../crd-request-generator-new
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_crd-request-generator-new
+    environment:
+      - REACT_APP_REMS_CONFIG=true
+    ports:
+      # Port binding to host from docker container
+      - "3008:3000" # Bind port 3000 of host to 3000 of container
+      - "3009:3001"
+
+  # Create dtr container
+  dtr:
+    # Name of our service
+    build:
+      context: ../dtr
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_dtr
+    ports:
+      # Port binding to host from docker container
+      - "3005:3005" # Bind port 3000 of host to 3000 of container
+      - "3006:3006"
+
+  # Create rems container
+  rems-administrator:
+    # Name of our service
+    build:
+      context: '.'
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_rems
+    ports:
+      # Port binding to host from docker container
+      - "9020:8090" # Bind port 3000 of host to 3000 of container
+
+  pharmacy-information-system: # Name of our service
+    build: 
+      context: ../pharmacy-information-system
+      dockerfile: Dockerfile.dev     
+    container_name: rems_dev_pharmacy-information-system
+    environment:
+      - PORT=3010
+      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
+      - CRD_BASE_URL=http://crd:8090/
+    ports: # Port binding to host from docker container
+      - "4200:4200" 
+      - "3010:3010"
+      - "3011:3011"
+
+  pims:
+    build:
+      context: ../pims
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_pims
+    ports:
+      - "5050:5050" #4200 was the frontend port for the old pims
+      - "5051:5051"
+
+
+  pharmacy-information-system-database: # Name of our service
+    image: mongo
+    container_name: rems_dev_pharmacy-information-system-database
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
+      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+    expose:
+      - "27017"
+    ports: # Port binding to host from docker container
+      - "27017:27017" 
+    volumes:
+      - rems_dev_pharmacy-infomation-system-database:/data/db
+
+volumes:
+  rems_dev_keycloak-data:
+  rems_dev_pharmacy-infomation-system-database:
+  rems_prod_crd-server-ValueSetCache:
+
+
