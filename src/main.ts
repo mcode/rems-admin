@@ -34,6 +34,7 @@ export default async function main() {
   }
   try {
     await dbClient.connect();
+    console.log("Connected to Database")
   } catch (dbErr: any) {
     console.error(dbErr.message);
     process.exit(1);
