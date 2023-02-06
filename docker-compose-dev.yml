@@ -38,7 +38,7 @@ services:
 
   pims_remsadmin_mongo:
     image: mongo
-    container_name: pims_remsadmin_mongo
+    container_name: rems_dev_pims-remsadmin-mongo
     ports:
       - '27017:27017' 
     environment:
@@ -108,7 +108,7 @@ services:
     build:
       context: '.'
       dockerfile: Dockerfile.dev
-    container_name: rems_dev_rems
+    container_name: rems_dev_rems-administrator
     ports:
       - "8090:8090"
     volumes:
