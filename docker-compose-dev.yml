@@ -40,7 +40,7 @@ services:
     image: mongo:6.0
     container_name: pims_remsadmin_mongo
     ports:
-      - '27018:27017' 
+      - '27017:27017' 
     environment:
       MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
       MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
@@ -108,9 +108,11 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_rems
     ports:
-      - "9020:8090"
+      - "8090:8090"
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
+      - rems_dev_rems-nodeModules:/REMS/node_modules
+      - rems_dev_rems-logs:/REMS/logs
 
   # pharmacy-information-system: # Name of our service
   #   build: 
@@ -137,11 +139,11 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_pims
     ports:
-      - "4200:3000" #4200 was the frontend port for the old pims
+      - "5050:5050" 
+      - "5051:5051"
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
-      # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
   
   # pharmacy-information-system-database: # Name of our service
@@ -193,6 +195,8 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
-
   rems_dev_pims-logs: # rems_dev_pims-database:
+  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
+  rems_dev_rems-nodeModules:
+  rems_dev_rems-logs:
+
