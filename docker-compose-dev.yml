@@ -37,16 +37,18 @@ services:
       - "host.docker.internal:host-gateway"
 
   pims_remsadmin_mongo:
-    image: mongo:6.0
+    image: mongo
     container_name: pims_remsadmin_mongo
     ports:
       - '27017:27017' 
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+      MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
+      MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
       - pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+
   # Create crd container
   # crd:
   #   # Name of our service
