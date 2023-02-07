@@ -105,7 +105,7 @@ export class FhirUtilities {
     Object.assign(doc, { _id: id });
 
     // Insert our resource record
-   await collection.insertOne(doc, async (err: any) => {
+    await collection.insertOne(doc, async (err: any) => {
       if (err) {
         console.log('    Error with %s.create: ', resource.resourceType, err.message);
         reject(err);
