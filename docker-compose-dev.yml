@@ -37,16 +37,18 @@ services:
       - "host.docker.internal:host-gateway"
 
   pims_remsadmin_mongo:
-    image: mongo:6.0
-    container_name: pims_remsadmin_mongo
+    image: mongo
+    container_name: rems_dev_pims-remsadmin-mongo
     ports:
-      - '27018:27017' 
+      - '27017:27017' 
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
+      MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
+      MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
       - pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+
   # Create crd container
   # crd:
   #   # Name of our service
@@ -106,12 +108,13 @@ services:
     build:
       context: '.'
       dockerfile: Dockerfile.dev
-    container_name: rems_dev_rems
+    container_name: rems_dev_rems-administrator
     ports:
-      # Port binding to host from docker container
-      - "8090:8090" # Bind port 3000 of host to 3000 of container
+      - "8090:8090"
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
+      - rems_dev_rems-nodeModules:/REMS/node_modules
+      - rems_dev_rems-logs:/REMS/logs
 
   # pharmacy-information-system: # Name of our service
   #   build: 
@@ -138,11 +141,11 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_pims
     ports:
-      - "4200:3000" #4200 was the frontend port for the old pims
+      - "5050:5050" 
+      - "5051:5051"
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
-      # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
   
   # pharmacy-information-system-database: # Name of our service
@@ -194,6 +197,8 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
-
   rems_dev_pims-logs: # rems_dev_pims-database:
+  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
+  rems_dev_rems-nodeModules:
+  rems_dev_rems-logs:
+

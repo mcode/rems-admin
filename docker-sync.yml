@@ -20,6 +20,7 @@ syncs:
 
   rems_dev_rems-sync:
     src: '.'
+    sync_excludes: ['node_modules', 'logs']
   
   # rems_dev_pharmacy-information-system-sync:  
   #   src: '../pharmacy-information-system'
@@ -27,4 +28,4 @@ syncs:
 
   rems_dev_pims-sync:  
     src: '../pims'
-    sync_excludes: ['node_modules', 'backend/node_modules', 'logs']
+    sync_excludes: ['node_modules', 'logs']
