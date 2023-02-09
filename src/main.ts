@@ -44,6 +44,7 @@ export default async function main() {
 
   // load the database with the default resources
   FhirUtilities.loadResources(config.general.resourcePath);
+  FhirUtilities.populateDB();
 
   const app = initialize(config);
 
