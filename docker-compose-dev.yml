@@ -16,13 +16,10 @@ services:
       context: ../test-ehr
       dockerfile: Dockerfile.keycloak
 
-  # Create test ehr container
   test-ehr:
-    # Name of our service
     container_name: rems_dev_test-ehr
     ports:
-      # Port binding to host from docker container
-      - '8080:8080' # Bind port 3000 of host to 3000 of container
+      - '8080:8080'
       - "8081:8081"
     environment:
       - DOCKER_PROFILE=true
@@ -38,6 +35,19 @@ services:
       - rems_dev_test-ehr-logs:/test-ehr/logs
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  pims_remsadmin_mongo:
+    image: mongo
+    container_name: rems_dev_pims-remsadmin-mongo
+    ports:
+      - '27017:27017' 
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
+      MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
+    volumes:
+      - pims_remsadmin_mongo:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
 
   # Create crd container
   # crd:
@@ -63,9 +73,7 @@ services:
   #     - rems_dev_crd-operations-build:/CRD/operations/build
   #     - rems_dev_crd-resources-build:/CRD/resources/build
 
-  # Create crd request generator container
   crd-request-generator:
-    # Name of our service
     build:
       context: ../crd-request-generator
       dockerfile: Dockerfile.dev
@@ -73,8 +81,7 @@ services:
     environment:
       - REACT_APP_REMS_CONFIG=true
     ports:
-      # Port binding to host from docker container
-      - "3000:3000" # Bind port 3000 of host to 3000 of container
+      - "3000:3000" 
       - "3001:3001"
     volumes:
       - rems_dev_crd-request-generator-sync:/home/node/app/crd-request-generator:nocopy #  nocopy is important
@@ -83,16 +90,13 @@ services:
       - rems_dev_crd-request-generator-build:/home/node/app/crd-request-generator/build
       - rems_dev_crd-request-generator-logs:/home/node/app/crd-request-generator/logs
 
-  # Create dtr container
   dtr:
-    # Name of our service
     build:
       context: ../dtr
       dockerfile: Dockerfile.dev
     container_name: rems_dev_dtr
     ports:
-      # Port binding to host from docker container
-      - "3005:3005" # Bind port 3000 of host to 3000 of container
+      - "3005:3005"
       - "3006:3006"
     volumes:
       - rems_dev_dtr-sync:/home/node/app/dtr:nocopy #  nocopy is important
@@ -100,18 +104,17 @@ services:
       - rems_dev_dtr-databaseData:/home/node/app/dtr/databaseData
       - rems_dev_dtr-logs:/home/node/app/dtr/logs
 
-  # Create rems container
   rems-administrator:
-    # Name of our service
     build:
       context: '.'
       dockerfile: Dockerfile.dev
-    container_name: rems_dev_rems
+    container_name: rems_dev_rems-administrator
     ports:
-      # Port binding to host from docker container
-      - "9020:8090" # Bind port 3000 of host to 3000 of container
+      - "8090:8090"
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
+      - rems_dev_rems-nodeModules:/REMS/node_modules
+      - rems_dev_rems-logs:/REMS/logs
 
   # pharmacy-information-system: # Name of our service
   #   build: 
@@ -138,12 +141,13 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_pims
     ports:
-      - "4200:3000" #4200 was the frontend port for the old pims
+      - "5050:5050" 
+      - "5051:5051"
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
-      # - rems_dev_pims-backend-nodeModules:/home/node/app/pims/backend/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
+  
   # pharmacy-information-system-database: # Name of our service
   #   image: mongo
   #   container_name: rems_dev_pharmacy-information-system-database
@@ -172,6 +176,7 @@ volumes:
     external: true
 
   rems_dev_keycloak-data:
+  pims_remsadmin_mongo:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
   rems_dev_test-ehr-build:
@@ -192,6 +197,8 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
-
   rems_dev_pims-logs: # rems_dev_pims-database:
+  rems_dev_pims-nodeModules: # rems_dev_pims-backend-nodeModules:
+  rems_dev_rems-nodeModules:
+  rems_dev_rems-logs:
+
