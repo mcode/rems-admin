@@ -336,7 +336,7 @@ class REMSServer extends Server {
                 let foundUncompleted = false;
                 const metReqArray = remsRequestToUpdate.metRequirements;
                 for (let i=0; i < remsRequestToUpdate.metRequirements.length; i++) {
-                  let req4 = remsRequestToUpdate.metRequirements[i];
+                  const req4 = remsRequestToUpdate.metRequirements[i];
                   // _id comparison would not work for some reason
                   if(req4.requirementName === matchedMetReq3.requirementName) {
                     metReqArray[i].completed = true;
@@ -361,7 +361,7 @@ class REMSServer extends Server {
 
             } else {
              // create the metReq that was submitted
-             let newMetReq3 = {
+             const newMetReq3 = {
               completed: true,
               completedQuestionnaire: questionnaireResponse,
               requirementName: requirement.name,
@@ -396,9 +396,9 @@ class REMSServer extends Server {
   }
 
   getResource(bundle: { entry: any[]; }, resourceReference: string) {
-    let temp = resourceReference.split('/');
-    let _resourceType = temp[0];
-    let _id = temp[1];
+    const temp = resourceReference.split('/');
+    const _resourceType = temp[0];
+    const _id = temp[1];
 
     for (let i = 0; i < bundle.entry.length; i++) {
       if ((bundle.entry[i].resource.resourceType === _resourceType)
@@ -410,7 +410,7 @@ class REMSServer extends Server {
   }
 
   getQuestionnaireResponse(bundle: { entry: any[]; }) {
-    let _resourceType = 'QuestionnaireResponse';
+    const _resourceType = 'QuestionnaireResponse';
 
     for (let i = 0; i < bundle.entry.length; i++) {
       if ((bundle.entry[i].resource.resourceType === _resourceType)) {
