@@ -156,17 +156,17 @@ class REMSServer extends Server {
       const requestBody = req.body;
 
       // extract params and questionnaire response identifier
-      let params = this.getResource(requestBody, requestBody.entry[0].resource.focus.parameters.reference);
-      let questionnaireResponse = this.getQuestionnaireResponse(requestBody);
-      let questionnaireStringArray = questionnaireResponse.questionnaire.split('/');
-      let requirementId = questionnaireStringArray[questionnaireStringArray.length - 1];
+      const params = this.getResource(requestBody, requestBody.entry[0].resource.focus.parameters.reference);
+      const questionnaireResponse = this.getQuestionnaireResponse(requestBody);
+      const questionnaireStringArray = questionnaireResponse.questionnaire.split('/');
+      const requirementId = questionnaireStringArray[questionnaireStringArray.length - 1];
 
       // stakeholder and medication references
       let prescriptionReference = '';
       let practitionerReference = '';
       let pharmacistReference = '';
       let patientReference = '';
-      for (let param of params.parameter) {
+      for (const param of params.parameter) {
         if (param.name === 'prescription') {
           prescriptionReference = param.reference;
         }
@@ -181,11 +181,11 @@ class REMSServer extends Server {
       }
 
       // obtain drug information from database
-      let presciption = this.getResource(requestBody, prescriptionReference);
-      let prescriptionSystem = presciption.medicationCodeableConcept.coding[0].system;
-      let prescriptionCode = presciption.medicationCodeableConcept.coding[0].code;
-      let patient = this.getResource(requestBody, patientReference);
-      let patientName = patient.name[0].given[0] + ' ' + patient.name[0].family;
+      const presciption = this.getResource(requestBody, prescriptionReference);
+      const prescriptionSystem = presciption.medicationCodeableConcept.coding[0].system;
+      const prescriptionCode = presciption.medicationCodeableConcept.coding[0].code;
+      const patient = this.getResource(requestBody, patientReference);
+      const patientName = patient.name[0].given[0] + ' ' + patient.name[0].family;
   
       const drug = await medicationCollection.findOne({ code: prescriptionCode, codeSystem: prescriptionSystem }
       //   , (err: any, result: any) => {
