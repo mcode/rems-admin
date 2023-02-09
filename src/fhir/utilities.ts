@@ -105,7 +105,7 @@ export class FhirUtilities {
     Object.assign(doc, { _id: id });
 
     // Insert our resource record
-    collection.insert(doc, (err: any) => {
+    await collection.insertOne(doc, async (err: any) => {
       if (err) {
         console.log('    Error with %s.create: ', resource.resourceType, err.message);
         reject(err);
@@ -118,7 +118,7 @@ export class FhirUtilities {
       const history_collection = db.collection(historyCollectionString);
 
       // Insert our patient record to history but don't assign _id
-      history_collection.insert(history_doc, (err2: any) => {
+      await history_collection.insertOne(history_doc, (err2: any) => {
         if (err2) {
           console.log('    Error with %sHistory.create: ', resource.resourceType, err2.message);
           reject(err2);
@@ -129,20 +129,20 @@ export class FhirUtilities {
     });
   }
 
-  static loadFile(filePath: string, file: any) {
+  static async loadFile(filePath: string, file: any) {
     const extension = re.exec(filePath);
     if (extension) {
       if (extension[1].toLowerCase() === 'json') {
         if (file !== 'TopicMetadata.json') {
           console.log("'%s' is a JSON Resource file.", filePath);
-          fs.readFile(filePath, 'utf8', (err: any, jsonString: string) => {
+          fs.readFile(filePath, 'utf8', async (err: any, jsonString: string) => {
             if (err) {
               console.error('Failed to read file:', err);
               return;
             }
             try {
               const resource = JSON.parse(jsonString);
-              FhirUtilities.store(
+              await FhirUtilities.store(
                 resource,
                 function () {
                   return;
@@ -160,7 +160,7 @@ export class FhirUtilities {
     }
   }
 
-  static loadResources(resourcePath: string) {
+  static async loadResources(resourcePath: string) {
     console.log('Loading FHIR Resources from: ' + resourcePath);
 
     // Loop through all the files in the directory looking for folders

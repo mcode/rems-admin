@@ -26,7 +26,7 @@ export default {
     VsacApiKey: env.VSAC_KEY
   },
   database: {
-    selected: 'tingo',
+    selected: 'mongo',
     tingoConfig: {
       location: 'tingo_db',
       options: ''
