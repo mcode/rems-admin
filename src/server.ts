@@ -196,10 +196,10 @@ class REMSServer extends Server {
       // }
       );
       // iterate through each requirement of the drug
-      for (let requirement of drug.requirements) {
+      for (const requirement of drug.requirements) {
         // figure out which stakeholder the req corresponds to 
-        let reqStakeholder = requirement.stakeholderType;
-        let reqStakeholderReference = reqStakeholder === 'prescriber' ? practitionerReference : (reqStakeholder === 'pharmacist' ? pharmacistReference : patientReference);
+        const reqStakeholder = requirement.stakeholderType;
+        const reqStakeholderReference = reqStakeholder === 'prescriber' ? practitionerReference : (reqStakeholder === 'pharmacist' ? pharmacistReference : patientReference);
 
         // if the requirement is the one submitted continue
         if (requirement.resourceId === requirementId) {
@@ -211,7 +211,7 @@ class REMSServer extends Server {
 
             // create new rems request and add the created metReq to it
             let remsRequestCompletedStatus = 'Approved';
-            let remsRequest: any = {
+            const remsRequest: any = {
               case_number: case_number,
               status : remsRequestCompletedStatus,
               drugName: drug.name,
@@ -221,7 +221,7 @@ class REMSServer extends Server {
             returnRemsRequest = true;
 
             // create the metReq that was submitted
-            let metReq = {
+            const metReq = {
               completed: true,
               completedQuestionnaire: questionnaireResponse,
               requirementName: requirement.name,
@@ -252,12 +252,12 @@ class REMSServer extends Server {
             );
        
             // iterate through all other reqs again to create corresponding false metReqs / assign to existing 
-            for (let requirement2 of drug.requirements) {
+            for (const requirement2 of drug.requirements) {
               // skip if the req found is the same as in the outer loop and has already been processed
               if (!(requirement2.resourceId === requirementId)) {
                 // figure out which stakeholder the req corresponds to 
-                let reqStakeholder2 = requirement2.stakeholderType;
-                let reqStakeholder2Reference = reqStakeholder2 === 'prescriber' ? practitionerReference : (reqStakeholder2 === 'pharmacist' ? pharmacistReference : patientReference);
+                const reqStakeholder2 = requirement2.stakeholderType;
+                const reqStakeholder2Reference = reqStakeholder2 === 'prescriber' ? practitionerReference : (reqStakeholder2 === 'pharmacist' ? pharmacistReference : patientReference);
                 
                 const matchedMetReq2 = await metRequirementsCollection.findOne({stakeholderId: reqStakeholder2Reference, requirementName: requirement2.name, drugName: drug.name});
                 if (matchedMetReq2) {
@@ -277,7 +277,7 @@ class REMSServer extends Server {
                   await metRequirementsCollection.updateOne(matchedMetReq2, {$addToSet: {case_numbers: case_number}});
                 } else {
                  // create the metReq that was submitted
-                 let newMetReq = {
+                 const newMetReq = {
                   completed: false,
                   completedQuestionnaire: null,
                   requirementName: requirement2.name,
@@ -334,7 +334,7 @@ class REMSServer extends Server {
 
               // for (let remsRequestToUpdate of remsRequestsToUpdate) {
                 let foundUncompleted = false;
-                let metReqArray = remsRequestToUpdate.metRequirements;
+                const metReqArray = remsRequestToUpdate.metRequirements;
                 for (let i=0; i < remsRequestToUpdate.metRequirements.length; i++) {
                   let req4 = remsRequestToUpdate.metRequirements[i];
                   // _id comparison would not work for some reason
