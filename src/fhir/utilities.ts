@@ -437,7 +437,7 @@ export class FhirUtilities {
       ]
     },
     {
-      name: "IPledge",
+      name: "Isotretinoin",
       codeSystem: "http://www.nlm.nih.gov/research/umls/rxnorm",
       code: "6064",
       requirements: [{
@@ -496,7 +496,7 @@ export class FhirUtilities {
       stakeholderId: "Organization/pharm0111",
       completed: true,
       requirementName: "Pharmacist Enrollment",
-      drugName: "IPledge",
+      drugName: "Isotretinoin",
       completedQuestionnaire: null, 
       case_numbers: [],        
     }], (err: any, result: any) => {
