@@ -290,22 +290,22 @@ export class FhirUtilities {
 
 
     // define schemas
-    const medicationCollection = await db.collection("medication-requirements"
+    const medicationCollection = await db.collection('medication-requirements'
     // , {
-    //   "name": { "type": "string" },
-    //   "codeSystem": { "type": "string" },
-    //   "code": { "type": "string" },
-    //   "requirements": {
-    //     "type": "array",
-    //     "items": {
-    //       "type": "object",
-    //       "properties": {
-    //         "name": { "type": "string" },
-    //         "description": { "type": "string" },
-    //         "questionnaire": { "type": "object" },
-    //         "stakeholderType": { "type": "string" },
-    //         "createNewCase": { "type": "boolean" },
-    //         "resourceId": { "type": "string" }
+    //   'name': { 'type': 'string' },
+    //   'codeSystem': { 'type': 'string' },
+    //   'code': { 'type': 'string' },
+    //   'requirements': {
+    //     'type': 'array',
+    //     'items': {
+    //       'type': 'object',
+    //       'properties': {
+    //         'name': { 'type': 'string' },
+    //         'description': { 'type': 'string' },
+    //         'questionnaire': { 'type': 'object' },
+    //         'stakeholderType': { 'type': 'string' },
+    //         'createNewCase': { 'type': 'boolean' },
+    //         'resourceId': { 'type': 'string' }
     //       }
     //     }
     //   }
@@ -317,15 +317,15 @@ export class FhirUtilities {
 
     await medicationCollection.createIndex({ name: 1 }, { unique: true });
 
-    const metRequirementsCollection = await db.collection("met-requirements"
+    const metRequirementsCollection = await db.collection('met-requirements'
     // , {
-    //   "completed": { "type": "boolean" },
-    //   "completedQuestionnaire": { "type": "object" },
-    //   "requirementName": { "type": "string" },
-    //   "requirementDescription": {"type": "string"}
-    //   "drugName": { "type": "string" },
-    //   "stakeholderId": { "type": "string" },
-    //   "case_numbers": { "type": "array", "items": { "type": "string" } }
+    //   'completed': { 'type': 'boolean' },
+    //   'completedQuestionnaire': { 'type': 'object' },
+    //   'requirementName': { 'type': 'string' },
+    //   'requirementDescription': {'type': 'string'}
+    //   'drugName': { 'type': 'string' },
+    //   'stakeholderId': { 'type': 'string' },
+    //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
     // }, (err: any, collection: any) => {
     //   if (err) console.log(err);
     // }
@@ -335,22 +335,22 @@ export class FhirUtilities {
     metRequirementsCollection.createIndex({ drugName: 1, requirementName: 1, stakeholderId: 1 }, { unique: true });
 
 
-    const remsCaseCollection = await db.collection("rems-case"
+    const remsCaseCollection = await db.collection('rems-case'
     // , {
-    //   "case_number": { "type": "string" },
-    //   "status": { "type": "string" },
-    //   "drugName": { "type": "string" },
-    //   "patientName": { "type": "string" },
-    //   "metRequirements": {
-    //     "type": "array",
-    //     "items": {
-    //       "type": "object",
-    //       "properties": {
-    //         "metRequirementId": { "type": "number" },
-    //         "completed": { "type": "boolean" },
-    //         "stakeholderId": { "type": "string" },
-    //         "requirementName": { "type": "string" },
-    //         "requirementDescription": {"type": "string"},
+    //   'case_number': { 'type': 'string' },
+    //   'status': { 'type': 'string' },
+    //   'drugName': { 'type': 'string' },
+    //   'patientName': { 'type': 'string' },
+    //   'metRequirements': {
+    //     'type': 'array',
+    //     'items': {
+    //       'type': 'object',
+    //       'properties': {
+    //         'metRequirementId': { 'type': 'number' },
+    //         'completed': { 'type': 'boolean' },
+    //         'stakeholderId': { 'type': 'string' },
+    //         'requirementName': { 'type': 'string' },
+    //         'requirementDescription': {'type': 'string'},
     //       }
     //     }
     //   }
@@ -362,77 +362,77 @@ export class FhirUtilities {
 
     // prepopulateDB
     medicationCollection.insert([{
-      name: "Turalio",
-      codeSystem: "http://www.nlm.nih.gov/research/umls/rxnorm",
-      code: "2183126",
+      name: 'Turalio',
+      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+      code: '2183126',
       requirements: [{
-        name: "Patient Enrollment",
-        description: "Submit Patient Enrollment form to the REMS Administrator",
-        stakeholderType: "patient",
+        name: 'Patient Enrollment',
+        description: 'Submit Patient Enrollment form to the REMS Administrator',
+        stakeholderType: 'patient',
         createNewCase: true,
-        resourceId: "TuralioRemsPatientEnrollment",
+        resourceId: 'TuralioRemsPatientEnrollment',
       },
       {
-        name: "Prescriber Enrollment",
-        description: "Submit Prescriber Enrollment form to the REMS Administrator",
-        stakeholderType: "prescriber",
+        name: 'Prescriber Enrollment',
+        description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+        stakeholderType: 'prescriber',
         createNewCase: false,
-        resourceId: "TuralioPrescriberEnrollmentForm",
+        resourceId: 'TuralioPrescriberEnrollmentForm',
       },
       {
-        name: "Prescriber Knowledge Assessment",
-        description: "Submit Prescriber Knowledge Assessment form to the REMS Administrator",
-        stakeholderType: "prescriber",
+        name: 'Prescriber Knowledge Assessment',
+        description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
+        stakeholderType: 'prescriber',
         createNewCase: false,
-        resourceId: "TuralioPrescriberKnowledgeAssessment",
+        resourceId: 'TuralioPrescriberKnowledgeAssessment',
       },
       {
-        name: "Pharmacist Enrollment",
-        description: "Submit Pharmacist Enrollment form to the REMS Administrator",
-        stakeholderType: "pharmacist",
+        name: 'Pharmacist Enrollment',
+        description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+        stakeholderType: 'pharmacist',
         createNewCase: false,
-        resourceId: "TuralioPharmacistEnrollment",
+        resourceId: 'TuralioPharmacistEnrollment',
       },
       ]
     },
     {
-      name: "TIRF",
-      codeSystem: "http://www.nlm.nih.gov/research/umls/rxnorm",
-      code: "1237051",
+      name: 'TIRF',
+      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+      code: '1237051',
       requirements: [{
-        name: "Patient Enrollment",
-        description: "Submit Patient Enrollment form to the REMS Administrator",
-        stakeholderType: "patient",
+        name: 'Patient Enrollment',
+        description: 'Submit Patient Enrollment form to the REMS Administrator',
+        stakeholderType: 'patient',
         createNewCase: true,
-        resourceId: "TIRFRemsPatientEnrollment",
+        resourceId: 'TIRFRemsPatientEnrollment',
       },
       {
-        name: "Prescriber Enrollment",
-        description: "Submit Prescriber Enrollment form to the REMS Administrator",
-        stakeholderType: "prescriber",
+        name: 'Prescriber Enrollment',
+        description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+        stakeholderType: 'prescriber',
         createNewCase: false,
-        resourceId: "TIRFPrescriberEnrollmentForm",
+        resourceId: 'TIRFPrescriberEnrollmentForm',
       },
       {
-        name: "Prescriber Knowledge Assessment",
-        description: "Submit Prescriber Knowledge Assessment form to the REMS Administrator",
-        stakeholderType: "prescriber",
+        name: 'Prescriber Knowledge Assessment',
+        description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
+        stakeholderType: 'prescriber',
         createNewCase: false,
-        resourceId: "TIRFPrescriberKnowledgeAssessment",
+        resourceId: 'TIRFPrescriberKnowledgeAssessment',
       },
       {
-        name: "Pharmacist Enrollment",
-        description: "Submit Pharmacist Enrollment form to the REMS Administrator",
-        stakeholderType: "pharmacist",
+        name: 'Pharmacist Enrollment',
+        description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+        stakeholderType: 'pharmacist',
         createNewCase: false,
-        resourceId: "TIRFPharmacistEnrollmentForm",
+        resourceId: 'TIRFPharmacistEnrollmentForm',
       },
       {
-        name: "Pharmacist Knowledge Assessment",
-        description: "Submit Pharmacist Knowledge Assessment form to the REMS Administrator",
-        stakeholderType: "pharmacist",
+        name: 'Pharmacist Knowledge Assessment',
+        description: 'Submit Pharmacist Knowledge Assessment form to the REMS Administrator',
+        stakeholderType: 'pharmacist',
         createNewCase: false,
-        resourceId: "TIRFPharmacistKnowledgeAssessment",
+        resourceId: 'TIRFPharmacistKnowledgeAssessment',
       },
       ]
     },
@@ -441,25 +441,25 @@ export class FhirUtilities {
       codeSystem: "http://www.nlm.nih.gov/research/umls/rxnorm",
       code: "6064",
       requirements: [{
-        name: "Patient Enrollment",
-        description: "Submit Patient Enrollment form to the REMS Administrator",
-        stakeholderType: "patient",
+        name: 'Patient Enrollment',
+        description: 'Submit Patient Enrollment form to the REMS Administrator',
+        stakeholderType: 'patient',
         createNewCase: true,
-        resourceId: "IPledgeRemsPatientEnrollment",
+        resourceId: 'IPledgeRemsPatientEnrollment',
       },
       {
-        name: "Prescriber Enrollment",
-        description: "Submit Prescriber Enrollment form to the REMS Administrator",
-        stakeholderType: "prescriber",
+        name: 'Prescriber Enrollment',
+        description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+        stakeholderType: 'prescriber',
         createNewCase: false,
-        resourceId: "IPledgeRemsPrescriberEnrollmentForm"
+        resourceId: 'IPledgeRemsPrescriberEnrollmentForm'
       },
       {
-        name: "Pharmacist Enrollment",
-        description: "Submit Pharmacist Enrollment form to the REMS Administrator",
-        stakeholderType: "pharmacist",
+        name: 'Pharmacist Enrollment',
+        description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+        stakeholderType: 'pharmacist',
         createNewCase: false,
-        resourceId: "IPledgeRemsPharmacistEnrollmentForm"
+        resourceId: 'IPledgeRemsPharmacistEnrollmentForm'
       },
       ]
     },
@@ -469,31 +469,31 @@ export class FhirUtilities {
     });
 
     metRequirementsCollection.insert([{
-      stakeholderId: "Organization/pharm0111",
+      stakeholderId: 'Organization/pharm0111',
       completed: true,
-      requirementName: "Pharmacist Enrollment",
-      drugName: "Turalio",
+      requirementName: 'Pharmacist Enrollment',
+      drugName: 'Turalio',
       completedQuestionnaire: null,  
       case_numbers: [],       
     },
     {
-      stakeholderId: "Organization/pharm0111",
+      stakeholderId: 'Organization/pharm0111',
       completed: true,
-      requirementName: "Pharmacist Enrollment",
-      drugName: "TIRF",
+      requirementName: 'Pharmacist Enrollment',
+      drugName: 'TIRF',
       completedQuestionnaire: null,   
       case_numbers: [],   
     },
     {
-      stakeholderId: "Organization/pharm0111",
+      stakeholderId: 'Organization/pharm0111',
       completed: true,
-      requirementName: "Pharmacist Knowledge Assessment",
-      drugName: "TIRF",
+      requirementName: 'Pharmacist Knowledge Assessment',
+      drugName: 'TIRF',
       completedQuestionnaire: null,     
       case_numbers: [],    
     },
     {
-      stakeholderId: "Organization/pharm0111",
+      stakeholderId: 'Organization/pharm0111',
       completed: true,
       requirementName: "Pharmacist Enrollment",
       drugName: "Isotretinoin",

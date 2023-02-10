@@ -4,26 +4,32 @@ import questionnaire from './fixtures/questionnaire.json';
 import valueSet from './fixtures/valueSet.json';
 import fs from 'fs';
 import nock from 'nock';
-import { TingoDatabase } from '../TingoDatabase';
 import { Globals } from '../../globals';
-
+import { Db, MongoClient } from 'mongodb';
+import constants from '../../constants';
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
-  const dbClient = new TingoDatabase({
-    location: './tingo_db',
-    options: ''
-  });
-  dbClient.connect();
-  Globals.databaseClient = dbClient.client;
-  Globals.database = dbClient.database;
 
+  let connection: MongoClient;
+  let db: Db;
+
+  beforeAll(async () => {
+    if (process.env.MONGO_URL) {
+      connection = await MongoClient.connect(process.env.MONGO_URL, {});
+      db = await connection.db(process.env.MONGO_DB_NAME);
+      Globals.database = db;
+    }
+  });
+
+  afterAll(async () => {
+    await connection.close();
+  });
   beforeEach(() => {
-    Globals.database.close();
-    fs.rmSync('./tingo_db', { recursive: true, force: true });
-    dbClient.connect();
-    Globals.databaseClient = dbClient.client;
-    Globals.database = dbClient.database;
     // client.clearCache();
+    const baseVersion = '4_0_0';
+    const collectionString = `${constants.COLLECTION.VALUESET}_${baseVersion}`;
+
+    db.collection(collectionString).deleteMany({});
     client.onlyVsac = false;
     jest.resetModules();
   });
