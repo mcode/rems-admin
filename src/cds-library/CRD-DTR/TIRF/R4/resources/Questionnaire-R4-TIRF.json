@@ -9,6 +9,12 @@
     ],
     "date": "2020-05-20",
     "publisher": "Da Vinci DTR",
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+        "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPatientInfo-prepopulation"
+      }
+    ],
     "item": [
       {
         "linkId": "1",
