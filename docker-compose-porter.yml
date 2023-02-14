@@ -67,6 +67,9 @@ services:
   pims:
     image: codexrems/pims:REMSvCurrent
     container_name: rems_dev_pims
+    environment:
+      REMS_ADMIN_BASE: http://rems-administrator:8090
+      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
     ports:
       - "5050:5050" 
       - "5051:5051"

@@ -90,7 +90,6 @@ services:
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
       MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
-
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
       - rems_dev_rems-nodeModules:/REMS/node_modules
@@ -104,6 +103,9 @@ services:
     ports:
       - "5050:5050" 
       - "5051:5051"
+    environment:
+      REMS_ADMIN_BASE: http://rems-administrator:8090
+      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
