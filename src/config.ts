@@ -23,7 +23,7 @@ export default {
   },
   general: {
     resourcePath: 'src/cds-library/CRD-DTR',
-    VsacApiKey: env.VSAC_KEY
+    VsacApiKey: env.VSAC_API_KEY
   },
   database: {
     selected: 'mongo',
@@ -32,7 +32,7 @@ export default {
       options: ''
     },
     mongoConfig: {
-      location: `mongodb://${env.MONGO_HOSTNAME}`,
+      location: env.MONGO_HOSTNAME,
       db_name: env.MONGO_DB_NAME,
       options: {
         //auto_reconnect: true,

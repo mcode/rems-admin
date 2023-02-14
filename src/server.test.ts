@@ -1,8 +1,24 @@
 import { initialize, REMSServer } from './server';
 import config from './config';
-
+import { Globals } from './globals';
+import { Db, MongoClient } from 'mongodb';
 describe('REMSServer class', () => {
   let server: REMSServer;
+
+  let connection: MongoClient;
+  let db: Db;
+
+  beforeAll(async () => {
+    if (process.env.MONGO_URL) {
+      connection = await MongoClient.connect(process.env.MONGO_URL, {});
+      db = await connection.db(process.env.MONGO_DB_NAME);
+      Globals.database = db;
+    }
+  });
+
+  afterAll(async () => {
+    await connection.close();
+  });
 
   beforeEach(() => {
     jest.mock('morgan', () => jest.fn());
