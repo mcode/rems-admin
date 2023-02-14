@@ -1,4 +1,6 @@
-FROM ubuntu:latest
+FROM node:18-alpine 
 WORKDIR /REMS
-COPY . .
-CMD ./dockerRunner.sh
+COPY --chown=node:node . .
+RUN npm install
+EXPOSE 8090
+CMD ./dockerRunnerDev.sh

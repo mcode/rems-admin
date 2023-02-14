@@ -1,0 +1,16 @@
+diff --git a/node_modules/@projecttacoma/node-fhir-server-core/dist/server/resources/4_0_0/schemas/datarequirement.js b/node_modules/@projecttacoma/node-fhir-server-core/dist/server/resources/4_0_0/schemas/datarequirement.js
+index ef49581..6868203 100644
+--- a/node_modules/@projecttacoma/node-fhir-server-core/dist/server/resources/4_0_0/schemas/datarequirement.js
++++ b/node_modules/@projecttacoma/node-fhir-server-core/dist/server/resources/4_0_0/schemas/datarequirement.js
+@@ -152,9 +152,9 @@ module.exports = class DataRequirement {
+           return;
+         }
+ 
+-        let Element = require('./element.js');
++        let CodeFilter = require('./datarequirementcodefilter.js');
+ 
+-        this.__data.codeFilter = Array.isArray(value) ? value.map(v => new Element(v)) : [new Element(value)];
++        this.__data.codeFilter = Array.isArray(value) ? value.map(v => new CodeFilter(v)) : [new CodeFilter(value)];
+       }
+     });
+     Object.defineProperty(this, 'dateFilter', {

@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "prettier",
+    "eslint:recommended", 
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "semi": ["off"],
+    "@typescript-eslint/semi": ["error", "always"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+
+  }
+}

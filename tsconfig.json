@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "lib": [
+        "dom",
+        "dom.iterable",
+        "esnext"
+      ],
+      "allowJs": true,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "outDir": "dist",
+      "jsx": "react-jsx",
+      "paths": {
+        "*": [
+          "src/typings/*"
+        ]
+      }
+    },
+    "include": [
+      "src"
+    ]
+  }
+  

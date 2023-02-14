@@ -73,7 +73,9 @@ Your computer must have these minimum requirements:
 ```
 
 #### Windows 
-> Note: The install on Windows requires additional steps in order to expose the WSL Docker Daemon to Porter. The way to do this is to run the porter commands inside an additional windows specific container running in interactive mode, which exposes that container's terminal instance. 
+> Note: The Porter Installation on Windows is currently broken, to run the REMS prototype on Windows please refer to the [Running Docker Compose without Porter](#docker-compose-without-porter) section of this guide.
+
+<!-- > Note: The install on Windows requires additional steps in order to expose the WSL Docker Daemon to Porter. The way to do this is to run the porter commands inside an additional windows specific container running in interactive mode, which exposes that container's terminal instance. 
 
 > Note: replace ${vsac_api_key} in the below commands with your own VSAC api key obtained in the previous step.
 
@@ -99,7 +101,7 @@ Your computer must have these minimum requirements:
     porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
 ```
 
-> Note: Any porter comannds below such as [stopping the server](#stop-server), [updating the porter application](#updating-porter-application), or [uninstalling the porter application](#cleanup) should be run within the windows specific docker container terminal instance started in step 2. To exit the interactive shell started in step 2, use **ctrl + d**
+> Note: Any porter comannds below such as [stopping the server](#stop-server), [updating the porter application](#updating-porter-application), or [uninstalling the porter application](#cleanup) should be run within the windows specific docker container terminal instance started in step 2. To exit the interactive shell started in step 2, use **ctrl + d** -->
 
 ### 4. Verify everything is working
 
@@ -110,21 +112,23 @@ Your computer must have these minimum requirements:
 3. Find **Jon Snow** in the list of patients and click the dropdown menu next to his name.
 4. Select **2183126 - Turalio 200 MG Oral Capsule** in the dropdown menu.
 5. Click anywhere in the row to select Jon Snow.
-6. Click **Submit to CRD** at the bottom of the page.
-7. After several seconds you should receive a response in the form of two **CDS cards**:
+6. Click **Send Rx to PIMS** at the bottom of the page to send a prescription to the Pharmacist.
+7. Click **Submit to REMS-Admin** at the bottom of the page.
+8. After several seconds you should receive a response in the form of two **CDS cards**:
     - **Drug Has REMS: Documentation Required.**
-8. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
-9. If you are asked for login credentials, use **alice** for username and **alice** for password.
-10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
-11. Fill out questionnaire and hit **Submit REMS Bundle**.
-12. A new UI will appear with REMS Admin Status and Pharmacy Status.
-13. Go to http://localhost:4200 and play the role of a pharmacist.
-14. Click on **Log in as Admin** in the top right of the page
-15. Sign in with the pre-configured user Suzy:
+9. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
+10. If you are asked for login credentials, use **alice** for username and **alice** for password.
+11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
+12. Fill out questionnaire and hit **Submit REMS Bundle**.
+13. A new UI will appear with REMS Admin Status and Pharmacy Status.
+14. Go to http://localhost:5050 and play the role of a pharmacist.
+<!-- 15. Click on **Log in as Admin** in the top right of the page -->
+<!-- 16. Sign in with the pre-configured user Suzy:
 	* Email: spharmichael@example.com
-	* Password: suzy
-16. Click **Doctor Orders** in the left hand navigation menu on the screen
-17. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
+	* Password: suzy -->
+15. Click **Doctor Orders** in the top hand navigation menu on the screen
+16. See the Doctor Order that was sent to the pharmacist from the prescriber.
+17. Repeat steps 9-12 for submitting the Prescriber Enrollment and Prescriber Knowledge Assessment Forms and check how ETASU statuses change in both the PIMS prescription UI and the Prescriber status page. 
 
 Congratulations! DRLS is fully installed and ready for you to use!
 

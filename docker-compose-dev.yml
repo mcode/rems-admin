@@ -12,21 +12,20 @@ services:
     volumes:
       - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
       - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
-    build: 
+    build:
       context: ../test-ehr
-      dockerfile: Dockerfile.keycloak 
+      dockerfile: Dockerfile.keycloak
 
-  # Create test ehr container
-  test-ehr: # Name of our service
+  test-ehr:
     container_name: rems_dev_test-ehr
-    ports: # Port binding to host from docker container
-      - '8080:8080' # Bind port 3000 of host to 3000 of container
+    ports:
+      - '8080:8080'
       - "8081:8081"
     environment:
       - DOCKER_PROFILE=true
-    build: 
+    build:
       context: ../test-ehr
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     volumes:
       - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - rems_dev_test-ehr-gradle:/test-ehr/.gradle
@@ -37,40 +36,27 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
-  # Create crd container
-  crd: # Name of our service
-    build: 
-      context: ../CRD
-      dockerfile: Dockerfile.dev 
-    container_name: rems_dev_crd
-    ports: # Port binding to host from docker container
-      - "8090:8090" # Bind port 3000 of host to 3000 of container
-      - "8091:8091"
+  pims_remsadmin_mongo:
+    image: mongo
+    container_name: rems_dev_pims-remsadmin-mongo
+    ports:
+      - '27017:27017' 
     environment:
-      VSAC_API_KEY: ${VSAC_API_KEY}
+      MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
+      MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
-      - rems_dev_crd-sync:/CRD:nocopy #  nocopy is important
-      - rems_dev_crd-logs:/CRD/logs
-      - rems_dev_crd-gradle:/CRD/.gradle
-      - rems_dev_crd-server-gradle:/CRD/server/.gradle
-      - rems_dev_crd-server-build:/CRD/server/build
-      - rems_dev_crd-server-bin:/CRD/server/bin
-      - rems_dev_crd-server-ValueSetCache:/CRD/server/ValueSetCache
-      - rems_dev_crd-operations-build:/CRD/operations/build
-      - rems_dev_crd-resources-build:/CRD/resources/build
+      - pims_remsadmin_mongo:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
-
-  # Create crd request generator container
-  crd-request-generator: # Name of our service
-    build: 
+  crd-request-generator:
+    build:
       context: ../crd-request-generator
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
-    ports: # Port binding to host from docker container
-      - "3000:3000" # Bind port 3000 of host to 3000 of container
+    ports:
+      - "3000:3000" 
       - "3001:3001"
     volumes:
       - rems_dev_crd-request-generator-sync:/home/node/app/crd-request-generator:nocopy #  nocopy is important
@@ -79,15 +65,13 @@ services:
       - rems_dev_crd-request-generator-build:/home/node/app/crd-request-generator/build
       - rems_dev_crd-request-generator-logs:/home/node/app/crd-request-generator/logs
 
-
-  # Create dtr container
-  dtr: # Name of our service
-    build: 
+  dtr:
+    build:
       context: ../dtr
-      dockerfile: Dockerfile.dev     
+      dockerfile: Dockerfile.dev
     container_name: rems_dev_dtr
-    ports: # Port binding to host from docker container
-      - "3005:3005" # Bind port 3000 of host to 3000 of container
+    ports:
+      - "3005:3005"
       - "3006:3006"
     volumes:
       - rems_dev_dtr-sync:/home/node/app/dtr:nocopy #  nocopy is important
@@ -95,54 +79,41 @@ services:
       - rems_dev_dtr-databaseData:/home/node/app/dtr/databaseData
       - rems_dev_dtr-logs:/home/node/app/dtr/logs
 
-
-  # Create rems container
-  rems-administrator: # Name of our service
-    build: 
+  rems-administrator:
+    build:
       context: '.'
-      dockerfile: Dockerfile.dev     
-    container_name: rems_dev_rems
-    ports: # Port binding to host from docker container
-      - "9020:9020" # Bind port 3000 of host to 3000 of container
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_rems-administrator
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    environment:
+      VSAC_API_KEY: ${VSAC_API_KEY}
+      MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
+      - rems_dev_rems-nodeModules:/REMS/node_modules
+      - rems_dev_rems-logs:/REMS/logs
 
-  pharmacy-information-system: # Name of our service
-    build: 
-      context: ../pharmacy-information-system
-      dockerfile: Dockerfile.dev     
-    container_name: rems_dev_pharmacy-information-system
+  pims:
+    build:
+      context: ../pims
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_pims
+    ports:
+      - "5050:5050" 
+      - "5051:5051"
     environment:
-      - PORT=3010
-      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
-      - CRD_BASE_URL=http://crd:8090/
-    ports: # Port binding to host from docker container
-      - "4200:4200" 
-      - "3010:3010"
-      - "3011:3011"
+      REMS_ADMIN_BASE: http://rems-administrator:8090
+      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
     volumes:
-      - rems_dev_pharmacy-information-system-sync:/home/node/app/pharmacy-information-system:nocopy #  nocopy is important
-      - rems_dev_pharmacy-information-system-nodeModules:/home/node/app/pharmacy-information-system/node_modules
-      - rems_dev_pharmacy-information-system-backend-nodeModules:/home/node/app/pharmacy-information-system/backend/node_modules
-      - rems_dev_pharmacy-information-system-logs:/home/node/app/pharmacy-information-system/logs
-
-  pharmacy-information-system-database: # Name of our service
-    image: mongo
-    container_name: rems_dev_pharmacy-information-system-database
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
-    expose:
-      - "27017"
-    ports: # Port binding to host from docker container
-      - "27017:27017" 
-    volumes:
-      - rems_dev_pharmacy-infomation-system-database:/data/db
+      - rems_dev_pims-sync:/home/node/app/pims:nocopy
+      - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
+      - rems_dev_pims-logs:/home/node/app/pims/logs
+  
 
 volumes:
   rems_dev_test-ehr-sync:
-    external: true
-  rems_dev_crd-sync:
     external: true
   rems_dev_crd-request-generator-sync:
     external: true
@@ -150,21 +121,16 @@ volumes:
     external: true
   rems_dev_rems-sync:
     external: true
-  rems_dev_pharmacy-information-system-sync:
+  rems_dev_pims-sync:
     external: true
+
   rems_dev_keycloak-data:
+  pims_remsadmin_mongo:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
   rems_dev_test-ehr-build:
   rems_dev_test-ehr-target:
   rems_dev_test-ehr-logs:
-  rems_dev_crd-logs:
-  rems_dev_crd-gradle:
-  rems_dev_crd-server-gradle:
-  rems_dev_crd-server-build:
-  rems_dev_crd-server-bin:
-  rems_dev_crd-server-ValueSetCache:
-  rems_dev_crd-operations-build:
   rems_dev_crd-resources-build:
   rems_dev_crd-request-generator-nodeModules:
   rems_dev_crd-request-generator-databaseData:
@@ -173,7 +139,8 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pharmacy-information-system-nodeModules:
-  rems_dev_pharmacy-information-system-backend-nodeModules:
-  rems_dev_pharmacy-information-system-logs:
-  rems_dev_pharmacy-infomation-system-database:
+  rems_dev_pims-logs: 
+  rems_dev_pims-nodeModules: 
+  rems_dev_rems-nodeModules:
+  rems_dev_rems-logs:
+

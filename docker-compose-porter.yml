@@ -24,18 +24,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
-  # Create crd container
-  crd: # Name of our service
-    image: codexrems/crd:REMSvCurrent
-    container_name: rems_porter_crd
-    ports: # Port binding to host from docker container
-      - "8090:8090" # Bind port 3000 of host to 3000 of container
-    environment:
-      VSAC_API_KEY: ${VSAC_API_KEY}
-    volumes:
-      - rems_porter_crd-server-ValueSetCache:/CRD/server/ValueSetCache
-
   # Create crd request generator container
   crd-request-generator: # Name of our service
     image: codexrems/crd-request-generator:REMSvCurrent
@@ -60,32 +48,31 @@ services:
     container_name: rems_porter_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
-
-  pharmacy-information-system: # Name of our service
-    image: codexrems/pharmacy-information-system:REMSvCurrent
-    container_name: rems_porter_pharmacy-information-system
     environment:
-      - PORT=3010
-      - MONGODB_CONNSTRING=mongodb://pharmacy-information-root:pharmacy-information-password@pharmacy-information-system-database:27017?retryWrites=true&w=majority
-      - CRD_BASE_URL=http://crd:8090/
-    ports: # Port binding to host from docker container
-      - "4200:4200" 
-      - "3010:3010"
+      VSAC_API_KEY: ${VSAC_API_KEY}
+      MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
 
-  pharmacy-information-system-database: # Name of our service
+  pims_remsadmin_mongo:
     image: mongo
-    container_name: rems_porter_pharmacy-information-system-database
+    container_name: rems_dev_pims-remsadmin-mongo
+    ports:
+      - '27017:27017' 
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pharmacy-information-root
-      MONGO_INITDB_ROOT_PASSWORD: pharmacy-information-password
-    expose:
-      - "27017"
-    ports: # Port binding to host from docker container
-      - "27017:27017" 
+      MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
+      MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
-      - rems_porter_pharmacy-infomation-system-database:/data/db
+      - pims_remsadmin_mongo:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+  pims:
+    image: codexrems/pims:REMSvCurrent
+    container_name: rems_dev_pims
+    environment:
+      REMS_ADMIN_BASE: http://rems-administrator:8090
+      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
+    ports:
+      - "5050:5050" 
+      - "5051:5051"
 
 volumes:
   rems_porter_keycloak-data:
-  rems_porter_pharmacy-infomation-system-database:
-  rems_porter_crd-server-ValueSetCache:
