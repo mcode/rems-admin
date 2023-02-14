@@ -4,13 +4,6 @@
 			"path": "../test-ehr"
 		},
 		{
-			"name": "CRD-CDS-Library",
-			"path": "../CRD/server/CDS-Library"
-		},
-		{
-			"path": "../CRD"
-		},
-		{
 			"path": "../crd-request-generator"
 		},
 		{
@@ -18,9 +11,6 @@
 		},
 		{
 			"path": "."
-		},
-		{
-			"path": "../pharmacy-information-system"
 		},
 		{
 			"path": "../pims"
@@ -42,13 +32,11 @@
 			  "stopAll": true,
 			  "preLaunchTask": "Launch Chrome in Debug Mode",
 			  "configurations": [
-				  "Debug CRD (Local + Docker)", 
 				  "Debug DTR Backend (Docker)", 
 				  "Debug Test-EHR (Local + Docker)", 
 				  "Debug DTR Frontend (Attach Local + Docker)", 
 				  "Debug CRD-Request-Generator (Attach Docker)", 
-				  "Debug Pharmacy-Information-System Backend (Docker)", 
-				  "Debug Pharmacy-Information-System Frontend (Attach Local + Docker)",
+			//  ToDO: Add in PIMS Debugging and REMS debugging in docker
 				  "Post Debug Task - Terminate Chrome (This is not a Debugger)"
 				],
 			}
@@ -61,13 +49,13 @@
 				"type": "shell",
 				"label": "Launch Chrome in Debug Mode",
 				"linux": {
-					"command": "google-chrome http://localhost:3000 http://localhost:4200 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
+					"command": "google-chrome http://localhost:3000 http://localhost:5050 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
 				},
 				"osx": {
-					"command": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome http://localhost:3000 http://localhost:4200 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
+					"command": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome http://localhost:3000 http://localhost:5050 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
 				},
 				"windows": {
-					"command": "for /f \"usebackq tokens=1,2,3,4,5\" %a in (`reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ /s /f \\chrome.exe ^| findstr Application`) do set CHROMEPATH=%c%d%e & set CHROMEPATH=%CHROMEPATH:ProgramFiles=Program Files% & \"%CHROMEPATH%\" http://localhost:3000 http://localhost:4200 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
+					"command": "for /f \"usebackq tokens=1,2,3,4,5\" %a in (`reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ /s /f \\chrome.exe ^| findstr Application`) do set CHROMEPATH=%c%d%e & set CHROMEPATH=%CHROMEPATH:ProgramFiles=Program Files% & \"%CHROMEPATH%\" http://localhost:3000 http://localhost:5050 http://localhost:3005/register --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug"
 				},
 				"presentation": {
 					"close": true,

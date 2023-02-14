@@ -290,73 +290,70 @@ export class FhirUtilities {
 
 
     // define schemas
+
+    // leave comments in of structure in for now as they will be useful to reference during the mongoose transition 
     const medicationCollection = await db.collection('medication-requirements'
-    // , {
-    //   'name': { 'type': 'string' },
-    //   'codeSystem': { 'type': 'string' },
-    //   'code': { 'type': 'string' },
-    //   'requirements': {
-    //     'type': 'array',
-    //     'items': {
-    //       'type': 'object',
-    //       'properties': {
-    //         'name': { 'type': 'string' },
-    //         'description': { 'type': 'string' },
-    //         'questionnaire': { 'type': 'object' },
-    //         'stakeholderType': { 'type': 'string' },
-    //         'createNewCase': { 'type': 'boolean' },
-    //         'resourceId': { 'type': 'string' }
-    //       }
-    //     }
-    //   }
-    // }, (err: any, collection: any) => {
-    //   if (err) console.log(err);
-    // }
+      // , {
+      //   'name': { 'type': 'string' },
+      //   'codeSystem': { 'type': 'string' },
+      //   'code': { 'type': 'string' },
+      //   'requirements': {
+      //     'type': 'array',
+      //     'items': {
+      //       'type': 'object',
+      //       'properties': {
+      //         'name': { 'type': 'string' },
+      //         'description': { 'type': 'string' },
+      //         'questionnaire': { 'type': 'object' },
+      //         'stakeholderType': { 'type': 'string' },
+      //         'createNewCase': { 'type': 'boolean' },
+      //         'resourceId': { 'type': 'string' }
+      //       }
+      //     }
+      //   }
+      // }
     );
 
 
     await medicationCollection.createIndex({ name: 1 }, { unique: true });
 
+    // leave comments of structure in for now as they will be useful to reference during the mongoose transition 
     const metRequirementsCollection = await db.collection('met-requirements'
-    // , {
-    //   'completed': { 'type': 'boolean' },
-    //   'completedQuestionnaire': { 'type': 'object' },
-    //   'requirementName': { 'type': 'string' },
-    //   'requirementDescription': {'type': 'string'}
-    //   'drugName': { 'type': 'string' },
-    //   'stakeholderId': { 'type': 'string' },
-    //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
-    // }, (err: any, collection: any) => {
-    //   if (err) console.log(err);
-    // }
+      // , {
+      //   'completed': { 'type': 'boolean' },
+      //   'completedQuestionnaire': { 'type': 'object' },
+      //   'requirementName': { 'type': 'string' },
+      //   'requirementDescription': {'type': 'string'}
+      //   'drugName': { 'type': 'string' },
+      //   'stakeholderId': { 'type': 'string' },
+      //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
+      // }
     );
 
 
     metRequirementsCollection.createIndex({ drugName: 1, requirementName: 1, stakeholderId: 1 }, { unique: true });
 
-
+    // leave comments of structure in for now as they will be useful to reference during the mongoose transition 
     const remsCaseCollection = await db.collection('rems-case'
-    // , {
-    //   'case_number': { 'type': 'string' },
-    //   'status': { 'type': 'string' },
-    //   'drugName': { 'type': 'string' },
-    //   'patientName': { 'type': 'string' },
-    //   'metRequirements': {
-    //     'type': 'array',
-    //     'items': {
-    //       'type': 'object',
-    //       'properties': {
-    //         'metRequirementId': { 'type': 'number' },
-    //         'completed': { 'type': 'boolean' },
-    //         'stakeholderId': { 'type': 'string' },
-    //         'requirementName': { 'type': 'string' },
-    //         'requirementDescription': {'type': 'string'},
-    //       }
-    //     }
-    //   }
-    // }, (err: any, collection: any) => {
-    //   if (err) throw err;
-    // }
+      // , {
+      //   'case_number': { 'type': 'string' },
+      //   'status': { 'type': 'string' },
+      //   'drugName': { 'type': 'string' },
+      //   'patientName': { 'type': 'string' },
+      //   'metRequirements': {
+      //     'type': 'array',
+      //     'items': {
+      //       'type': 'object',
+      //       'properties': {
+      //         'metRequirementId': { 'type': 'number' },
+      //         'completed': { 'type': 'boolean' },
+      //         'stakeholderId': { 'type': 'string' },
+      //         'requirementName': { 'type': 'string' },
+      //         'requirementDescription': {'type': 'string'},
+      //       }
+      //     }
+      //   }
+      // }
     );
 
 
@@ -437,9 +434,9 @@ export class FhirUtilities {
       ]
     },
     {
-      name: "Isotretinoin",
-      codeSystem: "http://www.nlm.nih.gov/research/umls/rxnorm",
-      code: "6064",
+      name: 'Isotretinoin',
+      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+      code: '6064',
       requirements: [{
         name: 'Patient Enrollment',
         description: 'Submit Patient Enrollment form to the REMS Administrator',
@@ -473,32 +470,32 @@ export class FhirUtilities {
       completed: true,
       requirementName: 'Pharmacist Enrollment',
       drugName: 'Turalio',
-      completedQuestionnaire: null,  
-      case_numbers: [],       
+      completedQuestionnaire: null,
+      case_numbers: [],
     },
     {
       stakeholderId: 'Organization/pharm0111',
       completed: true,
       requirementName: 'Pharmacist Enrollment',
       drugName: 'TIRF',
-      completedQuestionnaire: null,   
-      case_numbers: [],   
+      completedQuestionnaire: null,
+      case_numbers: [],
     },
     {
       stakeholderId: 'Organization/pharm0111',
       completed: true,
       requirementName: 'Pharmacist Knowledge Assessment',
       drugName: 'TIRF',
-      completedQuestionnaire: null,     
-      case_numbers: [],    
+      completedQuestionnaire: null,
+      case_numbers: [],
     },
     {
       stakeholderId: 'Organization/pharm0111',
       completed: true,
-      requirementName: "Pharmacist Enrollment",
-      drugName: "Isotretinoin",
-      completedQuestionnaire: null, 
-      case_numbers: [],        
+      requirementName: 'Pharmacist Enrollment',
+      drugName: 'Isotretinoin',
+      completedQuestionnaire: null,
+      case_numbers: [],
     }], (err: any, result: any) => {
       if (err) console.log(err);
       console.log('Inserted Pharmacist Met Requirements');
