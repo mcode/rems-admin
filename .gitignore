@@ -9,3 +9,4 @@ dist/
 .idea/
 .DS_Store
 tingo_db/
+env.json

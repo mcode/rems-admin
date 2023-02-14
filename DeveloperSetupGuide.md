@@ -169,15 +169,12 @@ Reference: https://github.com/rbenv/rbenv
 2. Now clone the DRLS component repositories from Github:
     ```bash
     cd <drlsroot>
-    git clone https://github.com/mcode/CRD.git CRD
     git clone https://github.com/mcode/test-ehr.git test-ehr
     git clone https://github.com/mcode/crd-request-generator.git crd-request-generator
     git clone https://github.com/mcode/dtr.git dtr
     git clone https://github.com/mcode/REMS.git REMS
-    git clone https://github.com/mcode/pharmacy-information-system.git pharmacy-information-system
+    git clone https://github.com/mcode/pims.git pims
 
-    cd CRD/server
-    git clone https://github.com/mcode/CDS-Library.git CDS-Library
     ```
 
 # Open DRLS REMS as VsCode workspace
@@ -299,21 +296,23 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 3. Find **Jon Snow** in the list of patients and click the dropdown menu next to his name.
 4. Select **2183126 - Turalio 200 MG Oral Capsule** in the dropdown menu.
 5. Click anywhere in the row to select Jon Snow.
-6. Click **Submit to CRD** at the bottom of the page.
-7. After several seconds you should receive a response in the form of two **CDS cards**:
+6. Click **Send Rx to PIMS** at the bottom of the page to send a prescription to the Pharmacist.
+7. Click **Submit to REMS-Admin** at the bottom of the page.
+8. After several seconds you should receive a response in the form of two **CDS cards**:
     - **Drug Has REMS: Documentation Required.**
-8. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
-9. If you are asked for login credentials, use **alice** for username and **alice** for password.
-10. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
-11. Fill out questionnaire and hit **Submit REMS Bundle**.
-12. A new UI will appear with REMS Admin Status and Pharmacy Status.
-13. Go to http://localhost:4200 and play the role of a pharmacist.
-14. Click on **Log in as Admin** in the top right of the page
-15. Sign in with the pre-configured user Suzy:
+9. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
+10. If you are asked for login credentials, use **alice** for username and **alice** for password.
+11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
+12. Fill out questionnaire and hit **Submit REMS Bundle**.
+13. A new UI will appear with REMS Admin Status and Pharmacy Status.
+14. Go to http://localhost:5050 and play the role of a pharmacist.
+<!-- 15. Click on **Log in as Admin** in the top right of the page -->
+<!-- 16. Sign in with the pre-configured user Suzy:
 	* Email: spharmichael@example.com
-	* Password: suzy
-16. Click **Doctor Orders** in the left hand navigation menu on the screen
-17. See the Doctor Order that was sent to the pharmacist from the prescriber in steps 1-12.
+	* Password: suzy -->
+15. Click **Doctor Orders** in the top hand navigation menu on the screen
+16. See the Doctor Order that was sent to the pharmacist from the prescriber.
+17. Repeat steps 9-12 for submitting the Prescriber Enrollment and Prescriber Knowledge Assessment Forms and check how ETASU statuses change in both the PIMS prescription UI and the Prescriber status page. 
 
 Congratulations! DRLS is fully installed and ready for you to use!
 
