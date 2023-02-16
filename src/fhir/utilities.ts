@@ -153,6 +153,7 @@ export class FhirUtilities {
               );
             } catch (parseError: any) {
               console.warn('Failed to parse json file: ' + filePath);
+              console.warn(parseError);
             }
           });
         }
