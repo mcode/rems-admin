@@ -64,6 +64,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.40",
     "mongodb": "^4.12.1",
+    "mongoose": "^6.9.2",
     "morgan": "^1.9.1",
     "tingodb": "^0.6.1",
     "uid": "^2.0.1",
