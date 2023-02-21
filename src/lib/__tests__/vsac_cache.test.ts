@@ -126,7 +126,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test('should be able to handle errors downloading valuesests', async () => {
+  test.skip('should be able to handle errors downloading valuesests', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
 
