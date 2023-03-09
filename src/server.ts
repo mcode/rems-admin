@@ -8,6 +8,7 @@ import { Server } from '@projecttacoma/node-fhir-server-core';
 import { Globals } from './globals';
 import { uid } from 'uid';
 import { FhirUtilities } from './fhir/utilities';
+import { Request, Response, NextFunction } from 'express';
 
 const logger = container.get('application');
 
@@ -147,7 +148,7 @@ class REMSServer extends Server {
       res.send('reset etasu database collections');
     });
 
-    this.app.post('/etasu/met', async (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.post('/etasu/met', async (req: Request, res: Response) => {
       try {
         let returnedRemsRequestDoc: any;
         let returnedMetReqDoc: any;
@@ -191,203 +192,215 @@ class REMSServer extends Server {
           code: prescriptionCode,
           codeSystem: prescriptionSystem
         });
-        // iterate through each requirement of the drug
-        for (const requirement of drug.requirements) {
-          // figure out which stakeholder the req corresponds to
-          const reqStakeholder = requirement.stakeholderType;
-          const reqStakeholderReference =
-            reqStakeholder === 'prescriber'
-              ? practitionerReference
-              : reqStakeholder === 'pharmacist'
-              ? pharmacistReference
-              : patientReference;
+        const remsCase = await remsCaseCollection.findOne({
+          patientName: patientName,
+          drugName: drug.name
+        });
+        if (remsCase) {
+          res.status(200);
+          res.send(remsCase);
+        } else {
+          // iterate through each requirement of the drug
+          for (const requirement of drug.requirements) {
+            // figure out which stakeholder the req corresponds to
+            const reqStakeholder = requirement.stakeholderType;
+            const reqStakeholderReference =
+              reqStakeholder === 'prescriber'
+                ? practitionerReference
+                : reqStakeholder === 'pharmacist'
+                ? pharmacistReference
+                : patientReference;
 
-          // if the requirement is the one submitted continue
-          if (requirement.resourceId === requirementId) {
-            // if the req submitted is a patient enrollment form and requires creating a new case
-            if (requirement.createNewCase) {
-              returnRemsRequest = true;
-              const case_number = uid();
+            // if the requirement is the one submitted continue
+            if (requirement.resourceId === requirementId) {
+              // if the req submitted is a patient enrollment form and requires creating a new case
+              if (requirement.createNewCase) {
+                returnRemsRequest = true;
+                const case_number = uid();
 
-              // create new rems request and add the created metReq to it
-              let remsRequestCompletedStatus = 'Approved';
-              const remsRequest: any = {
-                case_number: case_number,
-                status: remsRequestCompletedStatus,
-                drugName: drug.name,
-                patientName: patientName,
-                metRequirements: []
-              };
-              returnRemsRequest = true;
+                // create new rems request and add the created metReq to it
+                let remsRequestCompletedStatus = 'Approved';
+                const remsRequest: any = {
+                  case_number: case_number,
+                  status: remsRequestCompletedStatus,
+                  drugName: drug.name,
+                  patientName: patientName,
+                  metRequirements: []
+                };
+                returnRemsRequest = true;
 
-              // create the metReq that was submitted
-              const metReq = {
-                completed: true,
-                completedQuestionnaire: questionnaireResponse,
-                requirementName: requirement.name,
-                requirementDescription: requirement.description,
-                drugName: drug.name,
-                stakeholderId: reqStakeholderReference,
-                case_numbers: [case_number]
-              };
-
-              await metRequirementsCollection.insertOne(metReq);
-
-              const matchedMetReq = await metRequirementsCollection.findOne(metReq);
-
-              remsRequest.metRequirements.push({
-                stakeholderId: matchedMetReq.stakeholderId,
-                completed: matchedMetReq.completed,
-                metRequirementId: matchedMetReq._id,
-                requirementName: matchedMetReq.requirementName,
-                requirementDescription: matchedMetReq.requirementDescription
-              });
-
-              // iterate through all other reqs again to create corresponding false metReqs / assign to existing
-              for (const requirement2 of drug.requirements) {
-                // skip if the req found is the same as in the outer loop and has already been processed
-                if (!(requirement2.resourceId === requirementId)) {
-                  // figure out which stakeholder the req corresponds to
-                  const reqStakeholder2 = requirement2.stakeholderType;
-                  const reqStakeholder2Reference =
-                    reqStakeholder2 === 'prescriber'
-                      ? practitionerReference
-                      : reqStakeholder2 === 'pharmacist'
-                      ? pharmacistReference
-                      : patientReference;
-
-                  const matchedMetReq2 = await metRequirementsCollection.findOne({
-                    stakeholderId: reqStakeholder2Reference,
-                    requirementName: requirement2.name,
-                    drugName: drug.name
-                  });
-                  if (matchedMetReq2) {
-                    remsRequest.metRequirements.push({
-                      stakeholderId: matchedMetReq2.stakeholderId,
-                      completed: matchedMetReq2.completed,
-                      metRequirementId: matchedMetReq2._id,
-                      requirementName: matchedMetReq2.requirementName,
-                      requirementDescription: matchedMetReq2.requirementDescription
-                    });
-                    if (!matchedMetReq2.completed) {
-                      remsRequestCompletedStatus = 'Pending';
-                    }
-                    // matchedMetReq2.case_numbers.push(case_number);
-                    await metRequirementsCollection.updateOne(matchedMetReq2, {
-                      $addToSet: { case_numbers: case_number }
-                    });
-                  } else {
-                    // create the metReq that was submitted
-                    const newMetReq = {
-                      completed: false,
-                      completedQuestionnaire: null,
-                      requirementName: requirement2.name,
-                      requirementDescription: requirement2.description,
-                      drugName: drug.name,
-                      stakeholderId: reqStakeholder2Reference,
-                      case_numbers: [case_number]
-                    };
-
-                    remsRequestCompletedStatus = 'Pending';
-
-                    await metRequirementsCollection.insertOne(newMetReq);
-
-                    const newMetReqDoc = await metRequirementsCollection.findOne(newMetReq);
-
-                    remsRequest.metRequirements.push({
-                      stakeholderId: newMetReqDoc.stakeholderId,
-                      completed: newMetReqDoc.completed,
-                      metRequirementId: newMetReqDoc._id,
-                      requirementName: newMetReqDoc.requirementName,
-                      requirementDescription: newMetReqDoc.requirementDescription
-                    });
-                  }
-                }
-              }
-
-              remsRequest.status = remsRequestCompletedStatus;
-              await remsCaseCollection.insertOne(remsRequest);
-              returnedRemsRequestDoc = await remsCaseCollection.findOne(remsRequest);
-            } else {
-              const matchedMetReq3 = await metRequirementsCollection.findOne({
-                stakeholderId: reqStakeholderReference,
-                requirementName: requirement.name,
-                drugName: drug.name
-              });
-              if (matchedMetReq3) {
-                // matchedMetReq3.completed = true;
-                // matchedMetReq3.completedQuestionnaire = questionnaireResponse;
-                if (!matchedMetReq3.completed) {
-                  await metRequirementsCollection.updateOne(matchedMetReq3, {
-                    $set: { completed: true, completedQuestionnaire: questionnaireResponse }
-                  });
-
-                  returnedMetReqDoc = await metRequirementsCollection.findOne({
-                    _id: matchedMetReq3._id
-                  });
-
-                  // this should be an array returned via .find() - tried using $in but could not get it to work - using the first element for now as a work around since we only have one patient
-                  const remsRequestToUpdate = await remsCaseCollection.findOne({
-                    case_number: returnedMetReqDoc.case_numbers[0]
-                  });
-
-                  // ToDO: iterate over multiple remsRequests - right now there will only be one that matches, but with multiple patients in the system there could be more
-
-                  // for (let remsRequestToUpdate of remsRequestsToUpdate) {
-                  let foundUncompleted = false;
-                  const metReqArray = remsRequestToUpdate.metRequirements;
-                  for (let i = 0; i < remsRequestToUpdate.metRequirements.length; i++) {
-                    const req4 = remsRequestToUpdate.metRequirements[i];
-                    // _id comparison would not work for some reason
-                    if (req4.requirementName === matchedMetReq3.requirementName) {
-                      metReqArray[i].completed = true;
-                      req4.completed = true;
-                      const update = await remsCaseCollection.updateOne(
-                        { _id: remsRequestToUpdate._id },
-                        { $set: { metRequirements: metReqArray } }
-                      );
-                    }
-                    if (!req4.completed) {
-                      foundUncompleted = true;
-                    }
-                  }
-
-                  if (!foundUncompleted && remsRequestToUpdate.status === 'Pending') {
-                    await remsCaseCollection.updateOne(remsRequestToUpdate, {
-                      $set: { status: 'Approved' }
-                    });
-                  }
-
-                  // }
-                }
-              } else {
                 // create the metReq that was submitted
-                const newMetReq3 = {
+                const metReq = {
                   completed: true,
                   completedQuestionnaire: questionnaireResponse,
                   requirementName: requirement.name,
-                  requirementDescription: requirement.requirementDescription,
+                  requirementDescription: requirement.description,
                   drugName: drug.name,
                   stakeholderId: reqStakeholderReference,
-                  case_numbers: []
+                  case_numbers: [case_number]
                 };
 
-                await metRequirementsCollection.insertOne(newMetReq3);
-                returnedMetReqDoc = await metRequirementsCollection.findOne(newMetReq3);
-              }
-            }
-            break;
-          }
-        }
+                await metRequirementsCollection.insertOne(metReq);
 
-        // return MetReq unless a new case is created in which case return the Rems request
-        if (returnRemsRequest) {
-          res.send(returnedRemsRequestDoc);
-        } else {
-          res.send(returnedMetReqDoc);
+                const matchedMetReq = await metRequirementsCollection.findOne(metReq);
+
+                remsRequest.metRequirements.push({
+                  stakeholderId: matchedMetReq.stakeholderId,
+                  completed: matchedMetReq.completed,
+                  metRequirementId: matchedMetReq._id,
+                  requirementName: matchedMetReq.requirementName,
+                  requirementDescription: matchedMetReq.requirementDescription
+                });
+
+                // iterate through all other reqs again to create corresponding false metReqs / assign to existing
+                for (const requirement2 of drug.requirements) {
+                  // skip if the req found is the same as in the outer loop and has already been processed
+                  if (!(requirement2.resourceId === requirementId)) {
+                    // figure out which stakeholder the req corresponds to
+                    const reqStakeholder2 = requirement2.stakeholderType;
+                    const reqStakeholder2Reference =
+                      reqStakeholder2 === 'prescriber'
+                        ? practitionerReference
+                        : reqStakeholder2 === 'pharmacist'
+                        ? pharmacistReference
+                        : patientReference;
+
+                    const matchedMetReq2 = await metRequirementsCollection.findOne({
+                      stakeholderId: reqStakeholder2Reference,
+                      requirementName: requirement2.name,
+                      drugName: drug.name
+                    });
+                    if (matchedMetReq2) {
+                      remsRequest.metRequirements.push({
+                        stakeholderId: matchedMetReq2.stakeholderId,
+                        completed: matchedMetReq2.completed,
+                        metRequirementId: matchedMetReq2._id,
+                        requirementName: matchedMetReq2.requirementName,
+                        requirementDescription: matchedMetReq2.requirementDescription
+                      });
+                      if (!matchedMetReq2.completed) {
+                        remsRequestCompletedStatus = 'Pending';
+                      }
+                      // matchedMetReq2.case_numbers.push(case_number);
+                      await metRequirementsCollection.updateOne(matchedMetReq2, {
+                        $addToSet: { case_numbers: case_number }
+                      });
+                    } else {
+                      // create the metReq that was submitted
+                      const newMetReq = {
+                        completed: false,
+                        completedQuestionnaire: null,
+                        requirementName: requirement2.name,
+                        requirementDescription: requirement2.description,
+                        drugName: drug.name,
+                        stakeholderId: reqStakeholder2Reference,
+                        case_numbers: [case_number]
+                      };
+
+                      remsRequestCompletedStatus = 'Pending';
+
+                      await metRequirementsCollection.insertOne(newMetReq);
+
+                      const newMetReqDoc = await metRequirementsCollection.findOne(newMetReq);
+
+                      remsRequest.metRequirements.push({
+                        stakeholderId: newMetReqDoc.stakeholderId,
+                        completed: newMetReqDoc.completed,
+                        metRequirementId: newMetReqDoc._id,
+                        requirementName: newMetReqDoc.requirementName,
+                        requirementDescription: newMetReqDoc.requirementDescription
+                      });
+                    }
+                  }
+                }
+
+                remsRequest.status = remsRequestCompletedStatus;
+                await remsCaseCollection.insertOne(remsRequest);
+                returnedRemsRequestDoc = await remsCaseCollection.findOne(remsRequest);
+              } else {
+                const matchedMetReq3 = await metRequirementsCollection.findOne({
+                  stakeholderId: reqStakeholderReference,
+                  requirementName: requirement.name,
+                  drugName: drug.name
+                });
+                if (matchedMetReq3) {
+                  // matchedMetReq3.completed = true;
+                  // matchedMetReq3.completedQuestionnaire = questionnaireResponse;
+                  if (!matchedMetReq3.completed) {
+                    await metRequirementsCollection.updateOne(matchedMetReq3, {
+                      $set: { completed: true, completedQuestionnaire: questionnaireResponse }
+                    });
+
+                    returnedMetReqDoc = await metRequirementsCollection.findOne({
+                      _id: matchedMetReq3._id
+                    });
+
+                    // this should be an array returned via .find() - tried using $in but could not get it to work - using the first element for now as a work around since we only have one patient
+                    const remsRequestToUpdate = await remsCaseCollection.findOne({
+                      case_number: returnedMetReqDoc.case_numbers[0]
+                    });
+
+                    // ToDO: iterate over multiple remsRequests - right now there will only be one that matches, but with multiple patients in the system there could be more
+
+                    // for (let remsRequestToUpdate of remsRequestsToUpdate) {
+                    let foundUncompleted = false;
+                    const metReqArray = remsRequestToUpdate.metRequirements;
+                    for (let i = 0; i < remsRequestToUpdate.metRequirements.length; i++) {
+                      const req4 = remsRequestToUpdate.metRequirements[i];
+                      // _id comparison would not work for some reason
+                      if (req4.requirementName === matchedMetReq3.requirementName) {
+                        metReqArray[i].completed = true;
+                        req4.completed = true;
+                        const update = await remsCaseCollection.updateOne(
+                          { _id: remsRequestToUpdate._id },
+                          { $set: { metRequirements: metReqArray } }
+                        );
+                      }
+                      if (!req4.completed) {
+                        foundUncompleted = true;
+                      }
+                    }
+
+                    if (!foundUncompleted && remsRequestToUpdate.status === 'Pending') {
+                      await remsCaseCollection.updateOne(remsRequestToUpdate, {
+                        $set: { status: 'Approved' }
+                      });
+                    }
+
+                    // }
+                  }
+                } else {
+                  // create the metReq that was submitted
+                  const newMetReq3 = {
+                    completed: true,
+                    completedQuestionnaire: questionnaireResponse,
+                    requirementName: requirement.name,
+                    requirementDescription: requirement.requirementDescription,
+                    drugName: drug.name,
+                    stakeholderId: reqStakeholderReference,
+                    case_numbers: []
+                  };
+
+                  await metRequirementsCollection.insertOne(newMetReq3);
+                  returnedMetReqDoc = await metRequirementsCollection.findOne(newMetReq3);
+                }
+              }
+              break;
+            }
+          }
+
+          // return MetReq unless a new case is created in which case return the Rems request
+          if (returnRemsRequest) {
+            res.status(201);
+            res.send(returnedRemsRequestDoc);
+          } else {
+            res.status(201);
+            res.send(returnedMetReqDoc);
+          }
         }
       } catch (error) {
         console.log(error);
+        throw error;
       }
     });
 
