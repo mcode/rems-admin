@@ -14,10 +14,11 @@ describe('VsacCache', () => {
   let db: Db;
 
   beforeAll(async () => {
-    if (process.env.MONGO_URL) {
+    if (process.env.Mdd) {
       connection = await MongoClient.connect(process.env.MONGO_URL, {});
       db = await connection.db(process.env.MONGO_DB_NAME);
       Globals.database = db;
+      console.log(process.env.MONGO_DB_NAME)
     }
   });
 
@@ -98,7 +99,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test.skip('should be not load valuesets already cached unless forced', async () => {
+  test('should not load valuesets already cached unless forced', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
     try {
@@ -126,7 +127,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test.skip('should be able to handle errors downloading valuesests', async () => {
+  test('should be able to handle errors downloading valuesests', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
 
@@ -145,7 +146,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test('Should not attempt tp download non-vsac valuesets if configured to do so', async () => {
+  test('Should not attempt to download non-vsac valuesets if configured to do so', async () => {
     client.onlyVsac = true;
     const err = await client.downloadAndCacheValueset('http://localhost:9999/vs/1234');
     expect(err.get('error')).toEqual(
