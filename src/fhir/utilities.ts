@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -318,7 +318,7 @@ export class FhirUtilities {
 
     const medicationSchema = new Schema(
       {
-        name: { type: String },
+        'name': { 'type': 'String' },
         'codeSystem': { 'type': 'string' },
         'code': { 'type': 'string' },
         'requirements': {
@@ -337,6 +337,8 @@ export class FhirUtilities {
         }
       }
       )
+
+      const Medication = model('Medication', medicationSchema);
 
     await medicationCollection.createIndex({ name: 1 }, { unique: true });
 
