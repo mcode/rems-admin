@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
+import { Schema } from 'mongoose';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -314,6 +315,28 @@ export class FhirUtilities {
       //   }
       // }
     );
+
+    const medicationSchema = new Schema(
+      {
+        name: { type: String },
+        'codeSystem': { 'type': 'string' },
+        'code': { 'type': 'string' },
+        'requirements': {
+          'type': 'array',
+          'items': {
+            'type': 'object',
+            'properties': {
+              'name': { 'type': 'string' },
+              'description': { 'type': 'string' },
+              'questionnaire': { 'type': 'object' },
+              'stakeholderType': { 'type': 'string' },
+              'createNewCase': { 'type': 'boolean' },
+              'resourceId': { 'type': 'string' }
+            }
+          }
+        }
+      }
+      )
 
     await medicationCollection.createIndex({ name: 1 }, { unique: true });
 
