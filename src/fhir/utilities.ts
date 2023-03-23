@@ -295,25 +295,6 @@ export class FhirUtilities {
     // leave comments in of structure in for now as they will be useful to reference during the mongoose transition
     const medicationCollection = await db.collection(
       'medication-requirements'
-      // , {
-      //   'name': { 'type': 'string' },
-      //   'codeSystem': { 'type': 'string' },
-      //   'code': { 'type': 'string' },
-      //   'requirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'name': { 'type': 'string' },
-      //         'description': { 'type': 'string' },
-      //         'questionnaire': { 'type': 'object' },
-      //         'stakeholderType': { 'type': 'string' },
-      //         'createNewCase': { 'type': 'boolean' },
-      //         'resourceId': { 'type': 'string' }
-      //       }
-      //     }
-      //   }
-      // }
     );
 
     const medicationSchema = new Schema(
@@ -338,23 +319,30 @@ export class FhirUtilities {
       }
       )
 
-      const Medication = model('Medication', medicationSchema);
+    const Medication = model('Medication', medicationSchema);
 
     await medicationCollection.createIndex({ name: 1 }, { unique: true });
 
     // leave comments of structure in for now as they will be useful to reference during the mongoose transition
     const metRequirementsCollection = await db.collection(
       'met-requirements'
-      // , {
-      //   'completed': { 'type': 'boolean' },
-      //   'completedQuestionnaire': { 'type': 'object' },
-      //   'requirementName': { 'type': 'string' },
-      //   'requirementDescription': {'type': 'string'}
-      //   'drugName': { 'type': 'string' },
-      //   'stakeholderId': { 'type': 'string' },
-      //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
-      // }
     );
+
+    const metRequirementsSchema = new Schema(
+      {
+        'completed': { 'type': 'boolean' },
+        'completedQuestionnaire': { 'type': 'object' },
+        'requirementName': { 'type': 'string' },
+        'requirementDescription': {'type': 'string'},
+        'drugName': { 'type': 'string' },
+        'stakeholderId': { 'type': 'string' },
+        'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
+      }
+    )
+
+    const MetRequirements = model('MetRequirements', metRequirementsSchema)
+
+    
 
     metRequirementsCollection.createIndex(
       { drugName: 1, requirementName: 1, stakeholderId: 1 },
@@ -364,26 +352,31 @@ export class FhirUtilities {
     // leave comments of structure in for now as they will be useful to reference during the mongoose transition
     const remsCaseCollection = await db.collection(
       'rems-case'
-      // , {
-      //   'case_number': { 'type': 'string' },
-      //   'status': { 'type': 'string' },
-      //   'drugName': { 'type': 'string' },
-      //   'patientName': { 'type': 'string' },
-      //   'metRequirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'metRequirementId': { 'type': 'number' },
-      //         'completed': { 'type': 'boolean' },
-      //         'stakeholderId': { 'type': 'string' },
-      //         'requirementName': { 'type': 'string' },
-      //         'requirementDescription': {'type': 'string'},
-      //       }
-      //     }
-      //   }
-      // }
     );
+
+    const remsCaseCollectionSchema = new Schema(
+        {
+        'case_number': { 'type': 'string' },
+        'status': { 'type': 'string' },
+        'drugName': { 'type': 'string' },
+        'patientName': { 'type': 'string' },
+        'metRequirements': {
+          'type': 'array',
+          'items': {
+            'type': 'object',
+            'properties': {
+              'metRequirementId': { 'type': 'number' },
+              'completed': { 'type': 'boolean' },
+              'stakeholderId': { 'type': 'string' },
+              'requirementName': { 'type': 'string' },
+              'requirementDescription': {'type': 'string'},
+            }
+          }
+        }
+      }
+    )
+
+    const RemsCaseCollection = model('RemsCaseCollection', remsCaseCollectionSchema)
 
     // prepopulateDB
     medicationCollection.insert(
