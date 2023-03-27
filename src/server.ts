@@ -5,9 +5,9 @@ import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
-import { Globals } from './globals';
 import { uid } from 'uid';
 import { FhirUtilities } from './fhir/utilities';
+import { medicationCollection, metRequirementsCollection, remsCaseCollection} from './fhir/models'
 
 const logger = container.get('application');
 
@@ -103,11 +103,6 @@ class REMSServer extends Server {
   }
 
   configureEtasuEndpoints() {
-    const db = Globals.database;
-
-    const medicationCollection = db.collection('medication-requirements');
-    const metRequirementsCollection = db.collection('met-requirements');
-    const remsCaseCollection = db.collection('rems-case');
 
     // etasu endpoints
     this.app.get('/etasu/:drug', (req: any, res: { send: (arg0: string) => any }) => {
@@ -231,7 +226,7 @@ class REMSServer extends Server {
                 case_numbers: [case_number]
               };
 
-              await metRequirementsCollection.insertOne(metReq);
+              await metRequirementsCollection.create(metReq);
 
               const matchedMetReq = await metRequirementsCollection.findOne(metReq);
 
@@ -290,7 +285,7 @@ class REMSServer extends Server {
 
                     remsRequestCompletedStatus = 'Pending';
 
-                    await metRequirementsCollection.insertOne(newMetReq);
+                    await metRequirementsCollection.create(newMetReq);
 
                     const newMetReqDoc = await metRequirementsCollection.findOne(newMetReq);
 
@@ -306,7 +301,7 @@ class REMSServer extends Server {
               }
 
               remsRequest.status = remsRequestCompletedStatus;
-              await remsCaseCollection.insertOne(remsRequest);
+              await remsCaseCollection.create(remsRequest);
               returnedRemsRequestDoc = await remsCaseCollection.findOne(remsRequest);
             } else {
               const matchedMetReq3 = await metRequirementsCollection.findOne({
@@ -372,7 +367,7 @@ class REMSServer extends Server {
                   case_numbers: []
                 };
 
-                await metRequirementsCollection.insertOne(newMetReq3);
+                await metRequirementsCollection.create(newMetReq3);
                 returnedMetReqDoc = await metRequirementsCollection.findOne(newMetReq3);
               }
             }
