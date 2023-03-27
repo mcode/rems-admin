@@ -317,7 +317,7 @@ export class FhirUtilities {
           }
         }
       }
-      )
+      );
 
     const Medication = model('Medication', medicationSchema);
 
@@ -338,9 +338,9 @@ export class FhirUtilities {
         'stakeholderId': { 'type': 'string' },
         'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
       }
-    )
+    );
 
-    const MetRequirements = model('MetRequirements', metRequirementsSchema)
+    const MetRequirements = model('MetRequirements', metRequirementsSchema);
 
     
 
@@ -374,9 +374,9 @@ export class FhirUtilities {
           }
         }
       }
-    )
+    );
 
-    const RemsCaseCollection = model('RemsCaseCollection', remsCaseCollectionSchema)
+    const RemsCaseCollection = model('RemsCaseCollection', remsCaseCollectionSchema);
 
     // prepopulateDB
     medicationCollection.insert(
