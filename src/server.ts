@@ -9,6 +9,7 @@ import { Globals } from './globals';
 import { uid } from 'uid';
 import { FhirUtilities } from './fhir/utilities';
 import { medicationCollection, metRequirementsCollection, remsCaseCollection } from './fhir/models';
+import { Request, Response, NextFunction } from 'express';
 
 const logger = container.get('application');
 
@@ -111,14 +112,14 @@ class REMSServer extends Server {
     // const remsCaseCollection = db.collection('rems-case');
 
     // etasu endpoints
-    this.app.get('/etasu/:drug', (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.get('/etasu/:drug', (req: Request, res: Response) => {
       medicationCollection.findOne({ name: req.params.drug }, (err: any, drug: any) => {
         if (err) throw err;
         res.send(drug);
       }).exec();
     });
 
-    this.app.get('/etasu/met/:caseId', (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.get('/etasu/met/:caseId',(req: Request, res: Response) => {
       remsCaseCollection.findOne({ case_number: req.params.caseId }, (err: any, remsCase: any) => {
         if (err) throw err;
         res.send(remsCase);
@@ -127,7 +128,7 @@ class REMSServer extends Server {
 
     this.app.get(
       '/etasu/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
-      (req: any, res: { send: (arg0: string) => any }) => {
+      (req: Request, res: Response) => {
         const searchDict = {
           patientFirstName: req.params.patientFirstName,
           patientLastName: req.params.patientLastName,
@@ -146,7 +147,7 @@ class REMSServer extends Server {
       }
     );
 
-    this.app.post('/etasu/reset', async (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.post('/etasu/reset', async (req: Request, res: Response) => {
       console.log('Dropping collections');
       await medicationCollection.deleteMany({});
       await remsCaseCollection.deleteMany({});
@@ -156,7 +157,7 @@ class REMSServer extends Server {
       res.send('reset etasu database collections');
     });
 
-    this.app.post('/etasu/met', async (req: any, res: { send: (arg0: string) => any }) => {
+    this.app.post('/etasu/met', async (req: Request, res: Response) => {
       try {
         let returnedRemsRequestDoc: any;
         let returnedMetReqDoc: any;
