@@ -174,6 +174,7 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/dtr.git dtr
     git clone https://github.com/mcode/REMS.git REMS
     git clone https://github.com/mcode/pims.git pims
+    git clone https://github.com/mcode/rems-smart-on-fhir.git rems-smart-on-fhir
 
     ```
 
