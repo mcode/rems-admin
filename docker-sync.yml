@@ -14,6 +14,10 @@ syncs:
     src: '../dtr'
     sync_excludes: ['node_modules', 'databaseData', 'logs']
 
+  rems_dev_rems-smart-on-fhir-sync:  
+    src: '../rems-smart-on-fhir'
+    sync_excludes: ['node_modules', 'logs']
+
   rems_dev_rems-sync:
     src: '.'
     sync_excludes: ['node_modules', 'logs']

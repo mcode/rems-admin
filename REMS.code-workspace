@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "../pims"
+		},
+		{
+			"path": "../rems-smart-on-fhir"
 		}
 	],
 	"launch": {

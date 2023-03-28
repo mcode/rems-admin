@@ -41,15 +41,6 @@ Your computer must have these minimum requirements:
 - Internet access
 - [Chrome browser](https://www.google.com/chrome/) installed
 - **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs.
-- [Porter Install](https://porter.sh/install/) - *Note:* read the output from the installation as once it is finished, depending on Operating System, it may tell you to run additional commands to finish the setup.
-- [Porter Mixins](https://porter.sh/mixins/) - Install `docker` and `docker-compose` mixins for porter. 
-
-> Note: On Windows, these mixins will need to be installed within a windows specific container running in Interactive Mode. This is highlighted in the [Run on Windows](#windows) section of this guide.
-
-```bash
-    porter mixins install docker
-    porter mixins install docker-compose
-```
 
 ### 2. Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
   1. [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
@@ -61,51 +52,32 @@ Your computer must have these minimum requirements:
   7. Once approved, loop back to step 2
 
 ### 3. Run
-#### MacOS and Linux
-> Note: replace ${vsac_api_key} in the below commands with your own VSAC api key obtained in the previous step.
+
+- [Git installed](https://www.atlassian.com/git/tutorials/install-git)
+- Use git to clone or download and extract the zip of the [REMS repository](https://github.com/mcode/REMS.git) - in your terminal navigate to the REMS repo folder.
+- Before running, setup environment with VSAC credentials (see [setting environment variables section](#setting-environment-variables) for help)
+- Add Compose Project Name to environment
+
+Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is recommended to change the compose project name for each so that they differ.
+
+Set `COMPOSE_PROJECT_NAME` as a unique identifier in the .env file in the REMS Repository or in your terminal environment variables.
+
+- Start docker compose application
 
 ```bash
-    # First time run
-    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Initial Installation needs to be from remote repository
-
-    # Future runs
-    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
+    cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
+    docker-compose up
 ```
 
-#### Windows 
-> Note: The Porter Installation on Windows is currently broken, to run the REMS prototype on Windows please refer to the [Running Docker Compose without Porter](#docker-compose-without-porter) section of this guide.
-
-<!-- > Note: The install on Windows requires additional steps in order to expose the WSL Docker Daemon to Porter. The way to do this is to run the porter commands inside an additional windows specific container running in interactive mode, which exposes that container's terminal instance. 
-
-> Note: replace ${vsac_api_key} in the below commands with your own VSAC api key obtained in the previous step.
-
-1. Download the Windows specific Docker Image from DockerHub
+Note, if you are using an M1/M2 mac, you need to use the following command to start the docker compose application
 ```bash
-    docker pull codexrems/fullstack_rems-windows:REMSvCurrent
+    cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
+    docker-compose -f docker-compose-m1.yml up
 ```
-2. Run the Windows specific docker image as a container in interactive mode. Interactive Mode exposes the container's terminal instance and all future commands after this step will be run within the exposed terminal instance. 
-```bash
-    docker run -v /var/run/docker.sock:/var/run/docker.sock -ti --name porter-windows-container codexrems/fullstack_rems-windows:REMSvCurrent
-```
-3. In the interactive docker shell created in step 2, install the porter mixins
-```bash
-    porter mixins install docker
-    porter mixins install docker-compose 
-```
-4. Install the prototype application within the interactive docker shell created in step 2
-```bash
-    # First time run
-    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Initial Installation needs to be from remote repository
-
-    # Future runs
-    porter install fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access  # Subsequent runs can use the local installation
-```
-
-> Note: Any porter comannds below such as [stopping the server](#stop-server), [updating the porter application](#updating-porter-application), or [uninstalling the porter application](#cleanup) should be run within the windows specific docker container terminal instance started in step 2. To exit the interactive shell started in step 2, use **ctrl + d** -->
 
 ### 4. Verify everything is working
 
-### The fun part: Generate a test request
+#### The fun part: Generate a test request
 
 1. Go to http://localhost:3000 and play the role of a prescriber.
 2. Click **Patient Select** button in upper left.
@@ -135,51 +107,17 @@ Congratulations! DRLS is fully installed and ready for you to use!
 
 ## Cleanup and Useful Options
 
-### Stop Server
-
-Stop Running Porter application by using **ctrl + c** to exit the running process, followed by:
+### Uninstall the docker-compose application 
+```bash
+    docker-compose down # Removes application servers
+```
+or if on M1/M2 mac use 
 
 ```bash
-    porter invoke fullstack_rems --action stop --param vsac_api_key=${vsac_api_key} --allow-docker-host-access
+    docker-compose -f docker-compose-m1.yml down # Removes application servers
 ```
 
-If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
-
-```bash
-
-    Unable to find image 'codexrems/fullstack_rems-installer:v0.0.1' locally
-    Error: 1 error occurred:
-        * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
-
-    porter invoke fullstack_rems --action stop --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent
-```
-
-### Updating Porter application
-
-```bash
-    porter upgrade fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access # Pull and Update application images and recreate containers
-
-    or
-
-    porter upgrade fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent # Pull and Update Invocation Image in addition to application images from remote repository and recreate containers
-```
-
-### Cleanup
-```bash
-    porter uninstall fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access
-```
-
-If you get the below error on running the stop command above, then try running the stop command with the **--reference** field as so
-
-```bash
-
-    Unable to find image 'codexrems/fullstack_rems-installer:v0.0.1' locally
-    Error: 1 error occurred:
-        * Error response from daemon: manifest for codexrems/fullstack_rems-installer:v0.0.1 not found: manifest unknown: manifest unknown
-
-
-      porter uninstall fullstack_rems --param vsac_api_key=${vsac_api_key} --allow-docker-host-access --reference codexrems/fullstack_rems:REMSvCurrent
-```
+### Cleanup docker resources
 
 To remove all images, volumes, and artifacts set up during the install, run the following commands
 
@@ -188,6 +126,24 @@ To remove all images, volumes, and artifacts set up during the install, run the 
     docker volume prune
     docker network prune
 ```
+
+### Updating docker-compose application images
+
+```bash
+    docker-compose build --no-cache --pull [<service_name1> <service_name2> ...]
+    docker-compose --force-recreate  [<service_name1> <service_name2> ...]
+```
+
+```bash
+
+    # Options:
+    #   --force-recreate                        Recreate containers even if their configuration and image haven't changed.
+    #   --build                                 Build images before starting containers.
+    #   --pull                                  Pull published images before building images.
+    #   --no-cache                              Do not use cache when building the image.
+    #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services
+```
+
 
 ### Setting Environment Variables
 
@@ -210,53 +166,3 @@ Bash example:
     export VSAC_API_KEY=vsac_api_key
     ````
 
-### Docker Compose without Porter
-
-If you are looking for more options / customized Docker configuration for the environment, instead of porter you can use the base `docker-compose` utility that comes with Docker desktop. This requires these additional steps:
-
-- [Git installed](https://www.atlassian.com/git/tutorials/install-git)
-- Use git to clone or download and extract the zip of the [REMS repository](https://github.com/mcode/REMS.git) - in your terminal navigate to the REMS repo folder.
-- Before running, setup environment with VSAC credentials (see [setting environment variables section](#setting-environment-variables) for help)
-- Add Compose Project Name to environment
-
-Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is recommended to change the compose project name for each so that they differ.
-
-Set `COMPOSE_PROJECT_NAME` as a unique identifier in the .env file in the REMS Repository or in your terminal environment variables.
-
-- Start docker compose application
-
-```bash
-    cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
-    docker-compose up
-```
-#### Docker Compose Cleanup
-
-##### Stop docker-compose and uninstall application
-```bash
-    docker-compose down # Removes application servers
-```
-
-To remove all images, volumes, and artifacts set up during the install, run the following commands
-
-```bash
-    docker image prune -a
-    docker volume prune
-    docker network prune
-```
-
-##### Updating docker-compose application images
-
-```bash
-    docker-compose build --no-cache --pull [<service_name1> <service_name2> ...]
-    docker-compose --force-recreate  [<service_name1> <service_name2> ...]
-```
-
-```bash
-
-    # Options:
-    #   --force-recreate                        Recreate containers even if their configuration and image haven't changed.
-    #   --build                                 Build images before starting containers.
-    #   --pull                                  Pull published images before building images.
-    #   --no-cache                              Do not use cache when building the image.
-    #   [<service_name1> <service_name2> ...]   Services to recreate, not specifying any service will rebuild and recreate all services
-```
