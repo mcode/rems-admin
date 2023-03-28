@@ -26,4 +26,4 @@ export default new mongoose.Schema<HumanName>({
     type: Period,
     default: void 0
   }
-});
+}, {_id: false});

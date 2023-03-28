@@ -14,6 +14,6 @@ const idF = new mongoose.Schema<Reference>({
     default: void 0
   },
   identifier: [{ type: Schema.Types.ObjectId, ref: 'Identifier' }]
-});
+}, {_id: false});
 mongoose.model('Reference', idF);
 export default idF;

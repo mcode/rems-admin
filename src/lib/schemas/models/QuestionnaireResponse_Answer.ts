@@ -54,7 +54,7 @@ const QAnswer = new mongoose.Schema<QuestionnaireResponseItemAnswer>({
     type: Reference,
     default: void 0
   }
-});
+}, {_id: false});
 
 QAnswer.add({
   item: {

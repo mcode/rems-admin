@@ -28,7 +28,7 @@ export default new mongoose.Schema<RelatedArtifact>({
     default: void 0
   },
   resource: {
-    type: canonical,
+    type: String,
     default: void 0
   }
-});
+}, {_id: false});

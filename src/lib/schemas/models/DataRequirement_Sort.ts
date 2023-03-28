@@ -9,4 +9,4 @@ export default new mongoose.Schema<DataRequirementSort>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});

@@ -30,7 +30,7 @@ const vsContain = new mongoose.Schema<ValueSetExpansionContains>({
     type: [ValueSet_Designation],
     default: void 0
   }
-});
+}, {_id: false});
 
 vsContain.add({
   contains: {

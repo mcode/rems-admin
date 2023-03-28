@@ -31,4 +31,4 @@ export default new mongoose.Schema<QuestionnaireItemAnswerOption>({
     type: Boolean,
     default: void 0
   }
-});
+}, {_id: false});

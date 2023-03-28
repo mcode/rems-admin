@@ -10,4 +10,4 @@ export default new mongoose.Schema<Range>({
     type: Quantity,
     default: void 0
   }
-});
+}, {_id: false});

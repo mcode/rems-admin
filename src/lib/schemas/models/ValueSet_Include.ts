@@ -21,7 +21,7 @@ export default new mongoose.Schema<ValueSetComposeInclude>({
     default: void 0
   },
   valueSet: {
-    type: [canonical],
+    type: [String],
     default: void 0
   }
-});
+}, {_id: false});

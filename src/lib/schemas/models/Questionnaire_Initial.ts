@@ -53,4 +53,4 @@ export default new mongoose.Schema<QuestionnaireItemInitial>({
     type: Reference,
     default: void 0
   }
-});
+}, {_id: false});

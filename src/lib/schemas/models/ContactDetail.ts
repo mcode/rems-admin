@@ -10,4 +10,4 @@ export default new mongoose.Schema<ContactDetail>({
     type: [ContactPoint],
     default: void 0
   }
-});
+}, {_id: false});

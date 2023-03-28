@@ -52,4 +52,4 @@ export default new mongoose.Schema<QuestionnaireItemEnableWhen>({
     type: Reference,
     default: void 0
   }
-});
+}, {_id: false});

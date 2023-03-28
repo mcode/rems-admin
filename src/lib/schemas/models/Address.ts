@@ -38,4 +38,4 @@ export default new mongoose.Schema<Address>({
     type: Period,
     default: void 0
   }
-});
+}, {_id: false});

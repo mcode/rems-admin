@@ -7,11 +7,11 @@ export default new mongoose.Schema<ValueSetComposeIncludeConcept>({
     default: void 0
   },
   display: {
-    type: Boolean,
+    type: String,
     default: void 0
   },
   designation: {
     type: [ValueSet_Designation],
     default: void 0
   }
-});
+}, {_id: false});

@@ -28,4 +28,4 @@ export default new mongoose.Schema<ValueSetExpansion>({
     type: [ValueSet_Contains],
     default: void 0
   }
-});
+}, {_id: false});

@@ -22,4 +22,4 @@ export default new mongoose.Schema<ContactPoint>({
     type: Period,
     default: void 0
   }
-});
+}, {_id: false});

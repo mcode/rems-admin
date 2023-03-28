@@ -35,4 +35,4 @@ export default new mongoose.Schema<PatientContact>({
     type: Period,
     default: void 0
   }
-});
+}, {_id: false});

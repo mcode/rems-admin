@@ -21,4 +21,4 @@ export default new mongoose.Schema<Coding>({
     type: Boolean,
     default: void 0
   }
-});
+}, {_id: false});

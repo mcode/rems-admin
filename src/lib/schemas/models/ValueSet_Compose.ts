@@ -18,4 +18,4 @@ export default new mongoose.Schema<ValueSetCompose>({
     type: [ValueSet_Include],
     default: void 0
   }
-});
+}, {_id: false});

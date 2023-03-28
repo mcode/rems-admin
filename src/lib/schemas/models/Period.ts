@@ -9,4 +9,4 @@ export default new mongoose.Schema<Period>({
     type: Date,
     default: void 0
   }
-});
+}, {_id: false});

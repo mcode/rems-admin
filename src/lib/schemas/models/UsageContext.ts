@@ -26,4 +26,4 @@ export default new mongoose.Schema<UsageContext>({
     type: Reference,
     default: void 0
   }
-});
+}, {_id: false});

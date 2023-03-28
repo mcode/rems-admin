@@ -21,4 +21,4 @@ export default new mongoose.Schema<Quantity>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});

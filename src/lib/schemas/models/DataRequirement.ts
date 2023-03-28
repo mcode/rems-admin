@@ -12,7 +12,7 @@ export default new mongoose.Schema<DataRequirement>({
     default: void 0
   },
   profile: {
-    type: [canonical],
+    type: [String],
     default: void 0
   },
   subjectCodeableConcept: {
@@ -43,4 +43,4 @@ export default new mongoose.Schema<DataRequirement>({
     type: [DataRequirement_Sort],
     default: void 0
   }
-});
+}, {_id: false});

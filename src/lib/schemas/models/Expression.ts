@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
-import { ValueSetComposeIncludeFilter } from 'fhir/r4';
-export default new mongoose.Schema<ValueSetComposeIncludeFilter>({
-  property: {
+import { Expression } from 'fhir/r4';
+export default new mongoose.Schema<Expression>({
+  name: {
     type: String,
     default: void 0
   },
-  op: {
+  language: {
     type: String,
     default: void 0
   },
-  value: {
+  expression: {
     type: String,
     default: void 0
-  }
+  },
 }, {_id: false});

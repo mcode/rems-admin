@@ -6,9 +6,14 @@ import integer from './integer';
 import canonical from './canonical';
 import Questionnaire_AnswerOption from './Questionnaire_AnswerOption';
 import Questionnaire_Initial from './Questionnaire_Initial';
+import Extension from './Extension';
 const qItem = new mongoose.Schema<QuestionnaireItem>({
   linkId: {
     type: String,
+    default: void 0
+  },
+  extension: {
+    type: [Extension],
     default: void 0
   },
   definition: {
@@ -20,6 +25,10 @@ const qItem = new mongoose.Schema<QuestionnaireItem>({
     default: void 0
   },
   prefix: {
+    type: String,
+    default: void 0
+  },
+  text: {
     type: String,
     default: void 0
   },
@@ -48,11 +57,11 @@ const qItem = new mongoose.Schema<QuestionnaireItem>({
     default: void 0
   },
   maxLength: {
-    type: integer,
+    type: mongoose.Types.Decimal128,
     default: void 0
   },
   answerValueSet: {
-    type: canonical,
+    type: String,
     default: void 0
   },
   answerOption: {
@@ -63,7 +72,7 @@ const qItem = new mongoose.Schema<QuestionnaireItem>({
     type: [Questionnaire_Initial],
     default: void 0
   }
-});
+}, {_id: false});
 
 qItem.add({
   item: {

@@ -5,4 +5,4 @@ export default new mongoose.Schema<PatientCommunication>({
     type: Boolean,
     default: void 0
   }
-});
+}, {_id: false});

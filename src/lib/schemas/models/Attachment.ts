@@ -29,4 +29,4 @@ export default new mongoose.Schema<Attachment>({
     type: Date,
     default: void 0
   }
-});
+}, {_id: false});

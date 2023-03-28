@@ -151,8 +151,8 @@ function LibrarySchema() {
       default: void 0
     }
   };
-  return new mongoose.Schema<Library>(LibraryInterface);
+  return new mongoose.Schema<Library>(LibraryInterface, { versionKey: false });
 }
 
-const LibraryModel = model('Library', LibrarySchema());
+const LibraryModel = model<Library>('Library', LibrarySchema());
 export default LibraryModel;

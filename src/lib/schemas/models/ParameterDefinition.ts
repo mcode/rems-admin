@@ -28,7 +28,7 @@ export default new mongoose.Schema<ParameterDefinition>({
     default: void 0
   },
   profile: {
-    type: canonical,
+    type: String,
     default: void 0
   }
-});
+}, {_id: false});

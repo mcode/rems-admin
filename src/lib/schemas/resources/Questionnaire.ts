@@ -8,14 +8,13 @@ import CodeableConcept from '../models/CodeableConcept';
 import Period from '../models/Period';
 import Coding from '../models/Coding';
 import Questionnaire_Item from '../models/Questionnaire_Item';
+import DomainResource from './DomainResource';
+import Library from './Library';
+import ValueSet from './ValueSet';
 
 function QuestionnaireSchema() {
   const QuestionnaireInterface = {
-    id: {
-      type: String,
-      unique: true,
-      index: true
-    },
+    ...DomainResource,
     resourceType: {
       type: String,
       required: true
@@ -41,7 +40,7 @@ function QuestionnaireSchema() {
       default: void 0
     },
     derivedFrom: {
-      type: [canonical],
+      type: [String],
       default: void 0
     },
     status: {
@@ -109,8 +108,15 @@ function QuestionnaireSchema() {
       default: void 0
     }
   };
-  return new mongoose.Schema<Questionnaire>(QuestionnaireInterface);
+  return new mongoose.Schema<Questionnaire>(QuestionnaireInterface, { versionKey: false });
 }
 
-const QuestionnaireModel = model('Questionnaire', QuestionnaireSchema());
+const qSchema = QuestionnaireSchema()
+qSchema.add({
+    contained: {
+      type: [qSchema, Library, ValueSet],
+      default: void 0
+    }
+  });
+const QuestionnaireModel = model<Questionnaire>('Questionnaire', qSchema);
 export default QuestionnaireModel;

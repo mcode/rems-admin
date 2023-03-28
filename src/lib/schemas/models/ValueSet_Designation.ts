@@ -14,4 +14,4 @@ export default new mongoose.Schema<ValueSetComposeIncludeConceptDesignation>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});

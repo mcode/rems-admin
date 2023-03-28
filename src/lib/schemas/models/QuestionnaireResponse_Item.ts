@@ -14,7 +14,7 @@ const qrItem = new mongoose.Schema<QuestionnaireResponseItem>({
     type: [QuestionnaireResponse_Answer],
     default: void 0
   }
-});
+}, {_id: false});
 
 qrItem.add({
   item: {

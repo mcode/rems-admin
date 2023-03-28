@@ -21,7 +21,7 @@ const ident = new mongoose.Schema<Identifier>({
     type: Period,
     default: void 0
   }
-});
+}, {_id: false});
 
 ident.add({
   assigner: {

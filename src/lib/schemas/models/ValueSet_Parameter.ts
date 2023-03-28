@@ -33,4 +33,4 @@ export default new mongoose.Schema<ValueSetExpansionParameter>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});

@@ -21,4 +21,4 @@ export default new mongoose.Schema<Duration>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});

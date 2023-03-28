@@ -6,4 +6,4 @@ export default new mongoose.Schema<CodeableConcept>({
     type: [Coding],
     default: void 0
   }
-});
+}, {_id: false});

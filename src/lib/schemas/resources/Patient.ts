@@ -96,8 +96,8 @@ function PatientSchema() {
       default: void 0
     }
   };
-  return new mongoose.Schema<Patient>(PatientInterface);
+  return new mongoose.Schema<Patient>(PatientInterface, { versionKey: false});
 }
 
-const PatientModel = model('Patient', PatientSchema());
+const PatientModel = model<Patient>('Patient', PatientSchema());
 export default PatientModel;

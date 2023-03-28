@@ -12,11 +12,11 @@ export default new mongoose.Schema<DataRequirementCodeFilter>({
     default: void 0
   },
   valueSet: {
-    type: canonical,
+    type: String,
     default: void 0
   },
   code: {
     type: [Coding],
     default: void 0
   }
-});
+}, {_id: false});

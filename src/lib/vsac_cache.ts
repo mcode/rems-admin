@@ -5,6 +5,7 @@ import { stringify } from 'querystring';
 import { FhirUtilities } from '../fhir/utilities';
 import { Globals } from '../globals';
 import constants from '../constants';
+import ValueSetModel from './schemas/resources/ValueSet';
 class VsacCache {
   cacheDir: string;
   apiKey: string;
@@ -197,7 +198,7 @@ class VsacCache {
     if (!vs.id) {
       vs.id = id;
     }
-    await new Promise((resolve, reject) => FhirUtilities.store(vs, resolve, reject));
+    await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
   }
 
   /**

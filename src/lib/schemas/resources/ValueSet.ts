@@ -91,8 +91,8 @@ function ValueSetSchema() {
       default: void 0
     }
   };
-  return new mongoose.Schema<ValueSet>(ValueSetInterface);
+  return new mongoose.Schema<ValueSet>(ValueSetInterface, { versionKey: false });
 }
 
-const ValueSetModel = model('ValueSet', ValueSetSchema());
+const ValueSetModel = model<ValueSet>('ValueSet', ValueSetSchema());
 export default ValueSetModel;

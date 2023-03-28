@@ -23,4 +23,4 @@ export default new mongoose.Schema<DataRequirementDateFilter>({
     type: Duration,
     default: void 0
   }
-});
+}, {_id: false});

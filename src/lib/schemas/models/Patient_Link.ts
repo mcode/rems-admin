@@ -10,4 +10,4 @@ export default new mongoose.Schema<PatientLink>({
     type: String,
     default: void 0
   }
-});
+}, {_id: false});
