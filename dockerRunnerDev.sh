@@ -41,3 +41,4 @@ wait $CONTINUOUS_INSTALL_PID $SERVER_PID
 EXIT_CODE=$?
 echo "application exited with exit code $EXIT_CODE..."
 
+

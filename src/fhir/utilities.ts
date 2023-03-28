@@ -10,6 +10,14 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
+import { FhirResource, Library, Patient, Questionnaire, Resource } from 'fhir/r4';
+import LibraryModel from '../lib/schemas/resources/Library';
+import PatientModel from '../lib/schemas/resources/Patient';
+import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
+import QuestionnaireResponseModel from '../lib/schemas/resources/QuestionnaireResponse';
+import ValueSetModel from '../lib/schemas/resources/ValueSet';
+import { Model } from 'mongoose';
+import { medicationCollection, metRequirementsCollection } from './models';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -38,7 +46,13 @@ export class FhirUtilities {
     return resolveSchema(baseVersion, 'Meta');
   };
 
-  static async store(resource: any, resolve: any, reject: any, baseVersion = '4_0_0') {
+  static async store(
+    resource: FhirResource,
+    model: Model<any>,
+    resolve: any,
+    reject: any,
+    baseVersion = '4_0_0'
+  ) {
     const db = Globals.database;
 
     // If no resource ID was provided, generate one.
@@ -51,81 +65,23 @@ export class FhirUtilities {
     }
     console.log('    FhirUtilities::store: ' + resource.resourceType + ' -- ' + id);
 
-    let collectionString = '';
-    let historyCollectionString = '';
-
-    // Build the strings to connect to the collections
-    switch (resource.resourceType) {
-      case 'Library':
-        collectionString = `${constants.COLLECTION.LIBRARY}_${baseVersion}`;
-        historyCollectionString = `${constants.COLLECTION.LIBRARY}_${baseVersion}_History`;
-        await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
-        break;
-      case 'Patient':
-        collectionString = `${constants.COLLECTION.PATIENT}_${baseVersion}`;
-        historyCollectionString = `${constants.COLLECTION.PATIENT}_${baseVersion}_History`;
-        break;
-      case 'Questionnaire':
-        collectionString = `${constants.COLLECTION.QUESTIONNAIRE}_${baseVersion}`;
-        historyCollectionString = `${constants.COLLECTION.QUESTIONNAIRE}_${baseVersion}_History`;
-        break;
-      case 'QuestionnaireResponse':
-        collectionString = `${constants.COLLECTION.QUESTIONNAIRERESPONSE}_${baseVersion}`;
-        historyCollectionString = `${constants.COLLECTION.QUESTIONNAIRERESPONSE}_${baseVersion}_History`;
-        break;
-      case 'ValueSet':
-        collectionString = `${constants.COLLECTION.VALUESET}_${baseVersion}`;
-        historyCollectionString = `${constants.COLLECTION.VALUESET}_${baseVersion}_History`;
-        break;
-    }
-
-    const Resource = resolveSchema(baseVersion, resource.resourceType);
-
-    const fhirResource = new Resource(resource);
-
+    const fhirResource = new model(resource);
     // Create the resource's metadata
     const Meta = FhirUtilities.getMeta(baseVersion);
     fhirResource.meta = new Meta({
       versionId: '1',
       lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
     });
-
-    if (collectionString === '') {
-      reject('    Unsupported FHIR Resource Type');
-    }
-    const collection = db.collection(collectionString);
-
-    // Create the document to be inserted into teh database
-    const doc = JSON.parse(JSON.stringify(fhirResource.toJSON()));
-    Object.assign(doc, { id: id });
-
-    // Create a clone of the object without the _id parameter before assigning a value to
-    // the _id parameter in the original document
-    const history_doc = Object.assign({}, doc);
-    Object.assign(doc, { _id: id });
-
-    // Insert our resource record
-    await collection.insertOne(doc, async (err: any) => {
-      if (err) {
-        console.log('    Error with %s.create: ', resource.resourceType, err.message);
-        reject(err);
-        return;
-      } else {
-        console.log('    Successfully added ' + resource.resourceType + ' -- ' + id);
-      }
-
-      // Save the resource to history
-      const history_collection = db.collection(historyCollectionString);
-
-      // Insert our patient record to history but don't assign _id
-      await history_collection.insertOne(history_doc, (err2: any) => {
-        if (err2) {
-          console.log('    Error with %sHistory.create: ', resource.resourceType, err2.message);
-          reject(err2);
-          return;
+    model.exists({ id: fhirResource.id }).then(doesExist => {
+      if (!doesExist) {
+        try {
+          resolve(fhirResource.save());
+        } catch {
+          reject();
         }
-        resolve({ id: doc.id, resource_version: doc.meta.versionId });
-      });
+      } else {
+        reject();
+      }
     });
   }
 
@@ -142,17 +98,43 @@ export class FhirUtilities {
             }
             try {
               const resource = JSON.parse(jsonString);
-              await FhirUtilities.store(
-                resource,
-                function () {
-                  return;
-                },
-                function () {
-                  return;
-                }
-              );
+              // Build the strings to connect to the collections
+              let model;
+              switch (resource.resourceType) {
+                case 'Library':
+                  model = LibraryModel;
+                  await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
+                  break;
+                case 'Patient':
+                  model = PatientModel;
+                  break;
+                case 'Questionnaire':
+                  model = QuestionnaireModel;
+                  break;
+                case 'QuestionnaireResponse':
+                  model = QuestionnaireResponseModel;
+                  break;
+                case 'ValueSet':
+                  model = ValueSetModel;
+                  break;
+              }
+              if (model) {
+                await FhirUtilities.store(
+                  resource,
+                  model,
+                  function () {
+                    return;
+                  },
+                  function () {
+                    return;
+                  }
+                );
+              } else {
+                console.log('    Unsupported FHIR Resource Type');
+              }
             } catch (parseError: any) {
               console.warn('Failed to parse json file: ' + filePath);
+              console.warn(parseError);
             }
           });
         }
@@ -286,81 +268,9 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-    const db = Globals.database;
-
-    // define schemas
-
-    // leave comments in of structure in for now as they will be useful to reference during the mongoose transition
-    const medicationCollection = await db.collection(
-      'medication-requirements'
-      // , {
-      //   'name': { 'type': 'string' },
-      //   'codeSystem': { 'type': 'string' },
-      //   'code': { 'type': 'string' },
-      //   'requirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'name': { 'type': 'string' },
-      //         'description': { 'type': 'string' },
-      //         'questionnaire': { 'type': 'object' },
-      //         'stakeholderType': { 'type': 'string' },
-      //         'createNewCase': { 'type': 'boolean' },
-      //         'resourceId': { 'type': 'string' }
-      //       }
-      //     }
-      //   }
-      // }
-    );
-
-    await medicationCollection.createIndex({ name: 1 }, { unique: true });
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const metRequirementsCollection = await db.collection(
-      'met-requirements'
-      // , {
-      //   'completed': { 'type': 'boolean' },
-      //   'completedQuestionnaire': { 'type': 'object' },
-      //   'requirementName': { 'type': 'string' },
-      //   'requirementDescription': {'type': 'string'}
-      //   'drugName': { 'type': 'string' },
-      //   'stakeholderId': { 'type': 'string' },
-      //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
-      // }
-    );
-
-    metRequirementsCollection.createIndex(
-      { drugName: 1, requirementName: 1, stakeholderId: 1 },
-      { unique: true }
-    );
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const remsCaseCollection = await db.collection(
-      'rems-case'
-      // , {
-      //   'case_number': { 'type': 'string' },
-      //   'status': { 'type': 'string' },
-      //   'drugName': { 'type': 'string' },
-      //   'patientName': { 'type': 'string' },
-      //   'metRequirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'metRequirementId': { 'type': 'number' },
-      //         'completed': { 'type': 'boolean' },
-      //         'stakeholderId': { 'type': 'string' },
-      //         'requirementName': { 'type': 'string' },
-      //         'requirementDescription': {'type': 'string'},
-      //       }
-      //     }
-      //   }
-      // }
-    );
 
     // prepopulateDB
-    medicationCollection.insert(
+    medicationCollection.insertMany(
       [
         {
           name: 'Turalio',
@@ -474,7 +384,7 @@ export class FhirUtilities {
       }
     );
 
-    metRequirementsCollection.insert(
+    metRequirementsCollection.insertMany(
       [
         {
           stakeholderId: 'Organization/pharm0111',

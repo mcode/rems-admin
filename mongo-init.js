@@ -1,7 +1,12 @@
 // Create Databases
 const dbPims = db.getSiblingDB('pims');
 const dbRemsAdmin = db.getSiblingDB('remsadmin');
-
+dbRemsAdmin.createUser({ user: "rems-user",
+  pwd: "pass",
+  roles: [
+    { role: "readWrite", db: "remsadmin" } 
+  ]
+})
 // Create Collections
 dbPims.createCollection('pims-tmp');
 dbRemsAdmin.createCollection('remsadmin-tmp');

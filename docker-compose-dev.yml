@@ -79,6 +79,19 @@ services:
       - rems_dev_dtr-databaseData:/home/node/app/dtr/databaseData
       - rems_dev_dtr-logs:/home/node/app/dtr/logs
 
+  rems-smart-on-fhir:
+    build:
+      context: ../rems-smart-on-fhir
+      dockerfile: Dockerfile.dev
+    container_name: rems_dev_rems-smart-on-fhir
+    ports:
+      - "4040:4040"
+      - "4041:4041"
+    volumes:
+      - rems_dev_rems-smart-on-fhir-sync:/home/node/app/rems-smart-on-fhir:nocopy #  nocopy is important
+      - rems_dev_rems-smart-on-fhir-nodeModules:/home/node/app/rems-smart-on-fhir/node_modules
+      - rems_dev_rems-smart-on-fhir-logs:/home/node/app/rems-smart-on-fhir/logs
+
   rems-administrator:
     build:
       context: '.'
@@ -89,7 +102,7 @@ services:
       - "8091:8091"
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
+      MONGO_HOSTNAME: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
       - rems_dev_rems-nodeModules:/REMS/node_modules
@@ -123,6 +136,9 @@ volumes:
     external: true
   rems_dev_pims-sync:
     external: true
+  rems_dev_rems-smart-on-fhir-sync:
+    external: true
+
 
   rems_dev_keycloak-data:
   pims_remsadmin_mongo:
@@ -143,4 +159,6 @@ volumes:
   rems_dev_pims-nodeModules: 
   rems_dev_rems-nodeModules:
   rems_dev_rems-logs:
+  rems_dev_rems-smart-on-fhir-nodeModules:
+  rems_dev_rems-smart-on-fhir-logs:
 

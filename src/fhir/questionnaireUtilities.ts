@@ -16,6 +16,9 @@ import { FhirUtilities } from './utilities';
 import container from '../lib/winston';
 import config from '../config';
 import axios from 'axios';
+import ValueSetModel from '../lib/schemas/resources/ValueSet';
+import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
+import LibraryModel from '../lib/schemas/resources/Library';
 
 interface ResourceTable {
   [key: string]: FhirResource;
@@ -142,6 +145,7 @@ export class QuestionnaireUtilities {
                 if (valueSet) {
                   await FhirUtilities.store(
                     valueSet,
+                    ValueSetModel,
                     function () {
                       return;
                     },
@@ -170,33 +174,28 @@ export class QuestionnaireUtilities {
   }
   static async findQuestionnaire(id: string): Promise<Questionnaire | undefined> {
     return new Promise((resolve, reject) => {
-      const Questionnaire = FhirUtilities.getQuestionnaire('4_0_0');
-      // Grab an instance of our DB and collection
-      const db = Globals.database;
-      const collection = db.collection(`${constants.COLLECTION.QUESTIONNAIRE}_${'4_0_0'}`);
-      // Query our collection for this observation
-      collection.findOne({ id: id.toString() }, (err: any, questionnaire: Questionnaire) => {
-        if (err) {
-          return reject(err);
+      QuestionnaireModel.findOne(
+        { id: id.toString() },
+        (err: any, questionnaire: Questionnaire) => {
+          if (err) {
+            return reject(err);
+          }
+          if (questionnaire) {
+            resolve(new QuestionnaireModel(questionnaire));
+          }
+          resolve(undefined);
         }
-        if (questionnaire) {
-          resolve(new Questionnaire(questionnaire));
-        }
-        resolve(undefined);
-      });
+      );
     });
   }
   static async findLibraryByUrl(url: string): Promise<Library | undefined> {
     return new Promise((resolve, reject) => {
-      const Library = FhirUtilities.getLibrary('4_0_0');
-      const db = Globals.database;
-      const collection = db.collection(`${constants.COLLECTION.LIBRARY}_${'4_0_0'}`);
-      collection.findOne({ url: url.toString() }, (err: any, library: Library) => {
+      LibraryModel.findOne({ url: url.toString() }, (err: any, library: Library) => {
         if (err) {
           return reject(err);
         }
         if (library) {
-          resolve(new Library(library));
+          resolve(new LibraryModel(library));
         }
         resolve(undefined);
       });
@@ -204,15 +203,12 @@ export class QuestionnaireUtilities {
   }
   static async findLibraryById(id: string): Promise<Library | undefined> {
     return new Promise((resolve, reject) => {
-      const Library = FhirUtilities.getLibrary('4_0_0');
-      const db = Globals.database;
-      const collection = db.collection(`${constants.COLLECTION.LIBRARY}_${'4_0_0'}`);
-      collection.findOne({ id: id.toString() }, (err: any, library: Library) => {
+      LibraryModel.findOne({ id: id.toString() }, (err: any, library: Library) => {
         if (err) {
           return reject(err);
         }
         if (library) {
-          resolve(new Library(library));
+          resolve(new LibraryModel(library));
         }
         resolve(undefined);
       });
@@ -220,15 +216,12 @@ export class QuestionnaireUtilities {
   }
   static async findValueSetByUrl(url: string): Promise<ValueSet | undefined> {
     return new Promise((resolve, reject) => {
-      const ValueSet = FhirUtilities.getValueSet('4_0_0');
-      const db = Globals.database;
-      const collection = db.collection(`${constants.COLLECTION.VALUESET}_${'4_0_0'}`);
-      collection.findOne({ url: url.toString() }, (err: any, valueset: ValueSet) => {
+      ValueSetModel.findOne({ url: url.toString() }, (err: any, valueset: ValueSet) => {
         if (err) {
           return reject(err);
         }
         if (valueset) {
-          resolve(new ValueSet(valueset));
+          resolve(new ValueSetModel(valueset));
         }
         resolve(undefined);
       });
