@@ -173,13 +173,15 @@ class VsacCache {
     const id = this.getValuesetId(idOrUrl);
     // Query our collection for this observation
     return await new Promise((resolve, reject) => {
-      if(id) {
-        ValueSetModel.findOne({ id: id.toString() }).exec().then((valueSet: any) => {
-          if (valueSet) {
-            resolve(valueSet);
-          }
-          resolve(null);
-        });
+      if (id) {
+        ValueSetModel.findOne({ id: id.toString() })
+          .exec()
+          .then((valueSet: any) => {
+            if (valueSet) {
+              resolve(valueSet);
+            }
+            resolve(null);
+          });
       } else {
         resolve(null);
       }
@@ -235,7 +237,7 @@ class VsacCache {
   clearCache() {
     // drop the collection
     try {
-        ValueSetModel.collection.drop(console.log);
+      ValueSetModel.collection.drop(console.log);
     } catch (e) {
       console.error(e);
     }
