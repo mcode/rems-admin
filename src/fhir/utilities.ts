@@ -45,7 +45,13 @@ export class FhirUtilities {
     return resolveSchema(baseVersion, 'Meta');
   };
 
-  static async store(resource: FhirResource, model: Model<any>, resolve: any, reject: any, baseVersion = '4_0_0') {
+  static async store(
+    resource: FhirResource,
+    model: Model<any>,
+    resolve: any,
+    reject: any,
+    baseVersion = '4_0_0'
+  ) {
     const db = Globals.database;
 
     // If no resource ID was provided, generate one.
@@ -65,18 +71,17 @@ export class FhirUtilities {
       versionId: '1',
       lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
     });
-    model.exists({id: fhirResource.id}).then((doesExist) => {
-      console.log(doesExist)
-      if(!doesExist){
-        try{
-          resolve(fhirResource.save())
+    model.exists({ id: fhirResource.id }).then(doesExist => {
+      if (!doesExist) {
+        try {
+          resolve(fhirResource.save());
         } catch {
-          reject()
+          reject();
         }
       } else {
-        reject()
+        reject();
       }
-    })
+    });
   }
 
   static async loadFile(filePath: string, file: any) {
@@ -92,27 +97,27 @@ export class FhirUtilities {
             }
             try {
               const resource = JSON.parse(jsonString);
-                  // Build the strings to connect to the collections
+              // Build the strings to connect to the collections
               let model;
               switch (resource.resourceType) {
                 case 'Library':
-                  model = LibraryModel
+                  model = LibraryModel;
                   await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
                   break;
                 case 'Patient':
-                  model = PatientModel
+                  model = PatientModel;
                   break;
                 case 'Questionnaire':
-                  model = QuestionnaireModel
+                  model = QuestionnaireModel;
                   break;
                 case 'QuestionnaireResponse':
-                  model = QuestionnaireResponseModel
+                  model = QuestionnaireResponseModel;
                   break;
                 case 'ValueSet':
-                  model = ValueSetModel
+                  model = ValueSetModel;
                   break;
               }
-              if(model){
+              if (model) {
                 await FhirUtilities.store(
                   resource,
                   model,

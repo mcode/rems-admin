@@ -61,8 +61,13 @@ function QuestionnaireResponseSchema() {
       default: void 0
     }
   };
-  return new mongoose.Schema<QuestionnaireResponse>(QuestionnaireResponseInterface, { versionKey: false });
+  return new mongoose.Schema<QuestionnaireResponse>(QuestionnaireResponseInterface, {
+    versionKey: false
+  });
 }
 
-const QuestionnaireResponseModel = model<QuestionnaireResponse>('QuestionnaireResponse', QuestionnaireResponseSchema());
+const QuestionnaireResponseModel = model<QuestionnaireResponse>(
+  'QuestionnaireResponse',
+  QuestionnaireResponseSchema()
+);
 export default QuestionnaireResponseModel;

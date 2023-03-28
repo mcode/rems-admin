@@ -174,15 +174,18 @@ export class QuestionnaireUtilities {
   }
   static async findQuestionnaire(id: string): Promise<Questionnaire | undefined> {
     return new Promise((resolve, reject) => {
-      QuestionnaireModel.findOne({ id: id.toString() }, (err: any, questionnaire: Questionnaire) => {
-        if (err) {
-          return reject(err);
+      QuestionnaireModel.findOne(
+        { id: id.toString() },
+        (err: any, questionnaire: Questionnaire) => {
+          if (err) {
+            return reject(err);
+          }
+          if (questionnaire) {
+            resolve(new QuestionnaireModel(questionnaire));
+          }
+          resolve(undefined);
         }
-        if (questionnaire) {
-          resolve(new QuestionnaireModel(questionnaire));
-        }
-        resolve(undefined);
-      });
+      );
     });
   }
   static async findLibraryByUrl(url: string): Promise<Library | undefined> {

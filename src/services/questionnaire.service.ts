@@ -5,21 +5,21 @@ import { Questionnaire } from 'fhir/r4';
 import { QuestionnaireUtilities } from '../fhir/questionnaireUtilities';
 import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
 
-module.exports.searchById = (args: any) =>{
+module.exports.searchById = (args: any) => {
   return new Promise((resolve, reject) => {
     const { id } = args;
     console.log('Questionnaire >>> searchById: -- ' + id);
-    const doc = QuestionnaireModel.findOne({id: id.toString()}, {_id: 0}).exec();
-    doc.then((result) => {
-      console.log(result)
-      if(result){
+    const doc = QuestionnaireModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
+    doc.then(result => {
+      console.log(result);
+      if (result) {
         resolve(result);
-      } else{
+      } else {
         reject(result);
       }
     });
   });
-}
+};
 
 module.exports.create = (args: any, req: any) =>
   new Promise((resolve, reject) => {
@@ -33,13 +33,15 @@ module.exports.questionnairePackage = (args: any, context: any, logger: any) => 
   logger.info('Running Questionnaire Package /:id/$questionnaire-package');
   return new Promise((resolve, reject) => {
     const { id } = args;
-    const doc = QuestionnaireModel.findOne({id: id.toString()}, {_id: 0}).exec();
-    doc.then(async (result) => {
-      if(result){
+    const doc = QuestionnaireModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
+    doc.then(async result => {
+      if (result) {
         const unprocessedQ: Questionnaire = result.toObject();
-        const parameters = await QuestionnaireUtilities.createPackageFromQuestionnaire(unprocessedQ);
+        const parameters = await QuestionnaireUtilities.createPackageFromQuestionnaire(
+          unprocessedQ
+        );
         resolve(parameters);
-      } else{
+      } else {
         reject(result);
       }
     });

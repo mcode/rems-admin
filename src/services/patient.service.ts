@@ -7,11 +7,11 @@ module.exports.searchById = (args: any) =>
   new Promise((resolve, reject) => {
     const { id } = args;
     console.log('Patient >>> searchById -- ' + id);
-    const doc = PatientModel.findOne({id: id.toString()}, {_id: 0}).exec();
-    doc.then((result) => {
-      if(result){
+    const doc = PatientModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
+    doc.then(result => {
+      if (result) {
         resolve(result);
-      } else{
+      } else {
         reject(result);
       }
     });

@@ -111,12 +111,12 @@ function QuestionnaireSchema() {
   return new mongoose.Schema<Questionnaire>(QuestionnaireInterface, { versionKey: false });
 }
 
-const qSchema = QuestionnaireSchema()
+const qSchema = QuestionnaireSchema();
 qSchema.add({
-    contained: {
-      type: [qSchema, Library, ValueSet],
-      default: void 0
-    }
-  });
+  contained: {
+    type: [qSchema, Library, ValueSet],
+    default: void 0
+  }
+});
 const QuestionnaireModel = model<Questionnaire>('Questionnaire', qSchema);
 export default QuestionnaireModel;
