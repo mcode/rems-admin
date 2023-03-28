@@ -42,6 +42,13 @@ services:
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
+  rems-smart-on-fhir:
+    image: codexrems/rems-smart-on-fhir:REMSvCurrent
+    container_name: rems_prod_rems-smart-on-fhir
+    ports:
+      - "4040:4040"
+
+
   # # Create rems container
   rems-administrator: # Name of our service
     image: codexrems/rems-administrator:REMSvCurrent

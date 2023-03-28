@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   keycloak:
-    container_name: rems_prod_keycloak  
+    container_name: rems_prod_m1_keycloak  
     # command: ["-Djboss.http.port=8180"]
     ports:
       - '8180:8080'
@@ -10,12 +10,12 @@ services:
       - KEYCLOAK_PASSWORD=admin
       - DB_VENDOR=h2
     volumes:
-      - rems_prod_keycloak-data:/opt/jboss/keycloak/standalone/data/
+      - rems_prod_m1_keycloak-data:/opt/jboss/keycloak/standalone/data/
     image: codexrems/keycloak-m1:REMSvCurrent
 
   # Create test-ehr container
   test-ehr: # Name of our service
-    container_name: rems_prod_test-ehr
+    container_name: rems_prod_m1_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     image: codexrems/test-ehr:REMSvCurrent
@@ -28,7 +28,7 @@ services:
   # Create crd request generator container
   crd-request-generator: # Name of our service
     image: codexrems/crd-request-generator:REMSvCurrent
-    container_name: rems_prod_crd-request-generator
+    container_name: rems_prod_m1_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
     ports: # Port binding to host from docker container
@@ -38,14 +38,20 @@ services:
   # Create dtr container
   dtr: # Name of our service
     image: codexrems/dtr:REMSvCurrent
-    container_name: rems_prod_dtr
+    container_name: rems_prod_m1_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
+
+  rems-smart-on-fhir:
+    image: codexrems/rems-smart-on-fhir:REMSvCurrent
+    container_name: rems_prod_m1_rems-smart-on-fhir
+    ports:
+      - "4040:4040"
 
   # # Create rems container
   rems-administrator: # Name of our service
     image: codexrems/rems-administrator:REMSvCurrent
-    container_name: rems_prod_rems
+    container_name: rems_prod_m1_rems
     ports: # Port binding to host from docker container
       - "9015:9015" # Bind port 3000 of host to 3000 of container
     environment:
@@ -78,5 +84,5 @@ services:
 
 
 volumes:
-  rems_prod_keycloak-data:
+  rems_prod_m1_keycloak-data:
 
