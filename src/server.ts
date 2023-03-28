@@ -401,12 +401,15 @@ class REMSServer extends Server {
 
         // return MetReq unless a new case is created in which case return the Rems request
         if (returnRemsRequest) {
+          res.status(201);
           res.send(returnedRemsRequestDoc);
         } else {
+          res.status(201);
           res.send(returnedMetReqDoc);
         }
       } catch (error) {
         console.log(error);
+        throw error
       }
     });
 
