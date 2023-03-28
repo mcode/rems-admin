@@ -7,29 +7,27 @@ import nock from 'nock';
 import { Globals } from '../../globals';
 import { Db, MongoClient } from 'mongodb';
 import constants from '../../constants';
+import ValueSetModel from '../schemas/resources/ValueSet';
+import mongoose from 'mongoose';
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
 
-  let connection: MongoClient;
-  let db: Db;
-
   beforeAll(async () => {
     if (process.env.MONGO_URL) {
-      connection = await MongoClient.connect(process.env.MONGO_URL, {});
-      db = await connection.db(process.env.MONGO_DB_NAME);
-      Globals.database = db;
+      console.log(process.env.MONGO_URL)
+      await mongoose.connect(process.env.MONGO_URL);
     }
   });
 
   afterAll(async () => {
-    await connection.close();
+    await mongoose.connection.close()
   });
-  beforeEach(() => {
+  beforeEach(async () => {
     // client.clearCache();
     const baseVersion = '4_0_0';
     const collectionString = `${constants.COLLECTION.VALUESET}_${baseVersion}`;
 
-    db.collection(collectionString).deleteMany({});
+    await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
     jest.resetModules();
   });
@@ -87,7 +85,7 @@ describe('VsacCache', () => {
     valueSets.forEach(async vs => {
       expect(await client.isCached(vs)).toBeFalsy();
     });
-
+    console.log("zzzz qr cacjhe")
     try {
       await client.cacheQuestionnaireItems(questionnaire);
       valueSets.forEach(async vs => {

@@ -6,6 +6,7 @@ import { FhirUtilities } from '../fhir/utilities';
 import { Globals } from '../globals';
 import constants from '../constants';
 import ValueSetModel from './schemas/resources/ValueSet';
+import { ValueSet } from 'fhir/r4';
 class VsacCache {
   cacheDir: string;
   apiKey: string;
@@ -170,22 +171,24 @@ class VsacCache {
    */
   async isCached(idOrUrl: string) {
     const id = this.getValuesetId(idOrUrl);
-
-    // Grab an instance of our DB and collection
-    const db = Globals.database;
-    const collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}`);
+    ValueSetModel.find().exec().then((result) => {
+      console.log(result)
+    })
     // Query our collection for this observation
     return await new Promise((resolve, reject) => {
-      collection.findOne({ id: id }, (err: any, valueSet: any) => {
-        if (err) {
-          console.log('Error with ValueSet.searchById: ', err);
-          reject(err);
-        }
-        if (valueSet) {
-          resolve(valueSet);
-        }
-        resolve(null);
-      });
+      console.log("the id")
+      console.log(id)
+      if(id) {
+        ValueSetModel.findOne({ id: id.toString() }).exec().then((valueSet: any) => {
+          console.log(valueSet)
+          if (valueSet) {
+            resolve(valueSet);
+          }
+          resolve(null);
+        });
+      } else {
+        resolve(null)
+      }
     });
   }
 
@@ -194,11 +197,24 @@ class VsacCache {
    * any resources currently cached.  This will be updated with a move to Mongo.
    * @param vs the valueset to cache
    */
-  async storeValueSet(id: string, vs: any) {
+  async storeValueSet(id: string, vs: ValueSet) {
     if (!vs.id) {
       vs.id = id;
     }
-    await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
+    console.log("Going in")
+    const vs_test = {
+      resourceType: "ValueSet",
+      id: "test"
+    }
+    try {
+      const vsMod = new ValueSetModel(vs_test)
+    } catch(e) {
+      console.log(e)
+    }
+    // vsMod.save()
+    console.log("moving along")
+
+    // await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
   }
 
   /**
@@ -238,17 +254,7 @@ class VsacCache {
   clearCache() {
     // drop the collection
     try {
-      const db = Globals.database;
-      const collection = db.collection(`${constants.COLLECTION.VALUESET}_${this.base_version}`);
-      if (collection) {
-        collection.drop(console.log);
-        const history_collection = db.collection(
-          `${constants.COLLECTION.VALUESET}_${this.base_version}_History`
-        );
-        if (history_collection) {
-          history_collection.drop(console.log);
-        }
-      }
+        ValueSetModel.collection.drop(console.log);
     } catch (e) {
       console.error(e);
     }

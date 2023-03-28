@@ -7,17 +7,13 @@ module.exports.searchById = (args: any) =>
   new Promise((resolve, reject) => {
     const { id } = args;
     console.log('Library >>> searchById: -- ' + id);
-    new Promise((resolve, reject) => {
-      const { id } = args;
-      console.log('Patient >>> searchById -- ' + id);
-      const doc = LibraryModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
-      doc.then(result => {
-        if (result) {
-          resolve(result);
-        } else {
-          reject(result);
-        }
-      });
+    const doc = LibraryModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
+    doc.then(result => {
+      if (result) {
+        resolve(result);
+      } else {
+        reject(result);
+      }
     });
   });
 
