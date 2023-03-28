@@ -5,9 +5,10 @@ import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
+import { Globals } from './globals';
 import { uid } from 'uid';
 import { FhirUtilities } from './fhir/utilities';
-import { medicationCollection, metRequirementsCollection, remsCaseCollection} from './fhir/models'
+import { medicationCollection, metRequirementsCollection, remsCaseCollection } from './fhir/models';
 
 const logger = container.get('application');
 
@@ -103,6 +104,11 @@ class REMSServer extends Server {
   }
 
   configureEtasuEndpoints() {
+    const db = Globals.database;
+
+    // const medicationCollection = db.collection('medication-requirements');
+    // const metRequirementsCollection = db.collection('met-requirements');
+    // const remsCaseCollection = db.collection('rems-case');
 
     // etasu endpoints
     this.app.get('/etasu/:drug', (req: any, res: { send: (arg0: string) => any }) => {
@@ -120,8 +126,25 @@ class REMSServer extends Server {
     });
 
     this.app.get(
-      '/etasu/met/patient/:patientName/drug/:drugName',
+      '/etasu/met/patient/:patientFirstName/:patientLastName/:patientDOB',
       (req: any, res: { send: (arg0: string) => any }) => {
+        var searchDict = {
+          patientFirstName: req.params.patientFirstName,
+          patientLastName: req.params.patientLastName,
+          patientDOB: req.params.patientDOB
+        };
+      
+        // if (req.query && Object.keys(req.query).length > 0) {
+        //   // add the query parameters
+        //   for (const prop in req.query) {
+        //     // verify that the parameter is in the orderSchema
+        //     if (orderSchema.path(prop) != undefined) {
+        //       // add the parameters to the search query
+        //       searchDict[prop] = req.query[prop];
+        //     }
+        //   }
+        // }
+            
         remsCaseCollection.findOne(
           { patientName: req.params.patientName, drugName: req.params.drugName },
           (err: any, remsCase: any) => {
@@ -187,7 +210,7 @@ class REMSServer extends Server {
           codeSystem: prescriptionSystem
         });
         // iterate through each requirement of the drug
-        for (const requirement of drug.requirements) {
+        for (const requirement of drug?.requirements) {
           // figure out which stakeholder the req corresponds to
           const reqStakeholder = requirement.stakeholderType;
           const reqStakeholderReference =
@@ -209,7 +232,7 @@ class REMSServer extends Server {
               const remsRequest: any = {
                 case_number: case_number,
                 status: remsRequestCompletedStatus,
-                drugName: drug.name,
+                drugName: drug?.name,
                 patientName: patientName,
                 metRequirements: []
               };
@@ -221,7 +244,7 @@ class REMSServer extends Server {
                 completedQuestionnaire: questionnaireResponse,
                 requirementName: requirement.name,
                 requirementDescription: requirement.description,
-                drugName: drug.name,
+                drugName: drug?.name,
                 stakeholderId: reqStakeholderReference,
                 case_numbers: [case_number]
               };
@@ -231,15 +254,15 @@ class REMSServer extends Server {
               const matchedMetReq = await metRequirementsCollection.findOne(metReq);
 
               remsRequest.metRequirements.push({
-                stakeholderId: matchedMetReq.stakeholderId,
-                completed: matchedMetReq.completed,
-                metRequirementId: matchedMetReq._id,
-                requirementName: matchedMetReq.requirementName,
-                requirementDescription: matchedMetReq.requirementDescription
+                stakeholderId: matchedMetReq?.stakeholderId,
+                completed: matchedMetReq?.completed,
+                metRequirementId: matchedMetReq?._id,
+                requirementName: matchedMetReq?.requirementName,
+                requirementDescription: matchedMetReq?.requirementDescription
               });
 
               // iterate through all other reqs again to create corresponding false metReqs / assign to existing
-              for (const requirement2 of drug.requirements) {
+              for (const requirement2 of drug?.requirements) {
                 // skip if the req found is the same as in the outer loop and has already been processed
                 if (!(requirement2.resourceId === requirementId)) {
                   // figure out which stakeholder the req corresponds to
@@ -254,7 +277,7 @@ class REMSServer extends Server {
                   const matchedMetReq2 = await metRequirementsCollection.findOne({
                     stakeholderId: reqStakeholder2Reference,
                     requirementName: requirement2.name,
-                    drugName: drug.name
+                    drugName: drug?.name
                   });
                   if (matchedMetReq2) {
                     remsRequest.metRequirements.push({
@@ -268,7 +291,7 @@ class REMSServer extends Server {
                       remsRequestCompletedStatus = 'Pending';
                     }
                     // matchedMetReq2.case_numbers.push(case_number);
-                    await metRequirementsCollection.updateOne(matchedMetReq2, {
+                    await metRequirementsCollection.findByIdAndUpdate(matchedMetReq2, {
                       $addToSet: { case_numbers: case_number }
                     });
                   } else {
@@ -278,7 +301,7 @@ class REMSServer extends Server {
                       completedQuestionnaire: null,
                       requirementName: requirement2.name,
                       requirementDescription: requirement2.description,
-                      drugName: drug.name,
+                      drugName: drug?.name,
                       stakeholderId: reqStakeholder2Reference,
                       case_numbers: [case_number]
                     };
@@ -290,11 +313,11 @@ class REMSServer extends Server {
                     const newMetReqDoc = await metRequirementsCollection.findOne(newMetReq);
 
                     remsRequest.metRequirements.push({
-                      stakeholderId: newMetReqDoc.stakeholderId,
-                      completed: newMetReqDoc.completed,
-                      metRequirementId: newMetReqDoc._id,
-                      requirementName: newMetReqDoc.requirementName,
-                      requirementDescription: newMetReqDoc.requirementDescription
+                      stakeholderId: newMetReqDoc?.stakeholderId,
+                      completed: newMetReqDoc?.completed,
+                      metRequirementId: newMetReqDoc?._id,
+                      requirementName: newMetReqDoc?.requirementName,
+                      requirementDescription: newMetReqDoc?.requirementDescription
                     });
                   }
                 }
@@ -307,13 +330,13 @@ class REMSServer extends Server {
               const matchedMetReq3 = await metRequirementsCollection.findOne({
                 stakeholderId: reqStakeholderReference,
                 requirementName: requirement.name,
-                drugName: drug.name
+                drugName: drug?.name
               });
               if (matchedMetReq3) {
                 // matchedMetReq3.completed = true;
                 // matchedMetReq3.completedQuestionnaire = questionnaireResponse;
                 if (!matchedMetReq3.completed) {
-                  await metRequirementsCollection.updateOne(matchedMetReq3, {
+                  await metRequirementsCollection.findByIdAndUpdate(matchedMetReq3, {
                     $set: { completed: true, completedQuestionnaire: questionnaireResponse }
                   });
 
@@ -330,15 +353,15 @@ class REMSServer extends Server {
 
                   // for (let remsRequestToUpdate of remsRequestsToUpdate) {
                   let foundUncompleted = false;
-                  const metReqArray = remsRequestToUpdate.metRequirements;
-                  for (let i = 0; i < remsRequestToUpdate.metRequirements.length; i++) {
-                    const req4 = remsRequestToUpdate.metRequirements[i];
+                  const metReqArray = remsRequestToUpdate?.metRequirements;
+                  for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
+                    const req4 = remsRequestToUpdate?.metRequirements[i];
                     // _id comparison would not work for some reason
                     if (req4.requirementName === matchedMetReq3.requirementName) {
                       metReqArray[i].completed = true;
                       req4.completed = true;
                       const update = await remsCaseCollection.updateOne(
-                        { _id: remsRequestToUpdate._id },
+                        { _id: remsRequestToUpdate?._id },
                         { $set: { metRequirements: metReqArray } }
                       );
                     }
@@ -347,8 +370,8 @@ class REMSServer extends Server {
                     }
                   }
 
-                  if (!foundUncompleted && remsRequestToUpdate.status === 'Pending') {
-                    await remsCaseCollection.updateOne(remsRequestToUpdate, {
+                  if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
+                    await remsCaseCollection.findByIdAndUpdate(remsRequestToUpdate, {
                       $set: { status: 'Approved' }
                     });
                   }
@@ -362,7 +385,7 @@ class REMSServer extends Server {
                   completedQuestionnaire: questionnaireResponse,
                   requirementName: requirement.name,
                   requirementDescription: requirement.requirementDescription,
-                  drugName: drug.name,
+                  drugName: drug?.name,
                   stakeholderId: reqStakeholderReference,
                   case_numbers: []
                 };

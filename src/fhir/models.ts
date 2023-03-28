@@ -46,7 +46,11 @@ const medicationCollectionSchema = new Schema<Medication>(
     }
     }
 );
-export const medicationCollection = model<Medication>("medicationCollection", medicationCollectionSchema)
+
+medicationCollectionSchema.index({ name: 1 }, { unique: true });
+
+
+export const medicationCollection = model<Medication>("medicationCollection", medicationCollectionSchema);
 
 const metRequirementsSchema = new Schema<MetRequirements>(
     {
@@ -58,6 +62,10 @@ const metRequirementsSchema = new Schema<MetRequirements>(
       'stakeholderId': { 'type': 'string' },
       'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
     }
+  );
+  metRequirementsSchema.index(
+    { drugName: 1, requirementName: 1, stakeholderId: 1 },
+    { unique: true }
   );
 
 export const metRequirementsCollection = model<MetRequirements>('metRequirementsCollection', metRequirementsSchema);
