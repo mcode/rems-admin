@@ -171,16 +171,10 @@ class VsacCache {
    */
   async isCached(idOrUrl: string) {
     const id = this.getValuesetId(idOrUrl);
-    ValueSetModel.find().exec().then((result) => {
-      console.log(result)
-    })
     // Query our collection for this observation
     return await new Promise((resolve, reject) => {
-      console.log("the id")
-      console.log(id)
       if(id) {
         ValueSetModel.findOne({ id: id.toString() }).exec().then((valueSet: any) => {
-          console.log(valueSet)
           if (valueSet) {
             resolve(valueSet);
           }
@@ -201,20 +195,7 @@ class VsacCache {
     if (!vs.id) {
       vs.id = id;
     }
-    console.log("Going in")
-    const vs_test = {
-      resourceType: "ValueSet",
-      id: "test"
-    }
-    try {
-      const vsMod = new ValueSetModel(vs_test)
-    } catch(e) {
-      console.log(e)
-    }
-    // vsMod.save()
-    console.log("moving along")
-
-    // await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
+    await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
   }
 
   /**

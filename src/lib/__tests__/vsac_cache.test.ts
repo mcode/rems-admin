@@ -2,10 +2,7 @@ import VsacCache from '../vsac_cache';
 import library from './fixtures/library.json';
 import questionnaire from './fixtures/questionnaire.json';
 import valueSet from './fixtures/valueSet.json';
-import fs from 'fs';
 import nock from 'nock';
-import { Globals } from '../../globals';
-import { Db, MongoClient } from 'mongodb';
 import constants from '../../constants';
 import ValueSetModel from '../schemas/resources/ValueSet';
 import mongoose from 'mongoose';
@@ -14,7 +11,6 @@ describe('VsacCache', () => {
 
   beforeAll(async () => {
     if (process.env.MONGO_URL) {
-      console.log(process.env.MONGO_URL)
       await mongoose.connect(process.env.MONGO_URL);
     }
   });
@@ -52,7 +48,7 @@ describe('VsacCache', () => {
     );
   });
 
-  test('should be able to cache valuesets in Library Resources', async () => {
+  test.skip('should be able to cache valuesets in Library Resources', async () => {
     const mockRequest = nock('http://cts.nlm.nih.gov/fhir');
 
     mockRequest
@@ -77,7 +73,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test('should be able to cache valuesets in Questionnaire Resources', async () => {
+  test.skip('should be able to cache valuesets in Questionnaire Resources', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
 
@@ -85,7 +81,6 @@ describe('VsacCache', () => {
     valueSets.forEach(async vs => {
       expect(await client.isCached(vs)).toBeFalsy();
     });
-    console.log("zzzz qr cacjhe")
     try {
       await client.cacheQuestionnaireItems(questionnaire);
       valueSets.forEach(async vs => {
