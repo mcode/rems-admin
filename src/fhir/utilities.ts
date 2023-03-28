@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
+<<<<<<< HEAD
 import { FhirResource, Library, Patient, Questionnaire, Resource } from 'fhir/r4';
 import LibraryModel from '../lib/schemas/resources/Library';
 import PatientModel from '../lib/schemas/resources/Patient';
@@ -17,6 +18,9 @@ import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
 import QuestionnaireResponseModel from '../lib/schemas/resources/QuestionnaireResponse';
 import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import { Model } from 'mongoose';
+=======
+import { medicationCollection, metRequirementsCollection } from './models';
+>>>>>>> dev
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -267,81 +271,9 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-    const db = Globals.database;
-
-    // define schemas
-
-    // leave comments in of structure in for now as they will be useful to reference during the mongoose transition
-    const medicationCollection = await db.collection(
-      'medication-requirements'
-      // , {
-      //   'name': { 'type': 'string' },
-      //   'codeSystem': { 'type': 'string' },
-      //   'code': { 'type': 'string' },
-      //   'requirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'name': { 'type': 'string' },
-      //         'description': { 'type': 'string' },
-      //         'questionnaire': { 'type': 'object' },
-      //         'stakeholderType': { 'type': 'string' },
-      //         'createNewCase': { 'type': 'boolean' },
-      //         'resourceId': { 'type': 'string' }
-      //       }
-      //     }
-      //   }
-      // }
-    );
-
-    await medicationCollection.createIndex({ name: 1 }, { unique: true });
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const metRequirementsCollection = await db.collection(
-      'met-requirements'
-      // , {
-      //   'completed': { 'type': 'boolean' },
-      //   'completedQuestionnaire': { 'type': 'object' },
-      //   'requirementName': { 'type': 'string' },
-      //   'requirementDescription': {'type': 'string'}
-      //   'drugName': { 'type': 'string' },
-      //   'stakeholderId': { 'type': 'string' },
-      //   'case_numbers': { 'type': 'array', 'items': { 'type': 'string' } }
-      // }
-    );
-
-    metRequirementsCollection.createIndex(
-      { drugName: 1, requirementName: 1, stakeholderId: 1 },
-      { unique: true }
-    );
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const remsCaseCollection = await db.collection(
-      'rems-case'
-      // , {
-      //   'case_number': { 'type': 'string' },
-      //   'status': { 'type': 'string' },
-      //   'drugName': { 'type': 'string' },
-      //   'patientName': { 'type': 'string' },
-      //   'metRequirements': {
-      //     'type': 'array',
-      //     'items': {
-      //       'type': 'object',
-      //       'properties': {
-      //         'metRequirementId': { 'type': 'number' },
-      //         'completed': { 'type': 'boolean' },
-      //         'stakeholderId': { 'type': 'string' },
-      //         'requirementName': { 'type': 'string' },
-      //         'requirementDescription': {'type': 'string'},
-      //       }
-      //     }
-      //   }
-      // }
-    );
 
     // prepopulateDB
-    medicationCollection.insert(
+    medicationCollection.insertMany(
       [
         {
           name: 'Turalio',
@@ -455,7 +387,7 @@ export class FhirUtilities {
       }
     );
 
-    metRequirementsCollection.insert(
+    metRequirementsCollection.insertMany(
       [
         {
           stakeholderId: 'Organization/pharm0111',
