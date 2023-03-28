@@ -20,6 +20,6 @@ module.exports.create = (args: any, req: any) =>
     console.log('ValueSet >>> create');
     const resource = req.req.body;
     const { base_version } = args;
-    console.log(resource)
+    console.log(resource);
     FhirUtilities.store(resource, ValueSetModel, resolve, reject, base_version);
   });

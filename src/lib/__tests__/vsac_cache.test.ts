@@ -16,7 +16,7 @@ describe('VsacCache', () => {
   });
 
   afterAll(async () => {
-    await mongoose.connection.close()
+    await mongoose.connection.close();
   });
   beforeEach(async () => {
     // client.clearCache();

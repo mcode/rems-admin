@@ -181,7 +181,7 @@ class VsacCache {
           resolve(null);
         });
       } else {
-        resolve(null)
+        resolve(null);
       }
     });
   }
