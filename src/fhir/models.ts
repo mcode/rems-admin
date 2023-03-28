@@ -21,7 +21,10 @@ interface RemsCase extends Document{
     case_number: string,
     status: string,
     drugName: string,
-    patientName: string,
+    drugCode: string
+    patientFirstName: string,
+    patientLastName: string,
+    patientDOB: string,
     metRequirements: any
 }
 
@@ -75,7 +78,10 @@ const remsCaseCollectionSchema = new Schema<RemsCase>(
     'case_number': { 'type': 'string' },
     'status': { 'type': 'string' },
     'drugName': { 'type': 'string' },
-    'patientName': { 'type': 'string' },
+    'patientFirstName': { 'type': 'string' },
+    'patientLastName': { 'type': 'string' },
+    'patientDOB': { 'type': 'string' },
+    'drugCode': { 'type': 'string' },
     'metRequirements': {
       'type': 'array',
       'items': {

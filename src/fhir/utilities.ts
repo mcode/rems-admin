@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
+import { medicationCollection, metRequirementsCollection } from './models';
 
 const re = /(?:\.([^.]+))?$/;
 
@@ -287,34 +288,9 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-    const db = Globals.database;
-
-    // define schemas
-
-    // leave comments in of structure in for now as they will be useful to reference during the mongoose transition
-    const medicationCollection = await db.collection(
-      'medication-requirements'
-    );
-
-    await medicationCollection.createIndex({ name: 1 }, { unique: true });
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const metRequirementsCollection = await db.collection(
-      'met-requirements'
-    );
-
-    metRequirementsCollection.createIndex(
-      { drugName: 1, requirementName: 1, stakeholderId: 1 },
-      { unique: true }
-    );
-
-    // leave comments of structure in for now as they will be useful to reference during the mongoose transition
-    const remsCaseCollection = await db.collection(
-      'rems-case'
-    );
 
     // prepopulateDB
-    medicationCollection.insert(
+    medicationCollection.insertMany(
       [
         {
           name: 'Turalio',
@@ -428,7 +404,7 @@ export class FhirUtilities {
       }
     );
 
-    metRequirementsCollection.insert(
+    metRequirementsCollection.insertMany(
       [
         {
           stakeholderId: 'Organization/pharm0111',
