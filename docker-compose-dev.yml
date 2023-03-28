@@ -89,7 +89,7 @@ services:
       - "8091:8091"
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
+      MONGO_HOSTNAME: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
     volumes:
       - rems_dev_rems-sync:/REMS:nocopy #  nocopy is important
       - rems_dev_rems-nodeModules:/REMS/node_modules
