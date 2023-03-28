@@ -53,7 +53,7 @@ const medicationCollectionSchema = new Schema<Medication>(
 medicationCollectionSchema.index({ name: 1 }, { unique: true });
 
 
-export const medicationCollection = model<Medication>("medicationCollection", medicationCollectionSchema);
+export const medicationCollection = model<Medication>('medicationCollection', medicationCollectionSchema);
 
 const metRequirementsSchema = new Schema<MetRequirements>(
     {

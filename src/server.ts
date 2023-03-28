@@ -128,7 +128,7 @@ class REMSServer extends Server {
     this.app.get(
       '/etasu/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
       (req: any, res: { send: (arg0: string) => any }) => {
-        var searchDict = {
+        const searchDict = {
           patientFirstName: req.params.patientFirstName,
           patientLastName: req.params.patientLastName,
           patientDOB: req.params.patientDOB,
@@ -196,7 +196,7 @@ class REMSServer extends Server {
         const patient = this.getResource(requestBody, patientReference);
         const patientFirstName = patient.name[0].given[0];
         const patientLastName = patient.name[0].family;
-        const patientDOB = patient.birthDate
+        const patientDOB = patient.birthDate;
         
 
         const drug = await medicationCollection.findOne({
