@@ -10,7 +10,6 @@ import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
-<<<<<<< HEAD
 import { FhirResource, Library, Patient, Questionnaire, Resource } from 'fhir/r4';
 import LibraryModel from '../lib/schemas/resources/Library';
 import PatientModel from '../lib/schemas/resources/Patient';
@@ -18,9 +17,7 @@ import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
 import QuestionnaireResponseModel from '../lib/schemas/resources/QuestionnaireResponse';
 import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import { Model } from 'mongoose';
-=======
 import { medicationCollection, metRequirementsCollection } from './models';
->>>>>>> dev
 
 const re = /(?:\.([^.]+))?$/;
 
