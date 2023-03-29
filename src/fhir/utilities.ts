@@ -268,7 +268,6 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-
     // prepopulateDB
     medicationCollection.insertMany(
       [
