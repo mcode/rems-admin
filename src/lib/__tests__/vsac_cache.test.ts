@@ -18,11 +18,11 @@ describe('VsacCache', () => {
   afterAll(async () => {
     await mongoose.connection.close();
   });
+
   beforeEach(async () => {
     // client.clearCache();
     const baseVersion = '4_0_0';
-    const collectionString = `${constants.COLLECTION.VALUESET}_${baseVersion}`;
-
+    
     await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
     jest.resetModules();
@@ -48,7 +48,7 @@ describe('VsacCache', () => {
     );
   });
 
-  test.skip('should be able to cache valuesets in Library Resources', async () => {
+  test('should be able to cache valuesets in Library Resources', async function() {
     const mockRequest = nock('http://cts.nlm.nih.gov/fhir');
 
     mockRequest
@@ -59,7 +59,7 @@ describe('VsacCache', () => {
       .reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectLibraryValuesets(library);
-    valueSets.forEach(async vs => {
+    valueSets.forEach(async function(vs)  {
       expect(await client.isCached(vs)).toBeFalsy();
     });
 
@@ -73,7 +73,7 @@ describe('VsacCache', () => {
     }
   });
 
-  test.skip('should be able to cache valuesets in Questionnaire Resources', async () => {
+  test('should be able to cache valuesets in Questionnaire Resources', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
 
@@ -92,22 +92,20 @@ describe('VsacCache', () => {
   });
 
   test.skip('should be not load valuesets already cached unless forced', async () => {
-    const mockRequest = nock('http://terminology.hl7.org/');
+    const mockRequest = nock('http://terminology.hl7.org');
+    const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'
+
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
     try {
       const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-      valueSets.forEach(async vs => {
-        expect(await client.isCached(vs)).toBeFalsy();
-      });
+      expect(await client.isCached(vs)).toBeFalsy();
 
-      const cached = await client.cacheQuestionnaireItems(questionnaire);
+      const cached = await client.downloadAndCacheValueset(vs);
+      expect(await client.isCached(vs)).toBeTruthy();
 
-      valueSets.forEach(async vs => {
-        expect(await client.isCached(vs)).toBeTruthy();
-      });
-
-      const vs = valueSets.values().next().value;
+      mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
       let update = await client.downloadAndCacheValueset(vs);
+      
       expect(update.get('cached')).toBeFalsy();
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
@@ -119,19 +117,16 @@ describe('VsacCache', () => {
     }
   });
 
-  test.skip('should be able to handle errors downloading valuesests', async () => {
+  test('should be able to handle errors downloading valuesests', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
+    const vs =  'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
-
-    const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-    valueSets.forEach(async vs => {
-      expect(await client.isCached(vs)).toBeFalsy();
-    });
+    expect(await client.isCached(vs)).toBeFalsy();
 
     try {
-      const err = await client.downloadAndCacheValueset(
-        'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'
-      );
+      const err = await client.downloadAndCacheValueset(vs);
+      console.log(err);
+      
       expect(err.get('error')).toBeDefined();
     } finally {
       mockRequest.done();

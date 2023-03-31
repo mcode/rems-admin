@@ -64,20 +64,24 @@ export class FhirUtilities {
       id = resource.id;
     }
     console.log('    FhirUtilities::store: ' + resource.resourceType + ' -- ' + id);
-
-    const fhirResource = new model(resource);
+    const fhirResource = new model(resource); 
     // Create the resource's metadata
     const Meta = FhirUtilities.getMeta(baseVersion);
     fhirResource.meta = new Meta({
       versionId: '1',
       lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
     });
+
+    
+    
     model.exists({ id: fhirResource.id }).then(doesExist => {
       if (!doesExist) {
         try {
           resolve(fhirResource.save());
+          ("resolve")
         } catch {
           reject();
+          
         }
       } else {
         reject();
@@ -269,7 +273,7 @@ export class FhirUtilities {
 
   static async populateDB() {
     // prepopulateDB
-    medicationCollection.insertMany(
+    await medicationCollection.insertMany(
       [
         {
           name: 'Turalio',
@@ -376,14 +380,10 @@ export class FhirUtilities {
             }
           ]
         }
-      ],
-      (err: any, result: any) => {
-        if (err) console.log(err);
-        console.log('Inserted Drug Information');
-      }
+      ]
     );
 
-    metRequirementsCollection.insertMany(
+    await metRequirementsCollection.insertMany(
       [
         {
           stakeholderId: 'Organization/pharm0111',
@@ -417,11 +417,7 @@ export class FhirUtilities {
           completedQuestionnaire: null,
           case_numbers: []
         }
-      ],
-      (err: any, result: any) => {
-        if (err) console.log(err);
-        console.log('Inserted Pharmacist Met Requirements');
-      }
+      ]
     );
   }
 }

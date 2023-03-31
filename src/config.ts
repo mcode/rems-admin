@@ -32,7 +32,7 @@ export default {
       options: ''
     },
     mongoConfig: {
-      location: env.MONGO_HOSTNAME,
+      location: env.MONGO_URL,
       db_name: env.MONGO_DB_NAME,
       options: {
         //auto_reconnect: true,
