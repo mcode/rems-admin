@@ -122,12 +122,15 @@ describe('VsacCache', () => {
     const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
     expect(await client.isCached(vs)).toBeFalsy();
-
+    let err;
     try {
-      const err = await client.downloadAndCacheValueset(vs);
+      err = await client.downloadAndCacheValueset(vs);
       console.log(err);
 
       expect(err.get('error')).toBeDefined();
+    } catch (e) {
+      console.log('Expected Error to be defined', err);
+      throw e;
     } finally {
       mockRequest.done();
     }

@@ -103,8 +103,7 @@ class VsacCache {
     if (forceReload || !(await this.isCached(idOrUrl))) {
       const vs = await this.downloadValueset(idOrUrl);
       if (vs.get('error')) {
-        console.log('Error Downloading ', idOrUrl);
-        console.log(vs.get('error').message);
+        console.log('Error Downloading ', idOrUrl, vs.get('error'));
       } else if (vs.get('valueSet')) {
         await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get('valueSet'));
         vs.set('cached', true);
@@ -145,7 +144,6 @@ class VsacCache {
     });
     if ((this.onlyVsac && isVsac) || !this.onlyVsac) {
       try {
-        console.log('Downloading vs ' + url);
         const vs = await axios.get(url, {
           headers: headers
         });
