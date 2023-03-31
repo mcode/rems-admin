@@ -125,7 +125,7 @@ describe('VsacCache', () => {
     let err;
     try {
       err = await client.downloadAndCacheValueset(vs);
-      console.log(err);
+     // console.log(err);
 
       expect(err.get('error')).toBeDefined();
     } catch (e) {

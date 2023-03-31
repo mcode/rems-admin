@@ -103,7 +103,7 @@ class VsacCache {
     if (forceReload || !(await this.isCached(idOrUrl))) {
       const vs = await this.downloadValueset(idOrUrl);
       if (vs.get('error')) {
-        console.log('Error Downloading ', idOrUrl, vs.get('error'));
+        console.log('Error Downloading ', idOrUrl, typeof vs.get('error'));
       } else if (vs.get('valueSet')) {
         await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get('valueSet'));
         vs.set('cached', true);
