@@ -237,7 +237,7 @@ class VsacCache {
   clearCache() {
     // drop the collection
     try {
-      ValueSetModel.collection.drop(console.log);
+      ValueSetModel.collection.drop();
     } catch (e) {
       console.error(e);
     }
