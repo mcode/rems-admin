@@ -1,10 +1,6 @@
 import axios from 'axios';
 import fhirpath from 'fhirpath';
-import fs from 'fs';
-import { stringify } from 'querystring';
 import { FhirUtilities } from '../fhir/utilities';
-import { Globals } from '../globals';
-import constants from '../constants';
 import ValueSetModel from './schemas/resources/ValueSet';
 import { ValueSet } from 'fhir/r4';
 class VsacCache {
@@ -36,7 +32,7 @@ class VsacCache {
    */
   async cacheLibrary(library: any, forceReload = false) {
     const valueSets = this.collectLibraryValuesets(library);
-    return await this.cacheValuesets(valueSets);
+    return await this.cacheValuesets(valueSets,forceReload);
   }
 
   /**
@@ -48,7 +44,7 @@ class VsacCache {
 
   async cacheQuestionnaireItems(obj: any, forceReload = false) {
     const valueSets = this.collectQuestionnaireValuesets(obj);
-    return await this.cacheValuesets(valueSets);
+    return await this.cacheValuesets(valueSets,forceReload);
   }
 
   /**

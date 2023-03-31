@@ -22,7 +22,7 @@ describe('VsacCache', () => {
   beforeEach(async () => {
     // client.clearCache();
     const baseVersion = '4_0_0';
-    
+
     await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
     jest.resetModules();
@@ -48,7 +48,7 @@ describe('VsacCache', () => {
     );
   });
 
-  test('should be able to cache valuesets in Library Resources', async function() {
+  test('should be able to cache valuesets in Library Resources', async function () {
     const mockRequest = nock('http://cts.nlm.nih.gov/fhir');
 
     mockRequest
@@ -59,7 +59,7 @@ describe('VsacCache', () => {
       .reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectLibraryValuesets(library);
-    valueSets.forEach(async function(vs)  {
+    valueSets.forEach(async function (vs) {
       expect(await client.isCached(vs)).toBeFalsy();
     });
 
@@ -93,7 +93,7 @@ describe('VsacCache', () => {
 
   test.skip('should be not load valuesets already cached unless forced', async () => {
     const mockRequest = nock('http://terminology.hl7.org');
-    const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'
+    const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
 
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
     try {
@@ -105,7 +105,7 @@ describe('VsacCache', () => {
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
       let update = await client.downloadAndCacheValueset(vs);
-      
+
       expect(update.get('cached')).toBeFalsy();
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
@@ -119,14 +119,14 @@ describe('VsacCache', () => {
 
   test('should be able to handle errors downloading valuesests', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
-    const vs =  'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'
+    const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
     expect(await client.isCached(vs)).toBeFalsy();
 
     try {
       const err = await client.downloadAndCacheValueset(vs);
       console.log(err);
-      
+
       expect(err.get('error')).toBeDefined();
     } finally {
       mockRequest.done();

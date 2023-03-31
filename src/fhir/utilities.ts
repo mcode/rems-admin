@@ -64,7 +64,7 @@ export class FhirUtilities {
       id = resource.id;
     }
     console.log('    FhirUtilities::store: ' + resource.resourceType + ' -- ' + id);
-    const fhirResource = new model(resource); 
+    const fhirResource = new model(resource);
     // Create the resource's metadata
     const Meta = FhirUtilities.getMeta(baseVersion);
     fhirResource.meta = new Meta({
@@ -72,16 +72,13 @@ export class FhirUtilities {
       lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
     });
 
-    
-    
     model.exists({ id: fhirResource.id }).then(doesExist => {
       if (!doesExist) {
         try {
           resolve(fhirResource.save());
-          ("resolve")
+          ('resolve');
         } catch {
           reject();
-          
         }
       } else {
         reject();
@@ -273,151 +270,147 @@ export class FhirUtilities {
 
   static async populateDB() {
     // prepopulateDB
-    await medicationCollection.insertMany(
-      [
-        {
-          name: 'Turalio',
-          codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
-          code: '2183126',
-          requirements: [
-            {
-              name: 'Patient Enrollment',
-              description: 'Submit Patient Enrollment form to the REMS Administrator',
-              stakeholderType: 'patient',
-              createNewCase: true,
-              resourceId: 'TuralioRemsPatientEnrollment'
-            },
-            {
-              name: 'Prescriber Enrollment',
-              description: 'Submit Prescriber Enrollment form to the REMS Administrator',
-              stakeholderType: 'prescriber',
-              createNewCase: false,
-              resourceId: 'TuralioPrescriberEnrollmentForm'
-            },
-            {
-              name: 'Prescriber Knowledge Assessment',
-              description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
-              stakeholderType: 'prescriber',
-              createNewCase: false,
-              resourceId: 'TuralioPrescriberKnowledgeAssessment'
-            },
-            {
-              name: 'Pharmacist Enrollment',
-              description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
-              stakeholderType: 'pharmacist',
-              createNewCase: false,
-              resourceId: 'TuralioPharmacistEnrollment'
-            }
-          ]
-        },
-        {
-          name: 'TIRF',
-          codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
-          code: '1237051',
-          requirements: [
-            {
-              name: 'Patient Enrollment',
-              description: 'Submit Patient Enrollment form to the REMS Administrator',
-              stakeholderType: 'patient',
-              createNewCase: true,
-              resourceId: 'TIRFRemsPatientEnrollment'
-            },
-            {
-              name: 'Prescriber Enrollment',
-              description: 'Submit Prescriber Enrollment form to the REMS Administrator',
-              stakeholderType: 'prescriber',
-              createNewCase: false,
-              resourceId: 'TIRFPrescriberEnrollmentForm'
-            },
-            {
-              name: 'Prescriber Knowledge Assessment',
-              description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
-              stakeholderType: 'prescriber',
-              createNewCase: false,
-              resourceId: 'TIRFPrescriberKnowledgeAssessment'
-            },
-            {
-              name: 'Pharmacist Enrollment',
-              description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
-              stakeholderType: 'pharmacist',
-              createNewCase: false,
-              resourceId: 'TIRFPharmacistEnrollmentForm'
-            },
-            {
-              name: 'Pharmacist Knowledge Assessment',
-              description: 'Submit Pharmacist Knowledge Assessment form to the REMS Administrator',
-              stakeholderType: 'pharmacist',
-              createNewCase: false,
-              resourceId: 'TIRFPharmacistKnowledgeAssessment'
-            }
-          ]
-        },
-        {
-          name: 'Isotretinoin',
-          codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
-          code: '6064',
-          requirements: [
-            {
-              name: 'Patient Enrollment',
-              description: 'Submit Patient Enrollment form to the REMS Administrator',
-              stakeholderType: 'patient',
-              createNewCase: true,
-              resourceId: 'IPledgeRemsPatientEnrollment'
-            },
-            {
-              name: 'Prescriber Enrollment',
-              description: 'Submit Prescriber Enrollment form to the REMS Administrator',
-              stakeholderType: 'prescriber',
-              createNewCase: false,
-              resourceId: 'IPledgeRemsPrescriberEnrollmentForm'
-            },
-            {
-              name: 'Pharmacist Enrollment',
-              description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
-              stakeholderType: 'pharmacist',
-              createNewCase: false,
-              resourceId: 'IPledgeRemsPharmacistEnrollmentForm'
-            }
-          ]
-        }
-      ]
-    );
+    await medicationCollection.insertMany([
+      {
+        name: 'Turalio',
+        codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        code: '2183126',
+        requirements: [
+          {
+            name: 'Patient Enrollment',
+            description: 'Submit Patient Enrollment form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: true,
+            resourceId: 'TuralioRemsPatientEnrollment'
+          },
+          {
+            name: 'Prescriber Enrollment',
+            description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'TuralioPrescriberEnrollmentForm'
+          },
+          {
+            name: 'Prescriber Knowledge Assessment',
+            description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'TuralioPrescriberKnowledgeAssessment'
+          },
+          {
+            name: 'Pharmacist Enrollment',
+            description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+            stakeholderType: 'pharmacist',
+            createNewCase: false,
+            resourceId: 'TuralioPharmacistEnrollment'
+          }
+        ]
+      },
+      {
+        name: 'TIRF',
+        codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        code: '1237051',
+        requirements: [
+          {
+            name: 'Patient Enrollment',
+            description: 'Submit Patient Enrollment form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: true,
+            resourceId: 'TIRFRemsPatientEnrollment'
+          },
+          {
+            name: 'Prescriber Enrollment',
+            description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'TIRFPrescriberEnrollmentForm'
+          },
+          {
+            name: 'Prescriber Knowledge Assessment',
+            description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'TIRFPrescriberKnowledgeAssessment'
+          },
+          {
+            name: 'Pharmacist Enrollment',
+            description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+            stakeholderType: 'pharmacist',
+            createNewCase: false,
+            resourceId: 'TIRFPharmacistEnrollmentForm'
+          },
+          {
+            name: 'Pharmacist Knowledge Assessment',
+            description: 'Submit Pharmacist Knowledge Assessment form to the REMS Administrator',
+            stakeholderType: 'pharmacist',
+            createNewCase: false,
+            resourceId: 'TIRFPharmacistKnowledgeAssessment'
+          }
+        ]
+      },
+      {
+        name: 'Isotretinoin',
+        codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        code: '6064',
+        requirements: [
+          {
+            name: 'Patient Enrollment',
+            description: 'Submit Patient Enrollment form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: true,
+            resourceId: 'IPledgeRemsPatientEnrollment'
+          },
+          {
+            name: 'Prescriber Enrollment',
+            description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'IPledgeRemsPrescriberEnrollmentForm'
+          },
+          {
+            name: 'Pharmacist Enrollment',
+            description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+            stakeholderType: 'pharmacist',
+            createNewCase: false,
+            resourceId: 'IPledgeRemsPharmacistEnrollmentForm'
+          }
+        ]
+      }
+    ]);
 
-    await metRequirementsCollection.insertMany(
-      [
-        {
-          stakeholderId: 'Organization/pharm0111',
-          completed: true,
-          requirementName: 'Pharmacist Enrollment',
-          drugName: 'Turalio',
-          completedQuestionnaire: null,
-          case_numbers: []
-        },
-        {
-          stakeholderId: 'Organization/pharm0111',
-          completed: true,
-          requirementName: 'Pharmacist Enrollment',
-          drugName: 'TIRF',
-          completedQuestionnaire: null,
-          case_numbers: []
-        },
-        {
-          stakeholderId: 'Organization/pharm0111',
-          completed: true,
-          requirementName: 'Pharmacist Knowledge Assessment',
-          drugName: 'TIRF',
-          completedQuestionnaire: null,
-          case_numbers: []
-        },
-        {
-          stakeholderId: 'Organization/pharm0111',
-          completed: true,
-          requirementName: 'Pharmacist Enrollment',
-          drugName: 'Isotretinoin',
-          completedQuestionnaire: null,
-          case_numbers: []
-        }
-      ]
-    );
+    await metRequirementsCollection.insertMany([
+      {
+        stakeholderId: 'Organization/pharm0111',
+        completed: true,
+        requirementName: 'Pharmacist Enrollment',
+        drugName: 'Turalio',
+        completedQuestionnaire: null,
+        case_numbers: []
+      },
+      {
+        stakeholderId: 'Organization/pharm0111',
+        completed: true,
+        requirementName: 'Pharmacist Enrollment',
+        drugName: 'TIRF',
+        completedQuestionnaire: null,
+        case_numbers: []
+      },
+      {
+        stakeholderId: 'Organization/pharm0111',
+        completed: true,
+        requirementName: 'Pharmacist Knowledge Assessment',
+        drugName: 'TIRF',
+        completedQuestionnaire: null,
+        case_numbers: []
+      },
+      {
+        stakeholderId: 'Organization/pharm0111',
+        completed: true,
+        requirementName: 'Pharmacist Enrollment',
+        drugName: 'Isotretinoin',
+        completedQuestionnaire: null,
+        case_numbers: []
+      }
+    ]);
   }
 }
