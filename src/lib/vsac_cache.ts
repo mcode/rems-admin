@@ -32,7 +32,7 @@ class VsacCache {
    */
   async cacheLibrary(library: any, forceReload = false) {
     const valueSets = this.collectLibraryValuesets(library);
-    return await this.cacheValuesets(valueSets,forceReload);
+    return await this.cacheValuesets(valueSets, forceReload);
   }
 
   /**
@@ -44,7 +44,7 @@ class VsacCache {
 
   async cacheQuestionnaireItems(obj: any, forceReload = false) {
     const valueSets = this.collectQuestionnaireValuesets(obj);
-    return await this.cacheValuesets(valueSets,forceReload);
+    return await this.cacheValuesets(valueSets, forceReload);
   }
 
   /**
