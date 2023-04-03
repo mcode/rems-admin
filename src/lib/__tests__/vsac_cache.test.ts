@@ -5,18 +5,29 @@ import valueSet from './fixtures/valueSet.json';
 import nock from 'nock';
 import constants from '../../constants';
 import ValueSetModel from '../schemas/resources/ValueSet';
-import mongoose from 'mongoose';
+import mongoose, { ConnectOptions } from 'mongoose';
+const { MongoMemoryServer } = require("mongodb-memory-server");
+import { assert, expect } from "chai"
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
-
-  beforeAll(async () => {
-    if (process.env.MONGO_URL) {
-      await mongoose.connect(process.env.MONGO_URL);
+  let mongo: typeof MongoMemoryServer;
+  before(async () => {
+    
+    mongo = await MongoMemoryServer.create();
+    const uri = mongo.getUri();
+    let options :ConnectOptions = {
+      
     }
+    await mongoose.connect(uri, options);
   });
 
-  afterAll(async () => {
+  after(async () => {
+    console.log("Closing connection?");
+    
+    await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
+    await mongo.stop();
+    
   });
 
   beforeEach(async () => {
@@ -25,15 +36,14 @@ describe('VsacCache', () => {
 
     await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
-    jest.resetModules();
   });
 
   // need to mock the server endpoints to we do not require hitting
   // the server for CI testing with someones api credentials
 
-  test('should be able to collect valueset references from Library Resources', async () => {
+  it('should be able to collect valueset references from Library Resources', async () => {
     const valueSets = client.collectLibraryValuesets(library);
-    expect(valueSets).toEqual(
+    expect(valueSets).to.deep.equal(
       new Set([
         'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.85',
         'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1219.35'
@@ -41,14 +51,14 @@ describe('VsacCache', () => {
     );
   });
 
-  test('should be able to collect valueset references from Questionnaire Resources', async () => {
+  it('should be able to collect valueset references from Questionnaire Resources', async () => {
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-    expect(valueSets).toEqual(
+    expect(valueSets).to.deep.equal(
       new Set(['http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked'])
     );
   });
 
-  test('should be able to cache valuesets in Library Resources', async function () {
+  it('should be able to cache valuesets in Library Resources', async function () {
     const mockRequest = nock('http://cts.nlm.nih.gov/fhir');
 
     mockRequest
@@ -60,74 +70,74 @@ describe('VsacCache', () => {
 
     const valueSets = client.collectLibraryValuesets(library);
     valueSets.forEach(async function (vs) {
-      expect(await client.isCached(vs)).toBeFalsy();
+      expect(await client.isCached(vs)).to.be.false;
     });
 
     try {
       await client.cacheLibrary(library);
       valueSets.forEach(async vs => {
-        expect(await client.isCached(vs)).toBeTruthy();
+        expect(await client.isCached(vs)).to.be.true;
       });
     } finally {
       mockRequest.done();
     }
   });
 
-  test('should be able to cache valuesets in Questionnaire Resources', async () => {
+  it('should be able to cache valuesets in Questionnaire Resources', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
     valueSets.forEach(async vs => {
-      expect(await client.isCached(vs)).toBeFalsy();
+      expect(await client.isCached(vs)).to.be.false;
     });
     try {
       await client.cacheQuestionnaireItems(questionnaire);
       valueSets.forEach(async vs => {
-        expect(await client.isCached(vs)).toBeTruthy();
+        expect(await client.isCached(vs)).to.be.true;
       });
     } finally {
       mockRequest.done();
     }
   });
 
-  test.skip('should be not load valuesets already cached unless forced', async () => {
+  it.skip('should be not load valuesets already cached unless forced', async () => {
     const mockRequest = nock('http://terminology.hl7.org');
     const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
 
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
     try {
       const valueSets = client.collectQuestionnaireValuesets(questionnaire);
-      expect(await client.isCached(vs)).toBeFalsy();
+      expect(await client.isCached(vs)).to.be.false;
 
       const cached = await client.downloadAndCacheValueset(vs);
-      expect(await client.isCached(vs)).toBeTruthy();
+      expect(await client.isCached(vs)).to.be.true;
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
       let update = await client.downloadAndCacheValueset(vs);
 
-      expect(update.get('cached')).toBeFalsy();
+      expect(update.get('cached')).to.be.false;
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
       update = await client.downloadAndCacheValueset(vs, true);
 
-      expect(update.get('cached')).toBeTruthy();
+      expect(update.get('cached')).to.be.true;
     } finally {
       mockRequest.done();
     }
   });
 
-  test('should be able to handle errors downloading valuesests', async () => {
+  it('should be able to handle errors downloading valuesests', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
-    expect(await client.isCached(vs)).toBeFalsy();
+    expect(await client.isCached(vs)).to.be.false;
     let err;
     try {
       err = await client.downloadAndCacheValueset(vs);
       // console.log(err);
 
-      expect(err.get('error')).toBeDefined();
+      expect(err.get('error')).to.not.be.undefined;
     } catch (e) {
       console.log('Expected Error to be defined', err);
       throw e;
@@ -136,10 +146,10 @@ describe('VsacCache', () => {
     }
   });
 
-  test('Should not attempt tp download non-vsac valuesets if configured to do so', async () => {
+  it('Should not attempt tp download non-vsac valuesets if configured to do so', async () => {
     client.onlyVsac = true;
     const err = await client.downloadAndCacheValueset('http://localhost:9999/vs/1234');
-    expect(err.get('error')).toEqual(
+    expect(err.get('error')).to.equal(
       'Cannot download non vsac valuesets: http://localhost:9999/vs/1234'
     );
   });

@@ -1,8 +1,9 @@
 import OrderSign from './OrderSign';
 import getREMSHook from './rems.hook';
+import {expect} from 'chai';
 
 describe('hook: test rems', () => {
-  test('should have definition and handler', () => {
+  it('should have definition and handler', () => {
     const prefetch = {
       patient: 'Patient/{{context.patientId}}',
       practitioner: 'Practitioner/{{context.userId}}'
@@ -15,10 +16,10 @@ describe('hook: test rems', () => {
       prefetch
     );
 
-    expect(getREMSHook).toHaveProperty('definition');
-    expect(getREMSHook).toHaveProperty('handler');
+    expect(getREMSHook).to.haveOwnProperty('definition');
+    expect(getREMSHook).to.haveOwnProperty('handler');
 
-    expect(getREMSHook.definition).toStrictEqual(expectedDefinition);
-    expect(getREMSHook.handler).toBeInstanceOf(Function);
+    expect(getREMSHook.definition).to.deep.equal(expectedDefinition);
+    expect(getREMSHook.handler).to.instanceOf(Function);
   });
 });

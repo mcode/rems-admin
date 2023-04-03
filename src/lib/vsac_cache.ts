@@ -174,10 +174,10 @@ class VsacCache {
             if (valueSet) {
               resolve(valueSet);
             }
-            resolve(null);
+            resolve(false);
           });
       } else {
-        resolve(null);
+        resolve(false);
       }
     });
   }

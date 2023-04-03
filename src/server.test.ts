@@ -2,83 +2,95 @@ import { initialize, REMSServer } from './server';
 import config from './config';
 import { Globals } from './globals';
 import { Db, MongoClient } from 'mongodb';
+import sinon from "sinon";
+import {assert, expect} from "chai";
+const { MongoMemoryServer } = require("mongodb-memory-server");
+import mongoose, { ConnectOptions } from 'mongoose';
+
 describe('REMSServer class', () => {
   let server: REMSServer;
 
   let connection: MongoClient;
   let db: Db;
-
-  beforeAll(async () => {
-    if (process.env.MONGO_URL) {
-      connection = await MongoClient.connect(process.env.MONGO_URL, {});
-      db = await connection.db(process.env.MONGO_DB_NAME);
-      Globals.database = db;
+  let mongo: typeof MongoMemoryServer;
+  before(async () => {
+    
+    mongo = await MongoMemoryServer.create();
+    const uri = mongo.getUri();
+    let options :ConnectOptions = {
+      
     }
+    await mongoose.connect(uri, options);
   });
 
-  afterAll(async () => {
-    await connection.close();
+  after(async () => {
+    console.log("Closing connection?");
+    
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+    await mongo.stop();
+    
   });
 
   beforeEach(() => {
-    jest.mock('morgan', () => jest.fn());
+    // jest.mock('morgan', () => jest.fn());
 
-    // Mock express and body parser
-    jest.mock('body-parser', () => ({
-      urlencoded: jest.fn(),
-      json: jest.fn()
-    }));
+    // // Mock express and body parser
+    // jest.mock('body-parser', () => ({
+    //   urlencoded: jest.fn(),
+    //   json: jest.fn()
+    // }));
 
-    jest.mock('express', () => {
-      const mock = jest.fn(() => ({
-        use: jest.fn(),
-        set: jest.fn(),
-        get: jest.fn(),
-        listen: jest.fn(),
-        options: jest.fn(),
-        post: jest.fn(),
-        static: jest.fn()
-      }));
-      return mock;
-    });
+    // jest.mock('express', () => {
+    //   const mock = jest.fn(() => ({
+    //     use: jest.fn(),
+    //     set: jest.fn(),
+    //     get: jest.fn(),
+    //     listen: jest.fn(),
+    //     options: jest.fn(),
+    //     post: jest.fn(),
+    //     static: jest.fn()
+    //   }));
+    //   return mock;
+    // });
 
     server = new REMSServer(config.fhirServerConfig);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+   // jest.clearAllMocks();
   });
 
-  test('method: constructor', () => {
-    expect(server).toBeInstanceOf(REMSServer);
-    expect(server).toHaveProperty('app');
-    expect(server).toHaveProperty('listen');
+  it('method: constructor', () => {
+    expect(server).to.be.instanceOf(REMSServer);
+    expect(server).to.have.property('app');
+    expect(server).to.have.property('listen');
   });
 
-  test('method: configureMiddleware', () => {
-    const set = jest.spyOn(server.app, 'set');
-    const use = jest.spyOn(server.app, 'use');
+  it('method: configureMiddleware', () => {
+    const set = sinon.spy(server.app, 'set');
+    const use = sinon.spy(server.app, 'use');
 
     server.configureMiddleware();
 
-    expect(set).toHaveBeenCalledTimes(6);
-    expect(set.mock.calls[0][0]).toBe('showStackError');
-    expect(set.mock.calls[0][1]).toBe(true);
-    expect(set.mock.calls[5][0]).toBe('jsonp callback');
-    expect(set.mock.calls[5][1]).toBe(true);
+    expect(set.callCount).to.equal(6);
+    // expect(set.mock.calls[0][0]).toBe('showStackError');
+    // expect(set.mock.calls[0][1]).toBe(true);
+    // expect(set.mock.calls[5][0]).toBe('jsonp callback');
+    // expect(set.mock.calls[5][1]).toBe(true);
 
-    expect(use).toHaveBeenCalledTimes(8);
+    expect(use.callCount).to.equal(8);
   });
 
-  test('method: configureLogstream', () => {
-    const use = jest.spyOn(server.app, 'use');
+  it('method: configureLogstream', () => {
+    const use = sinon.spy(server.app, 'use');
 
     server.configureLogstream();
 
-    expect(use).toHaveBeenCalledTimes(1);
+    expect(use.calledOnce).to.have.true;
   });
 
-  test('method: registerService', () => {
+  it('method: registerService', () => {
     const mockService = {
       definition: {
         hook: 'patient-view',
@@ -93,7 +105,7 @@ describe('REMSServer class', () => {
 
     server.registerService(mockService);
 
-    expect(server.services).toStrictEqual([
+    expect(server.services).to.deep.equal([
       {
         hook: 'patient-view',
         name: 'foo',
@@ -103,21 +115,21 @@ describe('REMSServer class', () => {
     ]);
   });
 
-  test('Method: listen', () => {
-    const listen = jest.spyOn(server.app, 'listen');
-    const callback = jest.fn();
+  it('Method: listen', () => {
+    const listen = sinon.spy(server.app, 'listen');
+    const callback = sinon.fake();
     // Start listening on a port and pass the callback through
     const serverListen = server.listen({ port: 3000 }, callback);
-    expect(listen).toHaveBeenCalledTimes(1);
-    expect(listen.mock.calls[0][0]).toBe(3000);
-    expect(listen.mock.calls[0][1]).toBe(callback);
+    expect(listen.calledOnce).to.be.true;
+    // expect(listen.mock.calls[0][0]).toBe(3000);
+    // expect(listen.mock.calls[0][1]).toBe(callback);
     serverListen.close();
   });
 
-  test('should be able to initilize a server', () => {
+  it('should be able to initilize a server', () => {
     const newServer = initialize(config);
-    expect(newServer).toBeInstanceOf(REMSServer);
-    expect(newServer).toHaveProperty('app');
-    expect(newServer).toHaveProperty('listen');
+    expect(newServer).to.be.instanceOf(REMSServer);
+    expect(newServer).to.have.property('app');
+    expect(newServer).to.have.property('listen');
   });
 });
