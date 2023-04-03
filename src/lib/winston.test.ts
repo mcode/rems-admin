@@ -9,7 +9,6 @@ import config from '../config';
 import { expect } from 'chai';
 
 describe('Logger Class', () => {
-
   it('setup without daily log file', () => {
     const logger = container.get('application');
 

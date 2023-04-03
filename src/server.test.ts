@@ -2,8 +2,8 @@ import { initialize, REMSServer } from './server';
 import config from './config';
 import { Db, MongoClient } from 'mongodb';
 import sinon from 'sinon';
-import {expect} from 'chai';
-import  { MongoMemoryServer } from 'mongodb-memory-server';
+import { expect } from 'chai';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { ConnectOptions } from 'mongoose';
 
 describe('REMSServer class', () => {
@@ -15,19 +15,16 @@ describe('REMSServer class', () => {
   before(async () => {
     mongo = await MongoMemoryServer.create();
     const uri = mongo.getUri();
-    const options :ConnectOptions = {
-      
-    };
+    const options: ConnectOptions = {};
     await mongoose.connect(uri, options);
   });
 
   after(async () => {
     console.log('Closing connection?');
-    
+
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongo.stop();
-    
   });
 
   beforeEach(() => {
@@ -54,7 +51,6 @@ describe('REMSServer class', () => {
 
     server = new REMSServer(config.fhirServerConfig);
   });
-
 
   it('method: constructor', () => {
     expect(server).to.be.instanceOf(REMSServer);
