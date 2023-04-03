@@ -1,10 +1,9 @@
 import { initialize, REMSServer } from './server';
 import config from './config';
-import { Globals } from './globals';
 import { Db, MongoClient } from 'mongodb';
-import sinon from "sinon";
-import {assert, expect} from "chai";
-const { MongoMemoryServer } = require("mongodb-memory-server");
+import sinon from 'sinon';
+import {expect} from 'chai';
+import  { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { ConnectOptions } from 'mongoose';
 
 describe('REMSServer class', () => {
@@ -12,19 +11,18 @@ describe('REMSServer class', () => {
 
   let connection: MongoClient;
   let db: Db;
-  let mongo: typeof MongoMemoryServer;
+  let mongo: any;
   before(async () => {
-    
     mongo = await MongoMemoryServer.create();
     const uri = mongo.getUri();
-    let options :ConnectOptions = {
+    const options :ConnectOptions = {
       
-    }
+    };
     await mongoose.connect(uri, options);
   });
 
   after(async () => {
-    console.log("Closing connection?");
+    console.log('Closing connection?');
     
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
@@ -57,9 +55,6 @@ describe('REMSServer class', () => {
     server = new REMSServer(config.fhirServerConfig);
   });
 
-  afterEach(() => {
-   // jest.clearAllMocks();
-  });
 
   it('method: constructor', () => {
     expect(server).to.be.instanceOf(REMSServer);

@@ -6,28 +6,24 @@ import nock from 'nock';
 import constants from '../../constants';
 import ValueSetModel from '../schemas/resources/ValueSet';
 import mongoose, { ConnectOptions } from 'mongoose';
-const { MongoMemoryServer } = require("mongodb-memory-server");
-import { assert, expect } from "chai"
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { assert, expect } from 'chai';
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
-  let mongo: typeof MongoMemoryServer;
+  let mongo: any;
   before(async () => {
-    
     mongo = await MongoMemoryServer.create();
     const uri = mongo.getUri();
-    let options :ConnectOptions = {
-      
-    }
+    const options: ConnectOptions = {};
     await mongoose.connect(uri, options);
   });
 
   after(async () => {
-    console.log("Closing connection?");
-    
+    console.log('Closing connection?');
+
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongo.stop();
-    
   });
 
   beforeEach(async () => {

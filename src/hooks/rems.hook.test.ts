@@ -1,6 +1,6 @@
 import OrderSign from './OrderSign';
 import getREMSHook from './rems.hook';
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 describe('hook: test rems', () => {
   it('should have definition and handler', () => {

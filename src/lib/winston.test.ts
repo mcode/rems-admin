@@ -6,12 +6,9 @@
  */
 import container from './winston';
 import config from '../config';
-import {assert, expect} from "chai"; 
+import { expect } from 'chai';
 
 describe('Logger Class', () => {
-  beforeEach(() => {
-
-  });
 
   it('setup without daily log file', () => {
     const logger = container.get('application');
