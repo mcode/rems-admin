@@ -2,7 +2,6 @@ import { initialize } from './server';
 import container from './lib/winston';
 import config from './config';
 import { Database } from './lib/Database';
-import { TingoDatabase } from './lib/TingoDatabase';
 import { MongoDatabase } from './lib/MongoDatabase';
 import constants from './constants';
 import { Globals } from './globals';
@@ -25,9 +24,6 @@ export default async function main() {
   // Setup the database
   let dbClient: Database;
   switch (databaseConfig.selected) {
-    case constants.TINGO_DB:
-      dbClient = new TingoDatabase(databaseConfig.tingoConfig);
-      break;
     case constants.MONGO_DB:
     default:
       dbClient = new MongoDatabase(databaseConfig.mongoConfig);

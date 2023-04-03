@@ -1,6 +1,5 @@
 export default {
   MONGO_DB: 'mongo',
-  TINGO_DB: 'tingo',
   COLLECTION: {
     ACCOUNT: 'Account',
     ACTIVITYDEFINITION: 'ActivityDefinition',

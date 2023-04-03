@@ -27,10 +27,6 @@ export default {
   },
   database: {
     selected: 'mongo',
-    tingoConfig: {
-      location: 'tingo_db',
-      options: ''
-    },
     mongoConfig: {
       location: env.MONGO_HOSTNAME,
       db_name: env.MONGO_DB_NAME,
