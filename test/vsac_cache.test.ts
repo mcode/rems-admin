@@ -1,10 +1,9 @@
-import VsacCache from '../vsac_cache';
+import VsacCache from '../src/lib/vsac_cache';
 import library from './fixtures/library.json';
 import questionnaire from './fixtures/questionnaire.json';
 import valueSet from './fixtures/valueSet.json';
 import nock from 'nock';
-import constants from '../../constants';
-import ValueSetModel from '../schemas/resources/ValueSet';
+import ValueSetModel from '../src/lib/schemas/resources/ValueSet';
 import mongoose, { ConnectOptions } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { assert, expect } from 'chai';

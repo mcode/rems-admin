@@ -1,5 +1,5 @@
-import OrderSign from './OrderSign';
-import getREMSHook from './rems.hook';
+import OrderSign from '../src/hooks/OrderSign';
+import getREMSHook from '../src/hooks/rems.hook';
 import { expect } from 'chai';
 
 describe('hook: test rems', () => {

@@ -4,8 +4,8 @@
  * environment based configuration that changes between runs. We need this
  * for full coverage
  */
-import container from './winston';
-import config from '../config';
+import container from '../src/lib/winston';
+import config from '../src/config';
 import { expect } from 'chai';
 
 describe('Logger Class', () => {
@@ -25,8 +25,8 @@ describe('Logger Class', () => {
     //     directory: 'logs'
     //   }
     // }));
-    const containerPromise = import('./winston');
-    const configPromise = import('../config');
+    const containerPromise = import('../src/lib/winston');
+    const configPromise = import('../src/config');
     containerPromise.then(container => {
       configPromise.then(config => {
         const logger = container.default.get('application');

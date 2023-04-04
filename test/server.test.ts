@@ -1,5 +1,5 @@
-import { initialize, REMSServer } from './server';
-import config from './config';
+import { initialize, REMSServer } from '../src/server';
+import config from '../src/config';
 import { Db, MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { expect } from 'chai';
