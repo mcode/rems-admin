@@ -28,27 +28,6 @@ describe('REMSServer class', () => {
   });
 
   beforeEach(() => {
-    // jest.mock('morgan', () => jest.fn());
-
-    // // Mock express and body parser
-    // jest.mock('body-parser', () => ({
-    //   urlencoded: jest.fn(),
-    //   json: jest.fn()
-    // }));
-
-    // jest.mock('express', () => {
-    //   const mock = jest.fn(() => ({
-    //     use: jest.fn(),
-    //     set: jest.fn(),
-    //     get: jest.fn(),
-    //     listen: jest.fn(),
-    //     options: jest.fn(),
-    //     post: jest.fn(),
-    //     static: jest.fn()
-    //   }));
-    //   return mock;
-    // });
-
     server = new REMSServer(config.fhirServerConfig);
   });
 
@@ -63,12 +42,11 @@ describe('REMSServer class', () => {
     const use = sinon.spy(server.app, 'use');
 
     server.configureMiddleware();
-
     expect(set.callCount).to.equal(6);
-    // expect(set.mock.calls[0][0]).toBe('showStackError');
-    // expect(set.mock.calls[0][1]).toBe(true);
-    // expect(set.mock.calls[5][0]).toBe('jsonp callback');
-    // expect(set.mock.calls[5][1]).toBe(true);
+    expect(set.getCall(4).args[0]).to.equal('showStackError');
+    expect(set.getCall(4).args[1]).to.be.true;
+    expect(set.getCall(5).args[0]).to.equal('jsonp callback');
+    expect(set.getCall(5).args[1]).to.be.true;
 
     expect(use.callCount).to.equal(8);
   });
@@ -112,8 +90,8 @@ describe('REMSServer class', () => {
     // Start listening on a port and pass the callback through
     const serverListen = server.listen({ port: 3000 }, callback);
     expect(listen.calledOnce).to.be.true;
-    // expect(listen.mock.calls[0][0]).toBe(3000);
-    // expect(listen.mock.calls[0][1]).toBe(callback);
+    expect(listen.getCall(0).args[0]).to.equal(3000);
+    expect(listen.getCall(0).args[1]).to.equal(callback);
     serverListen.close();
   });
 
