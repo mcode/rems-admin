@@ -2,7 +2,6 @@ import { FhirUtilities } from '../fhir/utilities';
 import QuestionnaireResponseModel from '../lib/schemas/resources/QuestionnaireResponse';
 
 module.exports.searchById = (args: any) => {
-  console.log('QuestionnaireResponse >>> searchById: -- ' + id);
   return new Promise((resolve, reject) => {
     const { id } = args;
     console.log('Patient >>> searchById -- ' + id);
