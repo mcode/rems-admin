@@ -56,7 +56,7 @@ services:
       - "9015:9015" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_HOSTNAME: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
+      MONGO_HOSTNAME: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
 
   pims_remsadmin_mongo:
     image: mongo
