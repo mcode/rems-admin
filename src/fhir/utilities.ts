@@ -42,13 +42,7 @@ export class FhirUtilities {
     return resolveSchema(baseVersion, 'Meta');
   };
 
-  static async store(
-    resource: FhirResource,
-    model: Model<any>,
-    resolve: any,
-    reject: any,
-    baseVersion = '4_0_0'
-  ) {
+  static async store(resource: FhirResource, model: Model<any>, baseVersion = '4_0_0') {
     // If no resource ID was provided, generate one.
     let id = '';
     if (!resource.id) {
@@ -66,18 +60,14 @@ export class FhirUtilities {
       lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
     });
 
-    model.exists({ id: fhirResource.id }).then(doesExist => {
-      if (!doesExist) {
-        try {
-          resolve(fhirResource.save());
-          ('resolve');
-        } catch {
-          reject();
-        }
-      } else {
-        reject();
-      }
-    });
+    const doesExist = await model.exists({ id: fhirResource.id });
+    if (!doesExist) {
+      return await fhirResource.save();
+    } else {
+      throw new Error(
+        `Resource ${fhirResource.resourceType} with id ${fhirResource.id} already exists`
+      );
+    }
   }
 
   static async loadFile(filePath: string, file: any) {
@@ -114,16 +104,7 @@ export class FhirUtilities {
                   break;
               }
               if (model) {
-                await FhirUtilities.store(
-                  resource,
-                  model,
-                  function () {
-                    return;
-                  },
-                  function () {
-                    return;
-                  }
-                );
+                await FhirUtilities.store(resource, model);
               } else {
                 console.log('    Unsupported FHIR Resource Type');
               }

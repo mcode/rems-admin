@@ -192,7 +192,7 @@ class VsacCache {
     if (!vs.id) {
       vs.id = id;
     }
-    await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
+    return await FhirUtilities.store(vs, ValueSetModel);
   }
 
   /**

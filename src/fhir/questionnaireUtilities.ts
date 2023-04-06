@@ -141,16 +141,7 @@ export class QuestionnaireUtilities {
               if (!valueSet) {
                 valueSet = await this.fetchValueSetFromVSAC(valueSetUrl);
                 if (valueSet) {
-                  await FhirUtilities.store(
-                    valueSet,
-                    ValueSetModel,
-                    function () {
-                      return;
-                    },
-                    function () {
-                      return;
-                    }
-                  );
+                  await FhirUtilities.store(valueSet, ValueSetModel);
                 } else {
                   this.logger.warn(`Library Processor >> Failed to find ValueSet: ${valueSetUrl}`);
                 }
