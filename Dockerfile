@@ -1,4 +1,4 @@
 FROM ubuntu:latest
 WORKDIR /REMS
 COPY . .
-CMD ./dockerRunner.sh
+CMD npm run start

@@ -61,7 +61,7 @@ services:
 
   pims_remsadmin_mongo:
     image: mongo
-    container_name: rems_dev_pims-remsadmin-mongo
+    container_name: rems_prod_pims-remsadmin-mongo
     ports:
       - '27017:27017' 
     environment:
@@ -73,7 +73,7 @@ services:
 
   pims:
     image: codexrems/pims:REMSvCurrent
-    container_name: rems_dev_pims
+    container_name: rems_prod_pims
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
       MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
