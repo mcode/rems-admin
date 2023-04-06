@@ -3,4 +3,5 @@ WORKDIR /REMS
 COPY --chown=node:node . .
 RUN npm install
 EXPOSE 8090
+EXPOSE 8091
 CMD ./dockerRunnerDev.sh
