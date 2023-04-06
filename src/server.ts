@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import Hook from './hooks/Hook';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
-import Etasu from  "./lib/etasu";
+import Etasu from './lib/etasu';
 
 const logger = container.get('application');
 
@@ -101,7 +101,7 @@ class REMSServer extends Server {
   }
 
   configureEtasuEndpoints() {
-    this.app.use("/etasu",Etasu);
+    this.app.use('/etasu', Etasu);
     return this;
   }
 

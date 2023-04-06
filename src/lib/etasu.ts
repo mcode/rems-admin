@@ -328,7 +328,7 @@ router.post('/met', async (req: Request, res: Response) => {
   }
 });
 
-let getResource = (bundle: { entry: any[] }, resourceReference: string) => {
+const getResource = (bundle: { entry: any[] }, resourceReference: string) => {
   const temp = resourceReference.split('/');
   const _resourceType = temp[0];
   const _id = temp[1];
@@ -344,7 +344,7 @@ let getResource = (bundle: { entry: any[] }, resourceReference: string) => {
   return null;
 };
 
-let getQuestionnaireResponse = (bundle: { entry: any[] }) => {
+const getQuestionnaireResponse = (bundle: { entry: any[] }) => {
   const _resourceType = 'QuestionnaireResponse';
 
   for (let i = 0; i < bundle.entry.length; i++) {
