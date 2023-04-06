@@ -1,5 +1,3 @@
-import constants from '../constants';
-import { Globals } from '../globals';
 import { FhirUtilities } from '../fhir/utilities';
 import PatientModel from '../lib/schemas/resources/Patient';
 

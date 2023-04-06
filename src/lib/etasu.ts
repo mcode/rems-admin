@@ -1,5 +1,4 @@
 import { Router, Response, Request } from 'express';
-import { Globals } from '../globals';
 import { FhirUtilities } from '../fhir/utilities';
 import {
   medicationCollection,
@@ -8,8 +7,6 @@ import {
 } from '../fhir/models';
 import { uid } from 'uid';
 const router = Router();
-
-const db = Globals.database;
 
 // const medicationCollection = db.collection('medication-requirements');
 // const metRequirementsCollection = db.collection('met-requirements');
@@ -274,7 +271,7 @@ router.post('/met', async (req: Request, res: Response) => {
                   if (req4.requirementName === matchedMetReq3.requirementName) {
                     metReqArray[i].completed = true;
                     req4.completed = true;
-                    const update = await remsCaseCollection.updateOne(
+                    await remsCaseCollection.updateOne(
                       { _id: remsRequestToUpdate?._id },
                       { $set: { metRequirements: metReqArray } }
                     );

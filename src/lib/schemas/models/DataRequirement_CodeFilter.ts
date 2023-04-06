@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { DataRequirementCodeFilter } from 'fhir/r4';
-import canonical from './canonical';
 import Coding from './Coding';
 export default new mongoose.Schema<DataRequirementCodeFilter>(
   {

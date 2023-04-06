@@ -1,16 +1,12 @@
 import { resolveSchema } from '@projecttacoma/node-fhir-server-core';
 import * as moment from 'moment';
 import 'moment-timezone';
-import { v1 as uuidv1 } from 'uuid';
-
-import constants from '../constants';
-import { Globals } from '../globals';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
-import { FhirResource, Library, Patient, Questionnaire, Resource } from 'fhir/r4';
+import { FhirResource } from 'fhir/r4';
 import LibraryModel from '../lib/schemas/resources/Library';
 import PatientModel from '../lib/schemas/resources/Patient';
 import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
@@ -53,8 +49,6 @@ export class FhirUtilities {
     reject: any,
     baseVersion = '4_0_0'
   ) {
-    const db = Globals.database;
-
     // If no resource ID was provided, generate one.
     let id = '';
     if (!resource.id) {

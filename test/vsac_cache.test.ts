@@ -6,7 +6,7 @@ import nock from 'nock';
 import ValueSetModel from '../src/lib/schemas/resources/ValueSet';
 import mongoose, { ConnectOptions } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
   let mongo: any;
@@ -26,9 +26,6 @@ describe('VsacCache', () => {
   });
 
   beforeEach(async () => {
-    // client.clearCache();
-    const baseVersion = '4_0_0';
-
     await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
   });
@@ -102,10 +99,10 @@ describe('VsacCache', () => {
 
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
     try {
-      const valueSets = client.collectQuestionnaireValuesets(questionnaire);
+      client.collectQuestionnaireValuesets(questionnaire);
       expect(await client.isCached(vs)).to.be.false;
 
-      const cached = await client.downloadAndCacheValueset(vs);
+      await client.downloadAndCacheValueset(vs);
       expect(await client.isCached(vs)).to.be.true;
 
       mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));

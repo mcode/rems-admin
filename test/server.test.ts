@@ -1,6 +1,5 @@
 import { initialize, REMSServer } from '../src/server';
 import config from '../src/config';
-import { Db, MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -8,9 +7,6 @@ import mongoose, { ConnectOptions } from 'mongoose';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
-
-  let connection: MongoClient;
-  let db: Db;
   let mongo: any;
   before(async () => {
     mongo = await MongoMemoryServer.create();

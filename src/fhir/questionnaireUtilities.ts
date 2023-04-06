@@ -10,8 +10,6 @@ import {
   QuestionnaireItem,
   ValueSet
 } from 'fhir/r4';
-import constants from '../constants';
-import { Globals } from '../globals';
 import { FhirUtilities } from './utilities';
 import container from '../lib/winston';
 import config from '../config';
