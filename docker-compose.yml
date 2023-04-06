@@ -68,7 +68,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
       MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
-      - pims_remsadmin_mongo:/data/db
+      - rems_prod_pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
   pims:
@@ -86,4 +86,6 @@ services:
 
 volumes:
   rems_prod_keycloak-data:
+  rems_prod_pims_remsadmin_mongo:
+
 

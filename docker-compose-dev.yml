@@ -45,7 +45,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
       MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
-      - pims_remsadmin_mongo:/data/db
+      - rems_dev_pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
   crd-request-generator:
@@ -141,7 +141,7 @@ volumes:
 
 
   rems_dev_keycloak-data:
-  pims_remsadmin_mongo:
+  rems_dev_pims_remsadmin_mongo:
   rems_dev_test-ehr-gradle:
   rems_dev_test-ehr-bin:
   rems_dev_test-ehr-build:
