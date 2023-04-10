@@ -4,7 +4,6 @@ import Attachment from './Attachment';
 import Coding from './Coding';
 import Quantity from './Quantity';
 import Reference from './Reference';
-import QuestionnaireResponse_Item from './QuestionnaireResponse_Item';
 const QAnswer = new mongoose.Schema<QuestionnaireResponseItemAnswer>(
   {
     valueBoolean: {
@@ -58,12 +57,5 @@ const QAnswer = new mongoose.Schema<QuestionnaireResponseItemAnswer>(
   },
   { _id: false }
 );
-
-QAnswer.add({
-  item: {
-    type: [QuestionnaireResponse_Item],
-    default: void 0
-  }
-});
 
 export default QAnswer;

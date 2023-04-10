@@ -42,6 +42,9 @@ class REMSServer extends Server {
     return this;
   }
 
+  _app() {
+    return this.app;
+  }
   /**
    * @method configureMiddleware
    * @description Enable all the standard middleware

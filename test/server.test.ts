@@ -2,26 +2,9 @@ import { initialize, REMSServer } from '../src/server';
 import config from '../src/config';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { ConnectOptions } from 'mongoose';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
-  let mongo: any;
-  before(async () => {
-    mongo = await MongoMemoryServer.create();
-    const uri = mongo.getUri();
-    const options: ConnectOptions = {};
-    await mongoose.connect(uri, options);
-  });
-
-  after(async () => {
-    console.log('Closing connection?');
-
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongo.stop();
-  });
 
   beforeEach(() => {
     server = new REMSServer(config.fhirServerConfig);
