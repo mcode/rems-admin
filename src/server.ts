@@ -2,7 +2,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import container from './lib/winston';
 import morgan from 'morgan';
-import Hook from './hooks/Hook';
+import {CdsService} from './rems-cds-hooks/resources/CdsService';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import { Globals } from './globals';
@@ -34,7 +34,7 @@ const initialize = (config: any) => {
  * @class Server
  */
 class REMSServer extends Server {
-  services: Hook[];
+  services: CdsService[];
   /**
    * @method constructor
    * @description Setup defaults for the server instance

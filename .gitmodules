@@ -1,0 +1,4 @@
+[submodule "cds-hooks"]
+	path = src/rems-cds-hooks
+	url = https://github.com/mcode/rems-cds-hooks.git
+	branch = prefetch-submodule
