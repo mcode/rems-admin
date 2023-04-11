@@ -2,7 +2,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import container from './lib/winston';
 import morgan from 'morgan';
-import {CdsService} from './rems-cds-hooks/resources/CdsService';
+import { CdsService } from './rems-cds-hooks/resources/CdsService';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import { Globals } from './globals';

@@ -1,7 +1,11 @@
 import Card from '../cards/Card';
 import OrderSign from '../rems-cds-hooks/resources/OrderSign';
-import { OrderSignHook, SupportedHooks, OrderSignPrefetch } from '../rems-cds-hooks/resources/HookTypes';
-import {ServicePrefetch, CdsService} from '../rems-cds-hooks/resources/CdsService';
+import {
+  OrderSignHook,
+  SupportedHooks,
+  OrderSignPrefetch
+} from '../rems-cds-hooks/resources/HookTypes';
+import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
@@ -263,7 +267,7 @@ const definition: CdsService = {
   title: 'REMS Requirement Lookup',
   description: 'REMS Requirement Lookup',
   prefetch: hookPrefetch
-}
+};
 const source = {
   label: 'MCODE REMS Administrator Prototype',
   url: new URL('https://github.com/mcode/REMS')
@@ -277,7 +281,7 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function handleCard(hydratedPrefetch: OrderSignPrefetch){
+  function handleCard(hydratedPrefetch: OrderSignPrefetch) {
     const context = req.body.context;
     const contextRequest = context.draftOrders?.entry?.[0].resource;
     const patient = hydratedPrefetch?.patient;
@@ -362,23 +366,22 @@ const handler = (req: TypedRequestBody, res: any) => {
     } else {
       res.json(buildErrorCard('MedicationRequest does not contain a code'));
     }
-  };
+  }
   console.log('REMS order-sign hook');
   try {
-    const fhirUrl = req.body.fhirServer
-    if(fhirUrl){
-      const client = FHIR.client(fhirUrl.toString())
+    const fhirUrl = req.body.fhirServer;
+    if (fhirUrl) {
+      const client = FHIR.client(fhirUrl.toString());
       hydrate(client, hookPrefetch, req.body).then((hydratedPrefetch: OrderSignPrefetch) => {
-        handleCard(hydratedPrefetch)
-    })
-  } else {
-    if (req.body.prefetch) {
-      handleCard(req.body.prefetch)
+        handleCard(hydratedPrefetch);
+      });
     } else {
-      handleCard({})
+      if (req.body.prefetch) {
+        handleCard(req.body.prefetch);
+      } else {
+        handleCard({});
+      }
     }
-  }
-
   } catch (error) {
     console.log(error);
     res.json(buildErrorCard('Unknown Error'));
