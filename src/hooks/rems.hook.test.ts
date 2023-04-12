@@ -16,7 +16,6 @@ describe('hook: test rems', () => {
       prefetch: prefetch
     };
 
-
     expect(getREMSHook).toHaveProperty('definition');
     expect(getREMSHook).toHaveProperty('handler');
 
