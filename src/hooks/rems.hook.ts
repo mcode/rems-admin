@@ -1,3 +1,4 @@
+import FHIR from 'fhirclient';
 import Card from '../cards/Card';
 import OrderSign from '../rems-cds-hooks/resources/OrderSign';
 import {
@@ -9,9 +10,9 @@ import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsServ
 import { Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
-import FHIR from 'fhirclient';
-
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+import smart from 'fhirclient';
+import axios from 'axios';
 
 interface CardRule {
   links: Link[];
@@ -281,8 +282,23 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
+  function getFhirResource(token: string) {
+    const ehrUrl = `${req.body.fhirServer}/${token}`;
+    const access_token = req.body.fhirAuthorization?.access_token;
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    };
+    const response = axios(ehrUrl, options);
+    return response.then(e => {
+      return e.data;
+    });
+  }
   function handleCard(hydratedPrefetch: OrderSignPrefetch) {
     const context = req.body.context;
+
     const contextRequest = context.draftOrders?.entry?.[0].resource;
     const patient = hydratedPrefetch?.patient;
     const prefetchRequest = hydratedPrefetch?.request;
@@ -371,10 +387,11 @@ const handler = (req: TypedRequestBody, res: any) => {
   try {
     const fhirUrl = req.body.fhirServer;
     if (fhirUrl) {
-      const client = FHIR.client(fhirUrl.toString());
-      hydrate(client, hookPrefetch, req.body).then((hydratedPrefetch: OrderSignPrefetch) => {
-        handleCard(hydratedPrefetch);
-      });
+      hydrate(getFhirResource, hookPrefetch, req.body).then(
+        (hydratedPrefetch: OrderSignPrefetch) => {
+          handleCard(hydratedPrefetch);
+        }
+      );
     } else {
       if (req.body.prefetch) {
         handleCard(req.body.prefetch);
