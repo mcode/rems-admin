@@ -16,7 +16,7 @@ export class MongoDatabase extends Database {
     new Promise(resolve => {
       // Connect to mongo
       console.log('MongoDatabase connect: ' + this.location);
-      const dbString = `${this.location}/${this.db_name}`;
+      const dbString = `${this.location}${this.db_name}`;
       this.client = new mongoose.mongo.MongoClient(dbString);
       this.database = this.client.db(this.db_name);
       return resolve(mongoose.connect(dbString));

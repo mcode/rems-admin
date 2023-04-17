@@ -1,10 +1,6 @@
 import axios from 'axios';
 import fhirpath from 'fhirpath';
-import fs from 'fs';
-import { stringify } from 'querystring';
 import { FhirUtilities } from '../fhir/utilities';
-import { Globals } from '../globals';
-import constants from '../constants';
 import ValueSetModel from './schemas/resources/ValueSet';
 import { ValueSet } from 'fhir/r4';
 class VsacCache {
@@ -36,7 +32,7 @@ class VsacCache {
    */
   async cacheLibrary(library: any, forceReload = false) {
     const valueSets = this.collectLibraryValuesets(library);
-    return await this.cacheValuesets(valueSets);
+    return await this.cacheValuesets(valueSets, forceReload);
   }
 
   /**
@@ -48,7 +44,7 @@ class VsacCache {
 
   async cacheQuestionnaireItems(obj: any, forceReload = false) {
     const valueSets = this.collectQuestionnaireValuesets(obj);
-    return await this.cacheValuesets(valueSets);
+    return await this.cacheValuesets(valueSets, forceReload);
   }
 
   /**
@@ -107,8 +103,7 @@ class VsacCache {
     if (forceReload || !(await this.isCached(idOrUrl))) {
       const vs = await this.downloadValueset(idOrUrl);
       if (vs.get('error')) {
-        console.log('Error Downloading ', idOrUrl);
-        console.log(vs.get('error').message);
+        console.log('Error Downloading ', idOrUrl, typeof vs.get('error'));
       } else if (vs.get('valueSet')) {
         await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get('valueSet'));
         vs.set('cached', true);
@@ -149,7 +144,6 @@ class VsacCache {
     });
     if ((this.onlyVsac && isVsac) || !this.onlyVsac) {
       try {
-        console.log('Downloading vs ' + url);
         const vs = await axios.get(url, {
           headers: headers
         });
@@ -180,10 +174,10 @@ class VsacCache {
             if (valueSet) {
               resolve(valueSet);
             }
-            resolve(null);
+            resolve(false);
           });
       } else {
-        resolve(null);
+        resolve(false);
       }
     });
   }
@@ -237,7 +231,7 @@ class VsacCache {
   clearCache() {
     // drop the collection
     try {
-      ValueSetModel.collection.drop(console.log);
+      ValueSetModel.collection.drop();
     } catch (e) {
       console.error(e);
     }

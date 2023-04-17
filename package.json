@@ -14,7 +14,7 @@
   "scripts": {
     "develop": "node dist/scripts/develop.js",
     "start": "ts-node-dev --inspect=8091 src/scripts/serve.ts",
-    "test": "jest --maxWorkers=4 --coverage --detectOpenHandles",
+    "test": "mocha --timeout 20000 -r ts-node/register test/*.test.ts",
     "lint": "eslint \"**/*.{js,ts}\"",
     "lint:fix": "eslint \"**/*.{js,ts}\" --quiet --fix",
     "prettier": "prettier --check \"**/*.{js,ts}\"",
@@ -24,37 +24,9 @@
     "type": "git",
     "url": "git+ssh://git@bitbucket.org/asymmetrik/carejourney-cds.git"
   },
-  "jest": {
-    "moduleNameMapper": {
-      "axios": "axios/dist/node/axios.cjs"
-    },
-    "preset": "@shelf/jest-mongodb",
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.ts?$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/src/config/env/test.js"
-    ],
-    "verbose": true,
-    "collectCoverage": true,
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "json"
-    ],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/src/profiles"
-    ]
-  },
   "dependencies": {
     "@projecttacoma/node-fhir-server-core": "^2.2.8",
     "@types/fhir": "^0.0.35",
-    "@types/mongoose": "^5.11.97",
     "axios": "^1.2.1",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.34",
@@ -65,7 +37,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.40",
     "mongodb": "^4.12.1",
-    "mongoose": "^6.9.2",
+    "mongoose": "^7.0.3",
     "morgan": "^1.9.1",
     "uid": "^2.0.1",
     "uuid": "^9.0.0",
@@ -74,26 +46,32 @@
     "winston-daily-rotate-file": "^4.2.1"
   },
   "devDependencies": {
-    "@shelf/jest-mongodb": "^4.1.6",
+    "@types/chai": "^4.3.4",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
-    "@types/jest": "^27.5.2",
     "@types/lodash": "^4.14.188",
+    "@types/mocha": "^10.0.1",
+    "@types/mongodb-memory-server": "2.3.0",
+    "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.9",
     "@types/nodemon": "^1.19.2",
+    "@types/sinon": "10.0.13",
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "axios-mock-adapter": "^1.21.2",
+    "chai": "^4.3.7",
     "eslint": "^8.28.0",
-    "eslint-config-prettier": "^6.10.1",
-    "jest": "^27.4.5",
-    "jest-extended": "^1.2.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "json-diff": "^0.9.0",
+    "mocha": "^10.2.0",
+    "mongodb-memory-server": "^8.12.1",
     "nock": "^13.2.9",
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
+    "sinon": "^15.0.3",
     "ts-jest": "^27.1.2",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
