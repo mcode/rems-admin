@@ -57,23 +57,23 @@ services:
       - "9015:9015" # Bind port 3000 of host to 3000 of container
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_URL: mongodb://rems-admin-pims-root:rems-admin-pims-password@pims_remsadmin_mongo:27017
+      MONGO_URL: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
 
   pims_remsadmin_mongo:
     image: mongo
-    container_name: rems_dev_pims-remsadmin-mongo
+    container_name: rems_prod_pims-remsadmin-mongo
     ports:
       - '27017:27017' 
     environment:
       MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
       MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
     volumes:
-      - pims_remsadmin_mongo:/data/db
+      - rems_prod_pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
   pims:
     image: codexrems/pims:REMSvCurrent
-    container_name: rems_dev_pims
+    container_name: rems_prod_pims
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
       MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
@@ -86,4 +86,6 @@ services:
 
 volumes:
   rems_prod_keycloak-data:
+  rems_prod_pims_remsadmin_mongo:
+
 
