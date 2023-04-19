@@ -260,7 +260,7 @@ interface TypedRequestBody extends Express.Request {
 
 const hookPrefetch: ServicePrefetch = {
   patient: 'Patient/{{context.patientId}}',
-  practitioner: 'Practitioner/{{context.userId}}'
+  practitioner: '{{context.userId}}'
 };
 const definition: CdsService = {
   id: 'rems-order-sign',
@@ -298,7 +298,6 @@ const handler = (req: TypedRequestBody, res: any) => {
   }
   function handleCard(hydratedPrefetch: OrderSignPrefetch) {
     const context = req.body.context;
-
     const contextRequest = context.draftOrders?.entry?.[0].resource;
     const patient = hydratedPrefetch?.patient;
     const prefetchRequest = hydratedPrefetch?.request;

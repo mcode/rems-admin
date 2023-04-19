@@ -6,7 +6,7 @@ describe('hook: test rems', () => {
   test('should have definition and handler', () => {
     const prefetch = {
       patient: 'Patient/{{context.patientId}}',
-      practitioner: 'Practitioner/{{context.userId}}'
+      practitioner: '{{context.userId}}'
     };
     const expectedDefinition: CdsService = {
       id: 'rems-order-sign',
