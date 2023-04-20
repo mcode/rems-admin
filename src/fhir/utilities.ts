@@ -1,9 +1,7 @@
 import { resolveSchema } from '@projecttacoma/node-fhir-server-core';
 import * as moment from 'moment';
 import 'moment-timezone';
-import * as path from 'path';
 import * as fs from 'fs';
-import * as process from 'process';
 import crypto from 'crypto';
 import { QuestionnaireUtilities } from './questionnaireUtilities';
 import { FhirResource } from 'fhir/r4';
@@ -14,8 +12,7 @@ import QuestionnaireResponseModel from '../lib/schemas/resources/QuestionnaireRe
 import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import { Model } from 'mongoose';
 import { medicationCollection, metRequirementsCollection } from './models';
-
-const re = /(?:\.([^.]+))?$/;
+import { glob } from 'glob';
 
 export class FhirUtilities {
   static getLibrary(baseVersion: string) {
@@ -70,182 +67,51 @@ export class FhirUtilities {
     }
   }
 
-  static async loadFile(filePath: string, file: any) {
-    const extension = re.exec(filePath);
-    if (extension) {
-      if (extension[1].toLowerCase() === 'json') {
-        if (file !== 'TopicMetadata.json') {
-          console.log("'%s' is a JSON Resource file.", filePath);
-          fs.readFile(filePath, 'utf8', async (err: any, jsonString: string) => {
-            if (err) {
-              console.error('Failed to read file:', err);
-              return;
-            }
-            try {
-              const resource = JSON.parse(jsonString);
-              // Build the strings to connect to the collections
-              let model;
-              switch (resource.resourceType) {
-                case 'Library':
-                  model = LibraryModel;
-                  await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
-                  break;
-                case 'Patient':
-                  model = PatientModel;
-                  break;
-                case 'Questionnaire':
-                  model = QuestionnaireModel;
-                  break;
-                case 'QuestionnaireResponse':
-                  model = QuestionnaireResponseModel;
-                  break;
-                case 'ValueSet':
-                  model = ValueSetModel;
-                  break;
-              }
-              if (model) {
-                await FhirUtilities.store(resource, model);
-              } else {
-                console.log('    Unsupported FHIR Resource Type');
-              }
-            } catch (parseError: any) {
-              console.warn('Failed to parse json file: ' + filePath);
-              console.warn(parseError);
-            }
-          });
+  static async loadResources(resourcePath: string) {
+    console.log('Loading FHIR Resources from: ' + resourcePath);
+    // this assumes the cds-library directory structure of
+    // libraries ->  <lib name> -> R4 -> resources -> * json resources
+    const files = glob.sync(`${resourcePath}/*/R4/resources/*.json`);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const jsonString = fs.readFileSync(file, 'utf8');
+      try {
+        const resource = JSON.parse(jsonString);
+        // Build the strings to connect to the collections
+        let model;
+        switch (resource.resourceType) {
+          case 'Library':
+            model = LibraryModel;
+            await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
+            break;
+          case 'Patient':
+            model = PatientModel;
+            break;
+          case 'Questionnaire':
+            model = QuestionnaireModel;
+            break;
+          case 'QuestionnaireResponse':
+            model = QuestionnaireResponseModel;
+            break;
+          case 'ValueSet':
+            model = ValueSetModel;
+            break;
         }
+        if (model) {
+          await FhirUtilities.store(resource, model);
+        } else {
+          console.log('    Unsupported FHIR Resource Type');
+        }
+      } catch (parseError: any) {
+        console.warn('Failed to parse json file: ' + file);
+        console.warn(parseError);
       }
     }
   }
 
-  static async loadResources(resourcePath: string) {
-    console.log('Loading FHIR Resources from: ' + resourcePath);
-
-    // Loop through all the files in the directory looking for folders
-    fs.readdir(resourcePath, function (rootError: any, rootFiles: any) {
-      if (rootError) {
-        console.error('Could not list the directory.', rootError);
-        process.exit(1);
-      }
-
-      rootFiles.forEach(function (rootFile: any) {
-        const rootFilePath = path.join(resourcePath, rootFile);
-
-        fs.stat(rootFilePath, function (rootFileError: any, rootFileStat: any) {
-          if (rootFileError) {
-            console.error('Error getting root folder file statistics.', rootFileError);
-            return;
-          }
-
-          if (rootFileStat.isDirectory()) {
-            // loop through all the fhir versions looking for R4
-            fs.readdir(rootFilePath, function (rulesErr: any, rulesFiles: any) {
-              if (rulesErr) {
-                console.error('Error getting rule folder file list.', rulesErr);
-              }
-
-              rulesFiles.forEach(function (rulesFile: any) {
-                const rulesFilePath = path.join(rootFilePath, rulesFile);
-
-                fs.stat(rulesFilePath, function (rulesFileError: any, rulesFileStat: any) {
-                  if (rulesFileError) {
-                    console.error('Error getting rules folder file statistics.', rulesFileError);
-                    return;
-                  }
-
-                  if (rulesFileStat.isDirectory()) {
-                    // only process the R4 directory
-                    if (rulesFile === 'R4') {
-                      fs.readdir(
-                        rulesFilePath,
-                        function (fhirVersionErr: any, fhirVersionFiles: any) {
-                          if (fhirVersionErr) {
-                            console.error('Error getting fhir folder file list.', fhirVersionErr);
-                            return;
-                          }
-
-                          // loop through all the folders in the R4 folder
-                          fhirVersionFiles.forEach(function (fhirVersionFile: any) {
-                            const fhirVersionFilePath = path.join(rulesFilePath, fhirVersionFile);
-
-                            fs.stat(
-                              fhirVersionFilePath,
-                              function (fhirVersionFileError: any, fhirVersionFileStat: any) {
-                                if (fhirVersionFileError) {
-                                  console.error(
-                                    'Error getting fhir version file statistics.',
-                                    fhirVersionFileError
-                                  );
-                                  return;
-                                }
-
-                                if (fhirVersionFileStat.isDirectory()) {
-                                  if (fhirVersionFile === 'resources') {
-                                    console.log(fhirVersionFilePath);
-
-                                    fs.readdir(
-                                      fhirVersionFilePath,
-                                      function (resourceFilesErr: any, resourceFiles: any) {
-                                        if (resourceFilesErr) {
-                                          console.error(
-                                            'Error getting resource folder file list.',
-                                            resourceFilesErr
-                                          );
-                                          return;
-                                        }
-
-                                        resourceFiles.forEach(function (resourceFile: any) {
-                                          const resourceFilePath = path.join(
-                                            fhirVersionFilePath,
-                                            resourceFile
-                                          );
-
-                                          fs.stat(
-                                            resourceFilePath,
-                                            function (
-                                              resourceFileError: any,
-                                              resourceFileStat: any
-                                            ) {
-                                              if (resourceFileError) {
-                                                console.error(
-                                                  'Error getting resource file statistics.',
-                                                  resourceFileError
-                                                );
-                                                return;
-                                              }
-
-                                              if (resourceFileStat.isFile()) {
-                                                FhirUtilities.loadFile(
-                                                  resourceFilePath,
-                                                  resourceFile
-                                                );
-                                              }
-                                            }
-                                          );
-                                        });
-                                      }
-                                    );
-                                  }
-                                }
-                              }
-                            );
-                          });
-                        }
-                      );
-                    }
-                  }
-                });
-              });
-            });
-          }
-        });
-      });
-    });
-  }
-
   static async populateDB() {
     // prepopulateDB
-    await medicationCollection.insertMany([
+    const medications = [
       {
         name: 'Turalio',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
@@ -351,9 +217,9 @@ export class FhirUtilities {
           }
         ]
       }
-    ]);
+    ];
 
-    await metRequirementsCollection.insertMany([
+    const medicationRequirements = [
       {
         stakeholderId: 'Organization/pharm0111',
         completed: true,
@@ -386,6 +252,29 @@ export class FhirUtilities {
         completedQuestionnaire: null,
         case_numbers: []
       }
-    ]);
+    ];
+    await medicationCollection.bulkWrite(
+      medications.map(med => ({
+        updateOne: {
+          filter: { name: med.name },
+          update: { $set: med },
+          upsert: true
+        }
+      }))
+    );
+
+    await metRequirementsCollection.bulkWrite(
+      medicationRequirements.map(mr => ({
+        updateOne: {
+          filter: {
+            drugName: mr.drugName,
+            requirementName: mr.requirementName,
+            stakeholderId: mr.stakeholderId
+          },
+          update: { $set: mr },
+          upsert: true
+        }
+      }))
+    );
   }
 }

@@ -2,6 +2,11 @@ import { initialize, REMSServer } from '../src/server';
 import config from '../src/config';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { metRequirementsCollection, medicationCollection } from '../src/fhir/models';
+
+import { FhirUtilities } from '../src/fhir/utilities';
+import LibraryModel from '../src/lib/schemas/resources/Library';
+import QuestionnaireModel from '../src/lib/schemas/resources/Questionnaire';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
@@ -79,5 +84,23 @@ describe('REMSServer class', () => {
     expect(newServer).to.be.instanceOf(REMSServer);
     expect(newServer).to.have.property('app');
     expect(newServer).to.have.property('listen');
+  });
+
+  it('should be able to prepopulate data without error', async () => {
+    expect(await metRequirementsCollection.count({})).to.equal(0);
+    expect(await medicationCollection.count({})).to.equal(0);
+    await FhirUtilities.populateDB();
+    expect(await metRequirementsCollection.count({})).to.not.equal(0);
+    expect(await medicationCollection.count({})).to.not.equal(0);
+    await FhirUtilities.populateDB();
+  });
+
+  it('should be able to load artifacts from filesystem', async () => {
+    expect(await LibraryModel.count({})).to.equal(0);
+    expect(await QuestionnaireModel.count({})).to.equal(0);
+    await FhirUtilities.loadResources('./test/fixtures/cds-library');
+    expect(await LibraryModel.count({})).to.not.equal(0);
+    expect(await QuestionnaireModel.count({})).to.not.equal(0);
+    await FhirUtilities.loadResources('./test/fixtures/cds-library');
   });
 });
