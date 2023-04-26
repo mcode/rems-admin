@@ -14,6 +14,8 @@ import { Model } from 'mongoose';
 import { medicationCollection, metRequirementsCollection } from './models';
 import { glob } from 'glob';
 
+class ResourceExistsException extends Error {}
+
 export class FhirUtilities {
   static getLibrary(baseVersion: string) {
     return resolveSchema(baseVersion, 'Library');
@@ -61,7 +63,7 @@ export class FhirUtilities {
     if (!doesExist) {
       return await fhirResource.save();
     } else {
-      throw new Error(
+      throw new ResourceExistsException(
         `Resource ${fhirResource.resourceType} with id ${fhirResource.id} already exists`
       );
     }
@@ -98,7 +100,16 @@ export class FhirUtilities {
             break;
         }
         if (model) {
-          await FhirUtilities.store(resource, model);
+          try {
+            await FhirUtilities.store(resource, model);
+          } catch (e: any) {
+            //catch the resource exist exception and keep going.
+            // there are better ways to deal with this but involves
+            // a larger rework effort which can happen later
+            if (!(e instanceof ResourceExistsException)) {
+              throw e;
+            }
+          }
         } else {
           console.log('    Unsupported FHIR Resource Type');
         }
