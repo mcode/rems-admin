@@ -173,10 +173,14 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/crd-request-generator.git crd-request-generator
     git clone https://github.com/mcode/dtr.git dtr
     git clone https://github.com/mcode/REMS.git REMS
-    cd REMS
-    git submodule update --init
     git clone https://github.com/mcode/pims.git pims
     git clone https://github.com/mcode/rems-smart-on-fhir.git rems-smart-on-fhir
+
+    cd REMS
+    git submodule update --init
+
+    cd .. 
+    
     cd rems-smart-on-fhir
     git submodule update --init
 
