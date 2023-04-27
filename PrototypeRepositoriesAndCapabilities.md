@@ -16,9 +16,8 @@
             + Contains Questionnaire, Library (w/ CQL), ValueSets
             + Retrieves and caches ValueSets from VSAC
         + <a>(5)</a> Interface to check status of REMS
-        +   Stores data in MongoDB
+        + Stores data in MongoDB
     * Docker scripts to launch the entire stack
-    * Stores data in MongoDB
 
 - mcode/test-ehr
     * Test EHR <a>(2)</a>
