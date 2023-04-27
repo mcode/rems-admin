@@ -1,57 +1,55 @@
 # Prototype Repositories and Capabilities
 
-## (As of April 24, 2023. Prototype version 0.9)
+## (As of April 27, 2023. Prototype version 0.9)
 
 ![](./prototype-images/layout.png)
 
-(Note: $${\color{blue}Blue}$$ numbers correspond to the numbers in the diagram above)
-
-(Note: Numbers correspond to the numbers in the diagram above)
+(Note: <a>Blue</a> numbers correspond to the numbers in the diagram above)
 
 ### Repositories
 
 - mcode/REMS
-    * REMS Administrator (4)
+    * REMS Administrator <a>(4)</a>
         + Node/TypeScript
-        + (1.1)(3) CDS Hooks (server) end points
-        + (1.4) FHIR Server to support DTR
+        + <a>(1.1)(3)</a> CDS Hooks (server) end points
+        + <a>(1.4)</a> FHIR Server to support DTR
             + Contains Questionnaire, Library (w/ CQL), ValueSets
             + Retrieves and caches ValueSets from VSAC
-        + (5) Interface to check status of REMS
+        + <a>(5)</a> Interface to check status of REMS
         +   Stores data in MongoDB
     * Docker scripts to launch the entire stack
     * Stores data in MongoDB
 
 - mcode/test-ehr
-    * Test EHR (2)
+    * Test EHR <a>(2)</a>
         + Java HAPI FHIR Server
         + Contains test patient data
         + Supports launching DTR SMART on FHIR app
 
 - mcode/crd-request-generator
-    * Request Generator (2)
+    * Request Generator <a>(2)</a>
         + Node/JavaScript
         + Web Application mimicking the EHR frontend
         + Requests
-            + (1.1)(3) Generates CDS Hooks order-sign (client) that is sent to the REMS Admin
-            + (1.2)(3) Handles CARDS returned from REMS Admin to launch DTR
+            + <a>(1.1)(3)</a> Generates CDS Hooks order-sign (client) that is sent to the REMS Admin
+            + <a>(1.2)(3)</a> Handles CARDS returned from REMS Admin to launch DTR
             + Sends Rx to PIMS using NCPDP Script NewRx
 
 - mcode/dtr
     * DTR Server
         + Node/JavaScript
-        + (1.3) SMART on FHIR application
-        + (1.4) Retrieves Questionnaires and other resources from REMS Admin
+        + <a>(1.3)</a> SMART on FHIR application
+        + <a>(1.4)</a> Retrieves Questionnaires and other resources from REMS Admin
         + Runs CQL to prepopulate Questionnaire with data from the Test EHR
         + Sends completed Questionnaires to REMS Admin
         + Saves partially completed Questionnaires to Test EHR
         + After submitting completed form to REMS Admin, displays page showing ETASU and Pharmacy status
 
 - mcode/pims
-    * Pharmacy Information System (6)
+    * Pharmacy Information System <a>(6)</a>
         + Node/TypeScript
         + Receives Rx from Request Generator
-        + (5) Provides interface to monitor status of REMS
+        + <a>(5)</a> Provides interface to monitor status of REMS
         + Allows pharmacist to mark Rx as dispensed
         + Provides interface for querying status of Rx
             + Non-standard, created for demo purposes only
