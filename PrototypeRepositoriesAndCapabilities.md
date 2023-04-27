@@ -4,11 +4,11 @@
 
 ![](./prototype-images/layout.png)
 
-(Note: <span stytle="color:blue">Blue</span> numbers correspond to the numbers in the diagram above)
+(Note: $${\color{blue}Blue}$$ numbers correspond to the numbers in the diagram above)
 
 (Note: Numbers correspond to the numbers in the diagram above)
 
-###Repositories
+### Repositories
 
 - mcode/REMS
     * REMS Administrator (4)
@@ -68,7 +68,7 @@
         + Prefetch implementation
         + Type definitions for CDS Hooks needed by TypeScript
 
-###Other Components
+### Other Components
 
 - KeyCloak
     * Authentication of users
