@@ -161,60 +161,17 @@ export class QuestionnaireUtilities {
     }
     return returnValue;
   }
-  static async findQuestionnaire(id: string): Promise<Questionnaire | undefined> {
-    return new Promise((resolve, reject) => {
-      QuestionnaireModel.findOne(
-        { id: id.toString() },
-        (err: any, questionnaire: Questionnaire) => {
-          if (err) {
-            return reject(err);
-          }
-          if (questionnaire) {
-            resolve(new QuestionnaireModel(questionnaire));
-          }
-          resolve(undefined);
-        }
-      );
-    });
+  static async findQuestionnaire(id: string): Promise<Questionnaire | null | undefined> {
+    return await QuestionnaireModel.findOne({ id: id.toString() });
   }
-  static async findLibraryByUrl(url: string): Promise<Library | undefined> {
-    return new Promise((resolve, reject) => {
-      LibraryModel.findOne({ url: url.toString() }, (err: any, library: Library) => {
-        if (err) {
-          return reject(err);
-        }
-        if (library) {
-          resolve(new LibraryModel(library));
-        }
-        resolve(undefined);
-      });
-    });
+  static async findLibraryByUrl(url: string): Promise<Library | null | undefined> {
+    return await LibraryModel.findOne({ url: url.toString() });
   }
-  static async findLibraryById(id: string): Promise<Library | undefined> {
-    return new Promise((resolve, reject) => {
-      LibraryModel.findOne({ id: id.toString() }, (err: any, library: Library) => {
-        if (err) {
-          return reject(err);
-        }
-        if (library) {
-          resolve(new LibraryModel(library));
-        }
-        resolve(undefined);
-      });
-    });
+  static async findLibraryById(id: string): Promise<Library | null | undefined> {
+    return await LibraryModel.findOne({ id: id.toString() });
   }
-  static async findValueSetByUrl(url: string): Promise<ValueSet | undefined> {
-    return new Promise((resolve, reject) => {
-      ValueSetModel.findOne({ url: url.toString() }, (err: any, valueset: ValueSet) => {
-        if (err) {
-          return reject(err);
-        }
-        if (valueset) {
-          resolve(new ValueSetModel(valueset));
-        }
-        resolve(undefined);
-      });
-    });
+  static async findValueSetByUrl(url: string): Promise<ValueSet | null | undefined> {
+    return await ValueSetModel.findOne({ url: url.toString() });
   }
   static async processSubQuestionnaires(questionnaire: Questionnaire) {
     const extensions = questionnaire.extension || [];

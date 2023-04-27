@@ -13,23 +13,17 @@ const router = Router();
 // const remsCaseCollection = db.collection('rems-case');
 
 // etasu endpoints
-router.get('/:drug', (req: Request, res: Response) => {
-  medicationCollection.findOne({ name: req.params.drug }, (err: any, drug: any) => {
-    if (err) throw err;
-    res.send(drug);
-  });
+router.get('/:drug', async (req: Request, res: Response) => {
+  res.send(await medicationCollection.findOne({ name: req.params.drug }));
 });
 
-router.get('/met/:caseId', (req: Request, res: Response) => {
-  remsCaseCollection.findOne({ case_number: req.params.caseId }, (err: any, remsCase: any) => {
-    if (err) throw err;
-    res.send(remsCase);
-  });
+router.get('/met/:caseId', async (req: Request, res: Response) => {
+  res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
 router.get(
   '/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const searchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
@@ -37,10 +31,7 @@ router.get(
       drugName: req.params.drugName
     };
 
-    remsCaseCollection.findOne(searchDict, (err: any, remsCase: any) => {
-      if (err) throw err;
-      res.send(remsCase);
-    });
+    res.send(await remsCaseCollection.findOne(searchDict));
   }
 );
 
