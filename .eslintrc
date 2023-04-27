@@ -5,7 +5,8 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -13,6 +14,7 @@
     "sourceType": "module"
   },
   "rules": {
+    "prettier/prettier": ["error"],
     "semi": ["off"],
     "@typescript-eslint/semi": ["error", "always"],
     "quotes": ["error", "single", { "avoidEscape": true }],
