@@ -4,7 +4,7 @@
 
 ![](./prototype-images/layout.png)
 
-(Note: <a>Blue</a> numbers correspond to the numbers in the diagram above)
+(Note: <a>Numbers</a> correspond to the numbers in the diagram above)
 
 ### Repositories
 
