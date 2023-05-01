@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { DataRequirement } from 'fhir/r4';
-import canonical from './canonical';
 import CodeableConcept from './CodeableConcept';
 import Reference from './Reference';
 import DataRequirement_CodeFilter from './DataRequirement_CodeFilter';

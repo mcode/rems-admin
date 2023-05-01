@@ -1,4 +1,4 @@
-import mongoose, { Schema, Model } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { Reference } from 'fhir/r4';
 const idF = new mongoose.Schema<Reference>(
   {

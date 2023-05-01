@@ -1,31 +1,15 @@
 import { initialize, REMSServer } from '../src/server';
 import config from '../src/config';
-import { Db, MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { ConnectOptions } from 'mongoose';
+import { metRequirementsCollection, medicationCollection } from '../src/fhir/models';
+
+import { FhirUtilities } from '../src/fhir/utilities';
+import LibraryModel from '../src/lib/schemas/resources/Library';
+import QuestionnaireModel from '../src/lib/schemas/resources/Questionnaire';
 
 describe('REMSServer class', () => {
   let server: REMSServer;
-
-  let connection: MongoClient;
-  let db: Db;
-  let mongo: any;
-  before(async () => {
-    mongo = await MongoMemoryServer.create();
-    const uri = mongo.getUri();
-    const options: ConnectOptions = {};
-    await mongoose.connect(uri, options);
-  });
-
-  after(async () => {
-    console.log('Closing connection?');
-
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongo.stop();
-  });
 
   beforeEach(() => {
     server = new REMSServer(config.fhirServerConfig);
@@ -100,5 +84,23 @@ describe('REMSServer class', () => {
     expect(newServer).to.be.instanceOf(REMSServer);
     expect(newServer).to.have.property('app');
     expect(newServer).to.have.property('listen');
+  });
+
+  it('should be able to prepopulate data without error', async () => {
+    expect(await metRequirementsCollection.count({})).to.equal(0);
+    expect(await medicationCollection.count({})).to.equal(0);
+    await FhirUtilities.populateDB();
+    expect(await metRequirementsCollection.count({})).to.not.equal(0);
+    expect(await medicationCollection.count({})).to.not.equal(0);
+    await FhirUtilities.populateDB();
+  });
+
+  it('should be able to load artifacts from filesystem', async () => {
+    expect(await LibraryModel.count({})).to.equal(0);
+    expect(await QuestionnaireModel.count({})).to.equal(0);
+    await FhirUtilities.loadResources('./test/fixtures/cds-library');
+    expect(await LibraryModel.count({})).to.not.equal(0);
+    expect(await QuestionnaireModel.count({})).to.not.equal(0);
+    await FhirUtilities.loadResources('./test/fixtures/cds-library');
   });
 });

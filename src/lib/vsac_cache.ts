@@ -141,6 +141,7 @@ class VsacCache {
     // axios cleanup
     await process.nextTick(() => {
       const v = 1;
+      return v;
     });
     if ((this.onlyVsac && isVsac) || !this.onlyVsac) {
       try {
@@ -166,7 +167,7 @@ class VsacCache {
   async isCached(idOrUrl: string) {
     const id = this.getValuesetId(idOrUrl);
     // Query our collection for this observation
-    return await new Promise((resolve, reject) => {
+    return await new Promise((resolve, _reject) => {
       if (id) {
         ValueSetModel.findOne({ id: id.toString() })
           .exec()
@@ -191,7 +192,7 @@ class VsacCache {
     if (!vs.id) {
       vs.id = id;
     }
-    await new Promise((resolve, reject) => FhirUtilities.store(vs, ValueSetModel, resolve, reject));
+    return await FhirUtilities.store(vs, ValueSetModel);
   }
 
   /**

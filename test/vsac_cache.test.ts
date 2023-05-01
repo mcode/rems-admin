@@ -1,34 +1,17 @@
 import VsacCache from '../src/lib/vsac_cache';
 import library from './fixtures/library.json';
 import questionnaire from './fixtures/questionnaire.json';
-import valueSet from './fixtures/valueSet.json';
 import nock from 'nock';
 import ValueSetModel from '../src/lib/schemas/resources/ValueSet';
-import mongoose, { ConnectOptions } from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
+
+const generateValueset = (idOrUrl: string) => {
+  return { resourceType: 'ValueSet', id: idOrUrl };
+};
 describe('VsacCache', () => {
   const client = new VsacCache('./tmp', '2c1d55c3-3484-4902-b645-25f3a4974ce6');
-  let mongo: any;
-  before(async () => {
-    mongo = await MongoMemoryServer.create();
-    const uri = mongo.getUri();
-    const options: ConnectOptions = {};
-    await mongoose.connect(uri, options);
-  });
-
-  after(async () => {
-    console.log('Closing connection?');
-
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongo.stop();
-  });
 
   beforeEach(async () => {
-    // client.clearCache();
-    const baseVersion = '4_0_0';
-
     await ValueSetModel.deleteMany({});
     client.onlyVsac = false;
   });
@@ -58,10 +41,10 @@ describe('VsacCache', () => {
 
     mockRequest
       .get('/ValueSet/2.16.840.1.113762.1.4.1219.85/$expand')
-      .reply(200, JSON.stringify(valueSet));
+      .reply(200, generateValueset('2.16.840.1.113762.1.4.1219.85'));
     mockRequest
       .get('/ValueSet/2.16.840.1.113762.1.4.1219.35/$expand')
-      .reply(200, JSON.stringify(valueSet));
+      .reply(200, generateValueset('2.16.840.1.113762.1.4.1219.35'));
 
     const valueSets = client.collectLibraryValuesets(library);
     valueSets.forEach(async function (vs) {
@@ -80,7 +63,9 @@ describe('VsacCache', () => {
 
   it('should be able to cache valuesets in Questionnaire Resources', async () => {
     const mockRequest = nock('http://terminology.hl7.org/');
-    mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
+    mockRequest
+      .get('/ValueSet/yes-no-unknown-not-asked')
+      .reply(200, generateValueset('yes-no-unknown-not-asked'));
 
     const valueSets = client.collectQuestionnaireValuesets(questionnaire);
     valueSets.forEach(async vs => {
@@ -100,20 +85,26 @@ describe('VsacCache', () => {
     const mockRequest = nock('http://terminology.hl7.org');
     const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
 
-    mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
+    mockRequest
+      .get('/ValueSet/yes-no-unknown-not-asked')
+      .reply(200, generateValueset('yes-no-unknown-not-asked'));
     try {
-      const valueSets = client.collectQuestionnaireValuesets(questionnaire);
+      client.collectQuestionnaireValuesets(questionnaire);
       expect(await client.isCached(vs)).to.be.false;
 
-      const cached = await client.downloadAndCacheValueset(vs);
+      await client.downloadAndCacheValueset(vs);
       expect(await client.isCached(vs)).to.be.true;
 
-      mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
+      mockRequest
+        .get('/ValueSet/yes-no-unknown-not-asked')
+        .reply(200, generateValueset('yes-no-unknown-not-asked'));
       let update = await client.downloadAndCacheValueset(vs);
 
       expect(update.get('cached')).to.be.false;
 
-      mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(200, JSON.stringify(valueSet));
+      mockRequest
+        .get('/ValueSet/yes-no-unknown-not-asked')
+        .reply(200, generateValueset('yes-no-unknown-not-asked'));
       update = await client.downloadAndCacheValueset(vs, true);
 
       expect(update.get('cached')).to.be.true;
