@@ -9,14 +9,13 @@ const whitelist_env =
 // If it's length is 1, set it to a string, so * works
 // If there are multiple, keep them as an array
 const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
-
 export default {
   server: {
-    port: 8090,
+    port: env.PORT || env.SERVER_PORT,
     discoveryEndpoint: '/cds-services'
   },
   smart: {
-    endpoint: 'http://localhost:3005/launch'
+    endpoint: env.SMART_ENDPOINT
   },
   logging: {
     level: 'info'
