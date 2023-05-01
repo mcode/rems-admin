@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import { ValueSetComposeInclude } from 'fhir/r4';
 import ValueSet_Concept from './ValueSet_Concept';
 import ValueSet_Filter from './ValueSet_Filter';
-import canonical from './canonical';
 export default new mongoose.Schema<ValueSetComposeInclude>(
   {
     system: {

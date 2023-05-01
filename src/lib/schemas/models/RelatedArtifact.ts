@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { RelatedArtifact } from 'fhir/r4';
 import Attachment from './Attachment';
-import canonical from './canonical';
 export default new mongoose.Schema<RelatedArtifact>(
   {
     type: {
