@@ -1,7 +1,6 @@
 import mongoose, { model } from 'mongoose';
 import { Questionnaire } from 'fhir/r4';
 import Identifier from '../models/Identifier';
-import canonical from '../models/canonical';
 import ContactDetail from '../models/ContactDetail';
 import UsageContext from '../models/UsageContext';
 import CodeableConcept from '../models/CodeableConcept';

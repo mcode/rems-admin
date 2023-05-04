@@ -176,6 +176,14 @@ Reference: https://github.com/rbenv/rbenv
     git clone https://github.com/mcode/pims.git pims
     git clone https://github.com/mcode/rems-smart-on-fhir.git rems-smart-on-fhir
 
+    cd REMS
+    git submodule update --init
+
+    cd .. 
+    
+    cd rems-smart-on-fhir
+    git submodule update --init
+
     ```
 
 # Open DRLS REMS as VsCode workspace

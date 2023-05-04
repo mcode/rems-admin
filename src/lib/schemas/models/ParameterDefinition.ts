@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { ParameterDefinition } from 'fhir/r4';
 import integer from './integer';
-import canonical from './canonical';
 export default new mongoose.Schema<ParameterDefinition>(
   {
     name: {
