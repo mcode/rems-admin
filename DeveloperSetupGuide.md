@@ -300,7 +300,13 @@ or
 ```bash		
     docker-compose -f docker-compose-dev.yml build --no-cache --pull [<service_name1> <service_name2> ...] 		
     docker-compose -f docker-compose-dev.yml up --force-recreate  [<service_name1> <service_name2> ...]		
-```		
+```
+** Note for Apple M1 Mac developers: **
+Prepend `docker-compose` commands with `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64`.
+```bash
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64 docker-compose -f docker-compose-dev.yml up
+```
+
 ```bash		
     # Options:		
     #   --force-recreate                        Recreate containers even if their configuration and image haven't changed.		
