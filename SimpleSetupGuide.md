@@ -131,10 +131,10 @@ Your computer must have these minimum requirements:
         docker-compose up
     ```
 
-    Note, if you are using an M1/M2 mac, you need to use the following command to start the docker compose application
+    Note, if you are using an M1/M2 mac, you'll need to prepend `docker-compose` commands with `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64`.
     ```bash
         cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
-        docker-compose -f docker-compose-m1.yml up
+        COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64 docker-compose up
     ```
 
 ### 4. Verify everything is working
