@@ -2,8 +2,6 @@ import mongoose from 'mongoose';
 import { QuestionnaireItem } from 'fhir/r4';
 import Coding from './Coding';
 import Questionnaire_EnableWhen from './Questionnaire_EnableWhen';
-import integer from './integer';
-import canonical from './canonical';
 import Questionnaire_AnswerOption from './Questionnaire_AnswerOption';
 import Questionnaire_Initial from './Questionnaire_Initial';
 import Extension from './Extension';

@@ -2,7 +2,6 @@ import mongoose, { model } from 'mongoose';
 import { QuestionnaireResponse } from 'fhir/r4';
 import Identifier from '../models/Identifier';
 import Reference from '../models/Reference';
-import canonical from '../models/canonical';
 import QuestionnaireResponse_Item from '../models/QuestionnaireResponse_Item';
 
 function QuestionnaireResponseSchema() {

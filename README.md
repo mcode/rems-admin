@@ -1,5 +1,8 @@
 # REMS
 
+## Prototype Organization Overview
+[Prototype Repositories and Capabilities](PrototypeRepositoriesAndCapabilities.md)
+
 ## Running the full prototype environment
 
 You can find complete end-to-end full-stack set up guides for DRLS REMS at the following links:

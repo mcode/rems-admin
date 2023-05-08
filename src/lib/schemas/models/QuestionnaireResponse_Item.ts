@@ -3,6 +3,11 @@ import { QuestionnaireResponseItem } from 'fhir/r4';
 import QuestionnaireResponse_Answer from './QuestionnaireResponse_Answer';
 const qrItem = new mongoose.Schema<QuestionnaireResponseItem>(
   {
+    text: {
+      type: String,
+      required: false
+    },
+
     linkId: {
       type: String,
       default: void 0
@@ -10,16 +15,24 @@ const qrItem = new mongoose.Schema<QuestionnaireResponseItem>(
     definition: {
       type: String,
       default: void 0
-    },
-    answer: {
-      type: [QuestionnaireResponse_Answer],
-      default: void 0
     }
   },
   { _id: false }
 );
 
 qrItem.add({
+  item: {
+    type: [qrItem],
+    default: void 0
+  },
+
+  answer: {
+    type: [QuestionnaireResponse_Answer],
+    default: void 0
+  }
+});
+
+QuestionnaireResponse_Answer.add({
   item: {
     type: [qrItem],
     default: void 0

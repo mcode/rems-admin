@@ -22,7 +22,7 @@ services:
       - '8080:8080'
       - "8081:8081"
     environment:
-      - DOCKER_PROFILE=true
+      - DOCKER_PROFILE=${TEST_EHR_PROFILE}
     build:
       context: ../test-ehr
       dockerfile: Dockerfile.dev

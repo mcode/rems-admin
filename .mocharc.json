@@ -1,0 +1,7 @@
+{
+  "timeout" : 20000,
+  "extension": ["ts"],
+  "spec": "test/**/*.test.ts",
+  "require": "ts-node/register",
+  "file" : ["test/setup.ts"]
+}
