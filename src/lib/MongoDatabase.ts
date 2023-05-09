@@ -1,5 +1,4 @@
 import { Database } from './Database';
-import * as mongoDB from 'mongodb';
 import mongoose from 'mongoose';
 export class MongoDatabase extends Database {
   options: any;

@@ -5,7 +5,8 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -13,9 +14,11 @@
     "sourceType": "module"
   },
   "rules": {
+    "prettier/prettier": ["error"],
     "semi": ["off"],
     "@typescript-eslint/semi": ["error", "always"],
     "quotes": ["error", "single", { "avoidEscape": true }],
-
+    "@typescript-eslint/no-explicit-any": ["off"],
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
   }
 }

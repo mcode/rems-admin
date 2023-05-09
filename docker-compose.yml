@@ -20,7 +20,7 @@ services:
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     image: codexrems/test-ehr:REMSvCurrent
     environment:
-      - DOCKER_PROFILE=true
+      - DOCKER_PROFILE=${TEST_EHR_PROFILE}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -54,10 +54,10 @@ services:
     image: codexrems/rems-administrator:REMSvCurrent
     container_name: rems_prod_rems
     ports: # Port binding to host from docker container
-      - "9015:9015" # Bind port 3000 of host to 3000 of container
+      - "8090:8090"
     environment:
       VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_HOSTNAME: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
+      MONGO_URL: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
 
   pims_remsadmin_mongo:
     image: mongo

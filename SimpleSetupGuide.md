@@ -56,24 +56,86 @@ Your computer must have these minimum requirements:
 - [Git installed](https://www.atlassian.com/git/tutorials/install-git)
 - Use git to clone or download and extract the zip of the [REMS repository](https://github.com/mcode/REMS.git) - in your terminal navigate to the REMS repo folder.
 - Before running, setup environment with VSAC credentials (see [setting environment variables section](#setting-environment-variables) for help)
+
+    > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
+    > To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. Please reach out to Sahil Malhotra at smalhotra@mitre.org in order to request access to the CMS-DRLS author group. If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
+
+    > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC.
+
+    You can see a list of your pre-existing environment variables on your machine by running `env` in your Terminal. To add to `env`:
+    1. Set "VSAC_API_KEY" in the .env file in the REMS Repository
+
+        or
+
+    1. `cd ~/`
+    2. Open `.bash_profile` and add the following lines at the very bottom:
+        ```bash
+        export VSAC_API_KEY=vsac_api_key
+        ```
+    3. Save `.bash_profile` and complete the update to `env`:
+        ```bash
+        source .bash_profile
+        ```
+
+    > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
+
+    Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [setting environment variables section](#setting-environment-variables) for more information.
+
+- Add Test-EHR profile to your environment
+
+    You can see a list of your pre-existing environment variables on your machine by running `env` in your Terminal. To add to `env`:
+    1. Set "TEST_EHR_PROFILE" as "docker-linux" in the .env file in the REMS Repository if running on linux/mac and set "TEST_EHR_PROFILE" as "docker-windows" if running on windows
+
+        or
+
+    1. `cd ~/`
+    2. Open `.bash_profile` and add the following lines at the very bottom:
+        ```bash
+        export TEST_EHR_PROFILE=docker-linux # if running on a mac or linux machine
+        
+        export TEST_EHR_PROFILE=docker-windows # if running on a windows machine
+        ```
+    3. Save `.bash_profile` and complete the update to `env`:
+        ```bash
+        source .bash_profile
+        ```
+
+    Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [setting environment variables section](#setting-environment-variables) for more information.
+
 - Add Compose Project Name to environment
 
-Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is recommended to change the compose project name for each so that they differ.
+    You can see a list of your pre-existing environment variables on your machine by running `env` in your Terminal. To add to `env`:
+    1. Set "COMPOSE_PROJECT_NAME" as "rems_prod" in the .env file in the REMS Repository
 
-Set `COMPOSE_PROJECT_NAME` as a unique identifier in the .env file in the REMS Repository or in your terminal environment variables.
+        or
+
+    1. `cd ~/`
+    2. Open `.bash_profile` and add the following lines at the very bottom:
+        ```bash
+        export COMPOSE_PROJECT_NAME=rems_prod
+        ```
+    3. Save `.bash_profile` and complete the update to `env`:
+        ```bash
+        source .bash_profile
+        ```
+
+    Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [setting environment variables section](#setting-environment-variables) for more information.
+
+    Note: The compose project name is to disambiguate between different set ups on the same machine and can be set to any identifier. If you are following both options mentioned in this guide, it is recommended to change the compose project name for each so that they differ.
+
 
 - Start docker compose application
 
-```bash
-    cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
-    docker-compose up
-```
+    ```bash
+        cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
+        docker-compose up
+    ```
 
-Note, if you are using an M1/M2 mac, you need to use the following command to start the docker compose application
-```bash
-    cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
-    docker-compose -f docker-compose-m1.yml up
-```
+    Note, if you are using an M1/M2 mac, you'll need to prepend `docker-compose` commands with `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64`.
+    ```bash
+        cd REMS # Need to execute commands in directory with corresponding docker-compose.yml file located in the REMS repository
+        COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/arm64 docker-compose up
+    ```
 
 ### 4. Verify everything is working
 
