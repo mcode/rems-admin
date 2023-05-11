@@ -38,7 +38,7 @@ export class QuestionnaireUtilities {
     const processedQuestionnaire = await this.processValueSets(questionnaire);
     const bundle: Bundle = { resourceType: 'Bundle', type: 'collection' };
     const entries: BundleEntry[] = [];
-    const extensions = processedQuestionnaire.extension || [];
+    const extensions: Extension[] = processedQuestionnaire.extension || [];
     const fetchedSets: ValueSetMap = {};
     const fetchedLibraries: LibraryMap = {};
     for (const extension of extensions) {
@@ -252,7 +252,7 @@ export class QuestionnaireUtilities {
             });
             if (matches.length === 0) {
               // no matches, merge extension
-              extensions.push(ext);
+              extensions[extensions.length]=ext
             }
           });
           subQuestionnaire.contained?.forEach(containedItem => {
@@ -278,6 +278,7 @@ export class QuestionnaireUtilities {
     }
     return [item];
   }
+
   static getExtension(item: QuestionnaireItem, url: string) {
     return item.extension?.find(ext => {
       return ext.url === url;
