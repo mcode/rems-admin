@@ -11,6 +11,8 @@ You can find complete end-to-end full-stack set up guides for DRLS REMS at the f
 
 [Developer Environment Set Up](DeveloperSetupGuide.md) - Follow this guide if you are a developer and intend on making code changes to the DRLS REMS project. This guide follows a much more technical set up process and is fully featured.
 
+[Developer Environment Set Up (No Docker)](EndToEndSetupGuide.md) - Follow this guide if you are intend on starting every application separately without using docker.
+
 ## Running only the REMS server project locally
 1.  Clone the REMS repositories from Github:
     ```bash
@@ -42,6 +44,12 @@ NOTE: The REMS Administrator is a work in progress.
 
 ## Running the REMS Adminstrator
 
+#### Initialization
+After cloning the repsistory, the submodules must be initialized. To do this you can run:
+
+```
+git submodule update --init
+```
 #### Setup
 ```
 npm install
