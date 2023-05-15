@@ -118,7 +118,7 @@ services:
       - "5051:5051"
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
-      MONGO_URL: mongodb://pims_remsadmin_mongo:27017/pims
+      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
