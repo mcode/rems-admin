@@ -1,6 +1,6 @@
 // import OrderSign from '../src/hooks/OrderSign';
-// import getREMSHook from '../src/hooks/rems.hook';
-// import { expect } from 'chai';
+import getREMSHook from '../src/hooks/rems.hook';
+import { expect } from 'chai';
 
 describe.skip('hook: test rems', () => {
   it('should have definition and handler', () => {
@@ -20,6 +20,6 @@ describe.skip('hook: test rems', () => {
     // expect(getREMSHook).to.haveOwnProperty('handler');
 
     // expect(getREMSHook.definition).to.deep.equal(expectedDefinition);
-    // expect(getREMSHook.handler).to.instanceOf(Function);
+    expect(getREMSHook.handler).to.instanceOf(Function);
   });
 });
