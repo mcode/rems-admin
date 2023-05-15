@@ -1,6 +1,4 @@
-import FHIR from 'fhirclient';
 import Card from '../cards/Card';
-import OrderSign from '../rems-cds-hooks/resources/OrderSign';
 import {
   OrderSignHook,
   SupportedHooks,
@@ -11,7 +9,6 @@ import { Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import smart from 'fhirclient';
 import axios from 'axios';
 
 interface CardRule {
