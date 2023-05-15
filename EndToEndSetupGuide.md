@@ -15,8 +15,8 @@ Follow this guide if you would like to start each application without using Dock
 
 ## Installation Order
 1. Clone each Repo
-- Start Utility Applications
-- Start Test and Core Applications
+2. Start Utility Applications
+3. Start Test and Core Applications
 
 ## Clone Repos
 ```
