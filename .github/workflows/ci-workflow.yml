@@ -8,9 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - name: Checkout Repository
+      uses: actions/checkout@v2
       with:
+        submodules: true
         node-version: '14.x'
+        
     - run: npm install
     - run: npm run lint
     - run: npm run prettier
@@ -31,6 +34,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
+    - run: git submodule update --init
     - run: npm test
       env:
         CI: true
