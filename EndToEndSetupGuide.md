@@ -29,6 +29,79 @@ git clone git@github.com:mcode/dtr.git
 git clone git@github.com:mcode/rems-smart-on-fhir.git
 ```
 
+## Utilities
+
+### keycloak
+- Setup and run KeyCloak
+	- Download KeyCloak 16.1.1 from [www.github.com/keycloak/keycloak/releases/tag/16.1.1](https://github.com/keycloak/keycloak/releases/tag/16.1.1)
+	- Extract the downloaded file
+		
+		`tar -xvf keycloak-16.1.1.tar.gz`
+	- Navigate into directory
+
+		`cd keycloak-16.1.1/bin`
+	- Start Keycloak
+
+		`./standalone.sh -Djboss.socket.binding.port-offset=100`
+	- Create admin user and log in
+		- Launch the admin page in a web browser [localhost:8180/auth/](http://localhost:8180/auth/)
+		- Create a username and password for the admin user
+		- Select link for [Administration Console](http://localhost:8180/auth/admin/)
+		- Log in as user that was just created
+	- Import realm
+		- Select `Master` on top left and choose `Add realm`
+		- Select `Select file` in the middle
+			- In the file selection box choose `<test-ehr_location>/src/main/resources/ClientFhirServerRealm.json`
+		- Select `Create`
+	- Note: newer versions of Keycloak work as well. 
+		- Running 17, 18 or 19 with the legacy package (WildFly server) is setup the same as above. 
+		- Running a different version with the newer Quarkus server
+			- Update test-ehr and crd-request-generator configuration to point to the correct auth end points
+				- Remove `/auth` from the URLs
+			- Launch Keycloak
+
+				`KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start-dev --http-port=8180`
+			- Configuration address for importing realm: [localhost:8180/admin/](http://localhost:8180/admin/)
+
+### mongodb
+- Setup and Run MongoDB
+	- Download the latest version for your OS from [www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
+	- Extract the downloaded package
+		- Linux and Mac
+	
+			`tar -xvf <package.tgz>`
+		- Windows
+
+			`unzip <package.zip`
+	- Navigate into directory
+
+		`cd <package>`
+	- Create folder for database
+
+		`mkdir db`
+	- Run mongo
+
+		`./bin/mongod --dbpath db`
+- Setup Mongo Shell `mongosh` to initialize the database
+	- Download latest version for your OS from [www.mongodb.com/try/download/shell](https://www.mongodb.com/try/download/shell)
+	- Extract the package
+
+		`unzip <package.zip>`
+	- Navigate into directory
+
+		`cd <package>`
+	- Initialize the database
+		- (Database must already be running)
+
+		`./bin/mongosh mongodb://localhost:27017 <REMS_PATH>/mongo-init.js`
+	- Alternate Install Instructions: [www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
+	
+- Restart mongo
+	- Stop the application
+	- Start as above
+		`./bin/mongod --dbpath db`
+	- Applications should now be able to connect
+
 ## Test Applications
 
 ### test-ehr
@@ -125,75 +198,3 @@ git clone git@github.com:mcode/rems-smart-on-fhir.git
 	`npm start`
 	
 	
-## Utilities
-
-### keycloak
-- Setup and run KeyCloak
-	- Download KeyCloak 16.1.1 from [www.github.com/keycloak/keycloak/releases/tag/16.1.1](https://github.com/keycloak/keycloak/releases/tag/16.1.1)
-	- Extract the downloaded file
-		
-		`tar -xvf keycloak-16.1.1.tar.gz`
-	- Navigate into directory
-
-		`cd keycloak-16.1.1/bin`
-	- Start Keycloak
-
-		`./standalone.sh -Djboss.socket.binding.port-offset=100`
-	- Create admin user and log in
-		- Launch the admin page in a web browser [localhost:8180/auth/](http://localhost:8180/auth/)
-		- Create a username and password for the admin user
-		- Select link for [Administration Console](http://localhost:8180/auth/admin/)
-		- Log in as user that was just created
-	- Import realm
-		- Select `Master` on top left and choose `Add realm`
-		- Select `Select file` in the middle
-			- In the file selection box choose `<test-ehr_location>/src/main/resources/ClientFhirServerRealm.json`
-		- Select `Create`
-	- Note: newer versions of Keycloak work as well. 
-		- Running 17, 18 or 19 with the legacy package (WildFly server) is setup the same as above. 
-		- Running a different version with the newer Quarkus server
-			- Update test-ehr and crd-request-generator configuration to point to the correct auth end points
-				- Remove `/auth` from the URLs
-			- Launch Keycloak
-
-				`KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start-dev --http-port=8180`
-			- Configuration address for importing realm: [localhost:8180/admin/](http://localhost:8180/admin/)
-
-### mongodb
-- Setup and Run MongoDB
-	- Download the latest version for your OS from [www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
-	- Extract the downloaded package
-		- Linux and Mac
-	
-			`tar -xvf <package.tgz>`
-		- Windows
-
-			`unzip <package.zip`
-	- Navigate into directory
-
-		`cd <package>`
-	- Create folder for database
-
-		`mkdir db`
-	- Run mongo
-
-		`./bin/mongod --dbpath db`
-- Setup Mongo Shell `mongosh` to initialize the database
-	- Download latest version for your OS from [www.mongodb.com/try/download/shell](https://www.mongodb.com/try/download/shell)
-	- Extract the package
-
-		`unzip <package.zip>`
-	- Navigate into directory
-
-		`cd <package>`
-	- Initialize the database
-		- (Database must already be running)
-
-		`./bin/mongosh mongodb://localhost:27017 <REMS_PATH>/mongo-init.js`
-	- Alternate Install Instructions: [www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
-	
-- Restart mongo
-	- Stop the application
-	- Start as above
-		`./bin/mongod --dbpath db`
-	- Applications should now be able to connect
