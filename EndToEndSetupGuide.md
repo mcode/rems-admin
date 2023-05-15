@@ -1,7 +1,8 @@
 # End to End Setup Guide - No Docker
 Follow this guide if you would like to start each application without using Docker. Each must be launched separately (in a separate terminal window).
 
-###Other Guides:
+### Other Guides:
+
 [Simple Set Up](SimpleSetupGuide.md) - This guide will get you up and running quickly with a demo environment for using the prototype locally. If you want to make changes or contribute to the codebase, see the detailed developer guide below.
 
 [Developer Environment Set Up](DeveloperSetupGuide.md) - Follow this guide if you are a developer and intend on making code changes to the DRLS REMS project. This guide follows a much more technical set up process and is fully featured.
