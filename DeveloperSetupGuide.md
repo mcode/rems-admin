@@ -90,8 +90,7 @@ How you set environment and path variables may vary depending on your operating 
 
 #### Install Docker Desktop
 
-1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer.
-	- As an alternative to **Docker Desktop**, **[Colima](https://github.com/abiosoft/colima)** works well as a direct substitute.
+1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer. Make sure you install version 18.03 or later.
 3. Once the installation is complete, verify that **Docker Desktop is running.**
 4. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources.
 

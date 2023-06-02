@@ -40,7 +40,7 @@ Your computer must have these minimum requirements:
 - At least 256 GB of storage
 - Internet access
 - [Chrome browser](https://www.google.com/chrome/) installed
-- **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs.
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs. Make sure you install Docker Desktop version 18.03 or later.
 
 ### 2. Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
   1. [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
