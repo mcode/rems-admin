@@ -40,7 +40,7 @@ Your computer must have these minimum requirements:
 - At least 256 GB of storage
 - Internet access
 - [Chrome browser](https://www.google.com/chrome/) installed
-- **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs.
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop)** installed - after installing ensure it is running using their setup guide. For resources, the system requires more than the default. Click the settings cog and go to resources. Allocate 8GB+ of RAM (16GB is ideal), and 4+ CPUs. Make sure you install Docker Desktop version 18.03 or later.
 
 ### 2. Obtain [Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/) API key
   1. [Click here](https://www.nlm.nih.gov/research/umls/index.html) to read about UMLS
@@ -78,27 +78,6 @@ Your computer must have these minimum requirements:
         ```
 
     > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
-
-    Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [setting environment variables section](#setting-environment-variables) for more information.
-
-- Add Test-EHR profile to your environment
-
-    You can see a list of your pre-existing environment variables on your machine by running `env` in your Terminal. To add to `env`:
-    1. Set "TEST_EHR_PROFILE" as "docker-linux" in the .env file in the REMS Repository if running on linux/mac and set "TEST_EHR_PROFILE" as "docker-windows" if running on windows
-
-        or
-
-    1. `cd ~/`
-    2. Open `.bash_profile` and add the following lines at the very bottom:
-        ```bash
-        export TEST_EHR_PROFILE=docker-linux # if running on a mac or linux machine
-        
-        export TEST_EHR_PROFILE=docker-windows # if running on a windows machine
-        ```
-    3. Save `.bash_profile` and complete the update to `env`:
-        ```bash
-        source .bash_profile
-        ```
 
     Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [setting environment variables section](#setting-environment-variables) for more information.
 
