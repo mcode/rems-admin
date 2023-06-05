@@ -90,8 +90,7 @@ How you set environment and path variables may vary depending on your operating 
 
 #### Install Docker Desktop
 
-1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer.
-	- As an alternative to **Docker Desktop**, **[Colima](https://github.com/abiosoft/colima)** works well as a direct substitute.
+1. Download the **stable** version of **[Docker Desktop](https://www.docker.com/products/docker-desktop)** and follow the steps in the installer. Make sure you install version 18.03 or later.
 3. Once the installation is complete, verify that **Docker Desktop is running.**
 4. Configure Docker to have access to enough resources. To do this, open Docker Desktop and select Settings > Resources.
 
@@ -224,29 +223,6 @@ You can see a list of your pre-existing environment variables on your machine by
 > Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
 Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
-
-
-### Add EHR profile to your development environment
-
-You can see a list of your pre-existing environment variables on your machine by running `env` in your Terminal. To add to `env`:
-1. Set "TEST_EHR_PROFILE" as "docker-linux" in the .env file in the REMS Repository if running on linux/mac and set "TEST_EHR_PROFILE" as "docker-windows" if running on windows
-
-    or
-
-1. `cd ~/`
-2. Open `.bash_profile` and add the following lines at the very bottom:
-    ```bash
-    export TEST_EHR_PROFILE=docker-linux # if running on a mac or linux machine
-    
-    export TEST_EHR_PROFILE=docker-windows # if running on a windows machine
-    ```
-3. Save `.bash_profile` and complete the update to `env`:
-    ```bash
-    source .bash_profile
-    ```
-
-Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
-
 
 ### Add Compose Project Name to your development environment
 
