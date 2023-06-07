@@ -22,7 +22,7 @@ services:
       - '8080:8080'
       - "8081:8081"
     environment:
-      - auth_base: http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect
+      - auth_base=http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect
     build:
       context: ../test-ehr
       dockerfile: Dockerfile.dev
