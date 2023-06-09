@@ -24,6 +24,8 @@ services:
     build:
       context: ../test-ehr
       dockerfile: Dockerfile.dev
+    environment:
+      - oauth_token=http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token
     volumes:
       - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - rems_dev_test-ehr-gradle:/test-ehr/.gradle
