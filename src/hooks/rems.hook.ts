@@ -366,8 +366,8 @@ const handler = (req: TypedRequestBody, res: any) => {
                 url: e.url,
                 type: e.type,
                 appContext: `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
-                  contextRequest.insurance?.[0].reference}`
-
+                  contextRequest.insurance?.[0].reference
+                }`
               };
               card.addLink(newLink);
             }
