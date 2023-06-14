@@ -361,10 +361,15 @@ const handler = (req: TypedRequestBody, res: any) => {
             } else {
               // link is SMART
               // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-              e.appContext = `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
-                contextRequest.insurance?.[0].reference
-              }`;
-              card.addLink(e);
+              const newLink: Link = {
+                label: e.label,
+                url: e.url,
+                type: e.type,
+                appContext: `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
+                  contextRequest.insurance?.[0].reference
+                }`
+              };
+              card.addLink(newLink);
             }
           });
           cardArray.push(card);
