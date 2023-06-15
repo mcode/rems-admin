@@ -1,0 +1,114 @@
+# Environment variables
+## Repositories
+- mcode/REMS
+    * .env.example
+        + VSAC_API_KEY
+        + COMPOSE_PROJECT_NAME
+        + PORTER_ALLOW_DOCKER_HOST_ACCESS
+    * dockerRunnerDev.sh
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+    * src/config.ts
+        + WHITELIST
+        + PORT
+        + SERVER_PORT
+        + SMART_ENDPOINT
+        + VSAC_API_KEY
+        + MONGO_URL
+        + MONGO_DB_NAME
+        + RESOURCE_SERVER
+        + PORT
+        + SERVER_PORT
+        + LOGGING_LEVEL
+        + AUTH_SERVER_URI
+- mcode/test-ehr
+    * dockerRunnerDev.sh
+        + LOAD_DATA_PID
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+    * dockerRunnerProd.sh
+        + LOAD_DATA_PID
+        + SERVER_PID
+- mcode/crd-request-generator
+    * dockerRunnerDev.sh
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+- mcode/dtr
+    * dockerRunnerDev.sh
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+- mcode/pims
+    * dockerRunnerDev.sh
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+    * src/backend/server.js
+        + BACKEND_PORT
+        + ALLOWED_ORIGIN
+        + MONGO_HOSTNAME
+        + AUTH_SOURCE
+        + MONGO_USERNAME
+        + MONGO_PASSWORD
+    * src/backend/server.ts
+        + PORT
+        + ALLOWED_ORIGIN
+        + MONGO_HOSTNAME
+        + AUTH_SOURCE
+        + MONGO_USERNAME
+        + MONGO_PASSWORD
+    * src/backend/routes/doctorOrders.js
+        + REMS_ADMIN_BASE
+- mcode/rems-smart-on-fhir
+    * dockerRunnerDev.sh
+        + CONTINUOUS_BUILD_PID
+        + SERVER_PID
+
+# Secrets
+## Repositories
+- mcode/REMS
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+- mcode/test-ehr
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/keycloak-docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/keycloak-docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+- mcode/crd-request-generator
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+- mcode/dtr
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+- mcode/pims
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+- mcode/rems-smart-on-fhir
+    * .github/workflows/docker-cd.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
+    * .github/workflows/docker-cd-dev.yml
+        + secrets.DOCKER_USERNAME
+        + secrets.DOCKER_TOKEN
