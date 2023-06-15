@@ -18,14 +18,14 @@ router.get('/:drug', async (req: Request, res: Response) => {
 });
 
 router.get('/met/:caseId', async (req: Request, res: Response) => {
-  console.log("get etasu by caseId");
+  console.log('get etasu by caseId');
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
 router.get('/met/patient/:patientFirstName/:patientLastName/:patientDOB/drugCode/:drugCode',
   async (req: Request, res: Response) => {
-    console.log("get etasu by drug code and patient: " + req.params.patientFirstName + " " + req.params.patientLastName
-      + " " + req.params.patientDOB + " - " + req.params.drugCode);
+    console.log('get etasu by drug code and patient: ' + req.params.patientFirstName + ' ' + req.params.patientLastName
+      + ' ' + req.params.patientDOB + ' - ' + req.params.drugCode);
     const searchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
@@ -40,8 +40,8 @@ router.get('/met/patient/:patientFirstName/:patientLastName/:patientDOB/drugCode
 router.get(
   '/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
   async (req: Request, res: Response) => {
-    console.log("get etasu by drug name and patient: " + req.params.patientFirstName + " " + req.params.patientLastName
-      + " " + req.params.patientDOB + " - " + req.params.drugName);
+    console.log('get etasu by drug name and patient: ' + req.params.patientFirstName + ' ' + req.params.patientLastName
+      + ' ' + req.params.patientDOB + ' - ' + req.params.drugName);
     const searchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
