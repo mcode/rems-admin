@@ -159,14 +159,32 @@ git clone git@github.com:mcode/rems-smart-on-fhir.git
 
 	`cd pims`
 
-- Setup
+- Backend
+	- Navigate to the backend directory
+		
+		`cd backend`
+	- Setup
 
-	`npm install`
+		`npm install`
+	- Run
 
-- Run
+		`npm start`
+		
+- Frontend
+	- Navigate to the frontend directory
 
-	`npm start`
+		`cd frontend`
+	- Setup
 
+		`npm install`
+	- Run
+		- Linux or Mac
+
+			`npm start`
+		- Windows
+
+			`PORT=5050 npm start`
+ 
 ### dtr
 - Navigate into directory already cloned from GitHub [www.github.com/mcode/dtr](https://www.github.com/mcode/dtr)
 
@@ -194,7 +212,11 @@ git clone git@github.com:mcode/rems-smart-on-fhir.git
 	`npm install`
 
 - Run
+	- Linux or Mac
 
-	`npm start`
+		`npm start`
+	- Windows
+
+		`PORT=4040 npm run start:pc`
 	
 	
