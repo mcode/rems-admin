@@ -11,7 +11,7 @@ services:
       - DB_VENDOR=h2
     volumes:
       - rems_prod_keycloak-data:/opt/jboss/keycloak/standalone/data/
-    image: codexrems/keycloak:v11
+    image: codexrems/keycloak:REMSvCurrent
 
   # Create test-ehr container
   test-ehr: # Name of our service
