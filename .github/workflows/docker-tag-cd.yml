@@ -23,7 +23,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: codexrems/rems_administrator
+          images: codexrems/rems-administrator
       -
         name: Login to DockerHub
         if: github.event_name != 'pull_request'
