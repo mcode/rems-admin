@@ -40,7 +40,7 @@ services:
     image: mongo
     container_name: rems_dev_pims-remsadmin-mongo
     ports:
-      - '27017:27017' 
+      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
       MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
@@ -56,7 +56,7 @@ services:
     environment:
       - REACT_APP_REMS_CONFIG=true
     ports:
-      - "3000:3000" 
+      - "3000:3000"
       - "3001:3001"
     volumes:
       - rems_dev_crd-request-generator-sync:/home/node/app/crd-request-generator:nocopy #  nocopy is important
@@ -114,16 +114,15 @@ services:
       dockerfile: Dockerfile.dev
     container_name: rems_dev_pims
     ports:
-      - "5050:5050" 
+      - "5050:5050"
       - "5051:5051"
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
-      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
+      MONGO_URL: mongodb://pims_remsadmin_mongo:27017/pims
     volumes:
       - rems_dev_pims-sync:/home/node/app/pims:nocopy
       - rems_dev_pims-nodeModules:/home/node/app/pims/node_modules
       - rems_dev_pims-logs:/home/node/app/pims/logs
-  
 
 volumes:
   rems_dev_test-ehr-sync:
@@ -138,7 +137,6 @@ volumes:
     external: true
   rems_dev_rems-smart-on-fhir-sync:
     external: true
-
 
   rems_dev_keycloak-data:
   rems_dev_pims_remsadmin_mongo:
@@ -155,10 +153,11 @@ volumes:
   rems_dev_dtr-nodeModules:
   rems_dev_dtr-databaseData:
   rems_dev_dtr-logs:
-  rems_dev_pims-logs: 
-  rems_dev_pims-nodeModules: 
+  rems_dev_pims-logs:
+  rems_dev_pims-nodeModules:
   rems_dev_rems-nodeModules:
   rems_dev_rems-logs:
   rems_dev_rems-smart-on-fhir-nodeModules:
   rems_dev_rems-smart-on-fhir-logs:
+
 
