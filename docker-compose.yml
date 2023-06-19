@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   keycloak:
-    container_name: rems_prod_keycloak  
+    container_name: rems_prod_keycloak
     # command: ["-Djboss.http.port=8180"]
     ports:
       - '8180:8080'
@@ -24,7 +24,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
   # Create crd request generator container
   crd-request-generator: # Name of our service
     image: codexrems/crd-request-generator:REMSvCurrent
@@ -42,6 +41,7 @@ services:
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
+  # Create rems-smart-on-fhir container
   rems-smart-on-fhir:
     image: codexrems/rems-smart-on-fhir:REMSvCurrent
     container_name: rems_prod_rems-smart-on-fhir
@@ -49,7 +49,7 @@ services:
       - "4040:4040"
 
 
-  # # Create rems container
+  # Create rems container
   rems-administrator: # Name of our service
     image: codexrems/rems-administrator:REMSvCurrent
     container_name: rems_prod_rems
@@ -59,11 +59,12 @@ services:
       VSAC_API_KEY: ${VSAC_API_KEY}
       MONGO_URL: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
 
+  # Create pims admin container
   pims_remsadmin_mongo:
     image: mongo
     container_name: rems_prod_pims-remsadmin-mongo
     ports:
-      - '27017:27017' 
+      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: rems-admin-pims-root
       MONGO_INITDB_ROOT_PASSWORD: rems-admin-pims-password
@@ -71,18 +72,16 @@ services:
       - rems_prod_pims_remsadmin_mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
+  # Create pims container
   pims:
     image: codexrems/pims:REMSvCurrent
     container_name: rems_prod_pims
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
-      MONGO_HOSTNAME: mongodb://pims_remsadmin_mongo:27017/pims
+      MONGO_URL: mongodb://pims_remsadmin_mongo:27017/pims
     ports:
-      - "5050:5050" 
+      - "5050:5050"
       - "5051:5051"
-
-
-
 
 volumes:
   rems_prod_keycloak-data:
