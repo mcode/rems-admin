@@ -13,6 +13,8 @@ Follow this guide if you would like to start each application without using Dock
 	- test-ehr
 - node
 	- REMS, pims, dtr, rems-smart-on-fhir, crd-request-generator
+- git
+	- On Windows 'Git Bash' was used for the command line interface
 
 ## Installation Order
 1. Clone each Repo
@@ -21,12 +23,13 @@ Follow this guide if you would like to start each application without using Dock
 
 ## Clone Repos
 ```
-git clone git@github.com:mcode/test-ehr.git
-git clone git@github.com:mcode/crd-request-generator.git
-git clone git@github.com:mcode/REMS.git
-git clone git@github.com:mcode/pims.git
-git clone git@github.com:mcode/dtr.git
-git clone git@github.com:mcode/rems-smart-on-fhir.git
+git clone https://github.com/mcode/test-ehr.git
+git clone https://github.com/mcode/crd-request-generator.git
+git clone https://github.com/mcode/REMS.git
+git clone https://github.com/mcode/pims.git
+git clone https://github.com/mcode/dtr.git
+git clone https://github.com/mcode/rems-smart-on-fhir.git
+git clone https://github.com/mcode/rems-smart-on-fhir.git
 ```
 
 ## Utilities
@@ -217,6 +220,6 @@ git clone git@github.com:mcode/rems-smart-on-fhir.git
 		`npm start`
 	- Windows
 
-		`PORT=4040 npm run start:pc`
+		`PORT=4040 npm run start`
 	
 	
