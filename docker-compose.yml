@@ -11,14 +11,14 @@ services:
       - DB_VENDOR=h2
     volumes:
       - rems_prod_keycloak-data:/opt/jboss/keycloak/standalone/data/
-    image: codexrems/keycloak:REMSvCurrent
+    image: codexrems/keycloak:v11
 
   # Create test-ehr container
   test-ehr: # Name of our service
     container_name: rems_prod_test-ehr
     ports: # Port binding to host from docker container
       - '8080:8080' # Bind port 3000 of host to 3000 of container
-    image: codexrems/test-ehr:REMSvCurrent
+    image: codexrems/test-ehr:v11
     environment:
       - oauth_token=http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token
     extra_hosts:
@@ -26,7 +26,7 @@ services:
 
   # Create crd request generator container
   crd-request-generator: # Name of our service
-    image: codexrems/crd-request-generator:REMSvCurrent
+    image: codexrems/crd-request-generator:v11
     container_name: rems_prod_crd-request-generator
     environment:
       - REACT_APP_REMS_CONFIG=true
@@ -36,14 +36,14 @@ services:
 
   # Create dtr container
   dtr: # Name of our service
-    image: codexrems/dtr:REMSvCurrent
+    image: codexrems/dtr:v11
     container_name: rems_prod_dtr
     ports: # Port binding to host from docker container
       - "3005:3005" # Bind port 3000 of host to 3000 of container
 
   # Create rems-smart-on-fhir container
   rems-smart-on-fhir:
-    image: codexrems/rems-smart-on-fhir:REMSvCurrent
+    image: codexrems/rems-smart-on-fhir:v11
     container_name: rems_prod_rems-smart-on-fhir
     ports:
       - "4040:4040"
@@ -51,7 +51,7 @@ services:
 
   # Create rems container
   rems-administrator: # Name of our service
-    image: codexrems/rems-administrator:REMSvCurrent
+    image: codexrems/rems-administrator:v11
     container_name: rems_prod_rems
     ports: # Port binding to host from docker container
       - "8090:8090"
@@ -74,7 +74,7 @@ services:
 
   # Create pims container
   pims:
-    image: codexrems/pims:REMSvCurrent
+    image: codexrems/pims:v11
     container_name: rems_prod_pims
     environment:
       REMS_ADMIN_BASE: http://rems-administrator:8090
