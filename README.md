@@ -58,6 +58,26 @@ npm install
 ```
 npm test
 ```
+### How To Override Defaults
+The .env file contains the default URI paths, these can be overwritten from the start command as follows:
+ `RESOURCE_SERVER=http://example.com PORT=6000 npm start`
+ 
+Following are a list of modifiable paths: 
+
+| URI Name      | Default |
+| ----------- | ----------- |
+| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017`  |
+| SERVER_PORT   | `8090`        |
+| RESOURCE_SERVER       | `http://localhost:8090`  |
+| AUTH_SERVER_URI       | `http://localhost:8090`  |
+| VSAC_API_KEY       | `changeMe`  |
+| SMART_ENDPOINT    | `http://localhost:3005/launch`|
+| LOGGING_LEVEL    | `debug`|
+| WHITELIST    | `http://localhost, http://localhost:3005`|
+| MONGO_DB_NAME    | `remsadmin`|
+
+
+```
 #### Run Application
 ```
 npm start
