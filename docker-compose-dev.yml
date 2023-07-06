@@ -84,6 +84,8 @@ services:
       context: ../rems-smart-on-fhir
       dockerfile: Dockerfile.dev
     container_name: rems_dev_rems-smart-on-fhir
+    env_file:
+      - ../rems-smart-on-fhir/.env
     ports:
       - "4040:4040"
       - "4041:4041"

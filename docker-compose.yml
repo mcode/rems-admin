@@ -45,6 +45,8 @@ services:
   rems-smart-on-fhir:
     image: codexrems/rems-smart-on-fhir:REMSvCurrent
     container_name: rems_prod_rems-smart-on-fhir
+    env_file:
+      - ../rems-smart-on-fhir/.env
     ports:
       - "4040:4040"
 
