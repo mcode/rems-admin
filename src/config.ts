@@ -64,7 +64,7 @@ export default {
       ssl: {
         key: env.HTTPS_KEY_PATH,
         cert: env.HTTPS_CERT_PATH
-      },
+      }
     },
     logging: {
       level: env.LOGGING_LEVEL

@@ -7,8 +7,8 @@ import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
 import env from 'var';
-const https = require('https');
-const fs = require('fs');
+import https from 'https';
+import fs from 'fs';
 
 const logger = container.get('application');
 
@@ -120,9 +120,8 @@ class REMSServer extends Server {
   listen({ port }: any, callback: any) {
     const credentials = {
       key: fs.readFileSync(env.HTTPS_KEY_PATH),
-      cert: fs.readFileSync(env.HTTPS_CERT_PATH),
+      cert: fs.readFileSync(env.HTTPS_CERT_PATH)
     };
-    
     return https.createServer(credentials, this.app).listen(port, callback);
   }
 }
