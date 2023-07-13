@@ -45,6 +45,8 @@ services:
   rems-smart-on-fhir:
     image: codexrems/rems-smart-on-fhir:REMSvCurrent
     container_name: rems_prod_rems-smart-on-fhir
+    env_file:
+      - ../rems-smart-on-fhir/.env
     ports:
       - "4040:4040"
 
@@ -55,9 +57,11 @@ services:
     container_name: rems_prod_rems
     ports: # Port binding to host from docker container
       - "8090:8090"
-    environment:
-      VSAC_API_KEY: ${VSAC_API_KEY}
-      MONGO_URL: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
+    env_file:
+      - .env.json
+    # environment:
+    #   VSAC_API_KEY: ${VSAC_API_KEY}
+    #   MONGO_URL: mongodb://rems-user:pass@pims_remsadmin_mongo:27017
 
   # Create pims admin container
   pims_remsadmin_mongo:

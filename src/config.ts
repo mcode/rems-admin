@@ -12,7 +12,11 @@ const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0]
 export default {
   server: {
     port: env.PORT || env.SERVER_PORT,
-    discoveryEndpoint: '/cds-services'
+    discoveryEndpoint: '/cds-services',
+    ssl: {
+			key: env.HTTPS_KEY_PATH,
+			cert: env.HTTPS_CERT_PATH
+		},
   },
   smart: {
     endpoint: env.SMART_ENDPOINT
@@ -56,7 +60,11 @@ export default {
       corsOptions: {
         maxAge: 86400,
         origin: whitelist
-      }
+      },
+      ssl: {
+        key: env.HTTPS_KEY_PATH,
+        cert: env.HTTPS_CERT_PATH
+      },
     },
     logging: {
       level: env.LOGGING_LEVEL

@@ -9,3 +9,7 @@ dist/
 .idea/
 .DS_Store
 env.json
+
+# self signed certs for https
+server.cert
+server.key

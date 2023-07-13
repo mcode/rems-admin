@@ -67,5 +67,5 @@ Application will be runnin on port 8090.
 To reach the CDS Services discovery information:
 
 ```
-http://localhost:8090/cds-services
+https://localhost:8090/cds-services
 ```
