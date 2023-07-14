@@ -43,7 +43,7 @@
             - `MONGO_URL`: `mongodb://pims_remsadmin_mongo:27017/pims`
 - mcode/rems-smart-on-fhir
     * .env
-        + `REACT_APP_REMS_ADMIN_SERVER_BASE`: `https://localhost:8090`
+        + `REACT_APP_REMS_ADMIN_SERVER_BASE`: `http://localhost:8090`
         + `REACT_APP_REMS_HOOKS_PATH`: `/cds-services/rems-order-sign`
         + `REACT_APP_PHARMACY_SERVER_BASE`: `http://localhost:5051`
         + `REACT_APP_ETASU_STATUS_ENABLED`: `true`

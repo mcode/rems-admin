@@ -220,7 +220,7 @@ You can see a list of your pre-existing environment variables on your machine by
     source .bash_profile
     ```
 
-> Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at https://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
+> Be aware that if you have chosen to skip this step, you will be required to manually provide your VSAC credentials at http://localhost:8090/data and hit **Reload Data** every time you want DRLS to use new or updated value sets.
 
 Note: How you set environment and path variables may vary depending on your operating system and terminal used. See [Setting Environment Variables and System Path](#setting-environment-variables-and-system-path) for more information.
 

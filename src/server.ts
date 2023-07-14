@@ -118,11 +118,15 @@ class REMSServer extends Server {
    * @param {function} [callback] - Optional callback for listen
    */
   listen({ port }: any, callback: any) {
-    const credentials = {
-      key: fs.readFileSync(env.HTTPS_KEY_PATH),
-      cert: fs.readFileSync(env.HTTPS_CERT_PATH)
-    };
-    return https.createServer(credentials, this.app).listen(port, callback);
+    // If we want to use https, read in the cert files and start https server
+    if (env.USE_HTTPS) {
+      const credentials = {
+        key: fs.readFileSync(env.HTTPS_KEY_PATH),
+        cert: fs.readFileSync(env.HTTPS_CERT_PATH)
+      };
+      return https.createServer(credentials, this.app).listen(port, callback);
+    } 
+    return this.app.listen(port, callback);
   }
 }
 
