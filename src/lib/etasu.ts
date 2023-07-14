@@ -88,10 +88,7 @@ router.post('/met', async (req: Request, res: Response) => {
     const requestBody = req.body;
 
     // extract params and questionnaire response identifier
-    const params = getResource(
-      requestBody,
-      requestBody.entry[0].resource.focus.parameters.reference
-    );
+    const params = getResource(requestBody, requestBody.entry[0].resource.focus?.[0]?.reference);
     const questionnaireResponse = getQuestionnaireResponse(requestBody);
     const questionnaireStringArray = questionnaireResponse.questionnaire.split('/');
     const requirementId = questionnaireStringArray[questionnaireStringArray.length - 1];
@@ -103,13 +100,13 @@ router.post('/met', async (req: Request, res: Response) => {
     let patientReference = '';
     for (const param of params.parameter) {
       if (param.name === 'prescription') {
-        prescriptionReference = param.reference;
+        prescriptionReference = param.valueReference.reference;
       } else if (param.name === 'prescriber') {
-        practitionerReference = param.reference;
+        practitionerReference = param.valueReference.reference;
       } else if (param.name === 'pharmacy') {
-        pharmacistReference = param.reference;
+        pharmacistReference = param.valueReference.reference;
       } else if (param.name === 'source-patient') {
-        patientReference = param.reference;
+        patientReference = param.valueReference.reference;
       }
     }
 
@@ -181,7 +178,8 @@ router.post('/met', async (req: Request, res: Response) => {
                 requirementName: matchedMetReq?.requirementName,
                 requirementDescription: matchedMetReq?.requirementDescription
               });
-            } catch {
+            } catch (e) {
+              console.log(e);
               console.log('create error');
             }
 
