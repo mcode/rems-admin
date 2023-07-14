@@ -125,7 +125,7 @@ class REMSServer extends Server {
         cert: fs.readFileSync(env.HTTPS_CERT_PATH)
       };
       return https.createServer(credentials, this.app).listen(port, callback);
-    } 
+    }
     return this.app.listen(port, callback);
   }
 }

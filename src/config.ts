@@ -12,7 +12,7 @@ const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0]
 export default {
   server: {
     port: env.PORT || env.SERVER_PORT,
-    discoveryEndpoint: '/cds-services',
+    discoveryEndpoint: '/cds-services'
   },
   smart: {
     endpoint: env.SMART_ENDPOINT
