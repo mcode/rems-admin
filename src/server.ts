@@ -6,7 +6,7 @@ import { CdsService } from './rems-cds-hooks/resources/CdsService';
 import remsService from './hooks/rems.hook';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
-import env from 'var';
+import env from 'env-var';
 import https from 'https';
 import fs from 'fs';
 
@@ -119,10 +119,11 @@ class REMSServer extends Server {
    */
   listen({ port }: any, callback: any) {
     // If we want to use https, read in the cert files and start https server
-    if (env.USE_HTTPS) {
+    if (env.get('USE_HTTPS').required().asBool()) {
+      
       const credentials = {
-        key: fs.readFileSync(env.HTTPS_KEY_PATH),
-        cert: fs.readFileSync(env.HTTPS_CERT_PATH)
+        key: fs.readFileSync(env.get('HTTPS_KEY_PATH').required().asUrlString()),
+        cert: fs.readFileSync(env.get('HTTPS_CERT_PATH').required().asUrlString())
       };
       return https.createServer(credentials, this.app).listen(port, callback);
     }

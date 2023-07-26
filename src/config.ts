@@ -1,9 +1,10 @@
 import { constants as fhirConstants } from '@projecttacoma/node-fhir-server-core';
-import env from 'var';
+require('dotenv').config();
+const env = require('env-var');
+
 
 // Set up whitelist
-const whitelist_env =
-  (env.WHITELIST && env.WHITELIST.split(',').map((host: string) => host.trim())) || false;
+const whitelist_env = env.get('WHITELIST').asArray() || false;
 
 // If no whitelist is present, disable cors
 // If it's length is 1, set it to a string, so * works
@@ -11,24 +12,24 @@ const whitelist_env =
 const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
 export default {
   server: {
-    port: env.PORT || env.SERVER_PORT,
+    port: env.get('PORT').asInt() || env.get('SERVER_PORT').asInt(),
     discoveryEndpoint: '/cds-services'
   },
   smart: {
-    endpoint: env.SMART_ENDPOINT
+    endpoint: env.get('SMART_ENDPOINT').asUrlString()
   },
   logging: {
     level: 'info'
   },
   general: {
     resourcePath: 'src/cds-library/CRD-DTR',
-    VsacApiKey: env.VSAC_API_KEY
+    VsacApiKey: env.get('VSAC_API_KEY').required().asString()
   },
   database: {
     selected: 'mongo',
     mongoConfig: {
-      location: env.MONGO_URL,
-      db_name: env.MONGO_DB_NAME,
+      location: env.get('MONGO_URL').asString(),
+      db_name: env.get('MONGO_DB_NAME').asString(),
       options: {
         //auto_reconnect: true,
         useUnifiedTopology: true,
@@ -39,7 +40,7 @@ export default {
   fhirServerConfig: {
     auth: {
       // This servers URI
-      resourceServer: env.RESOURCE_SERVER
+      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString()
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
       //
@@ -51,7 +52,7 @@ export default {
     },
     server: {
       // support various ENV that uses PORT vs SERVER_PORT
-      port: env.PORT || env.SERVER_PORT,
+      port: env.get('PORT').asInt() || env.get('SERVER_PORT').asInt(),
       // allow Access-Control-Allow-Origin
       corsOptions: {
         maxAge: 86400,
@@ -59,7 +60,7 @@ export default {
       }
     },
     logging: {
-      level: env.LOGGING_LEVEL
+      level: env.get('LOGGING_LEVEL').required().asString()
     },
     //
     // If you want to set up conformance statement with security enabled
@@ -68,11 +69,11 @@ export default {
     security: [
       {
         url: 'authorize',
-        valueUri: `${env.AUTH_SERVER_URI}/authorize`
+        valueUri: `${env.get('AUTH_SERVER_URI').required().asUrlString()}/authorize`
       },
       {
         url: 'token',
-        valueUri: `${env.AUTH_SERVER_URI}/token`
+        valueUri: `${env.get('AUTH_SERVER_URI').required().asUrlString()}/token`
       }
       // optional - registration
     ],
