@@ -1,6 +1,5 @@
 .cnab/
 .docker-sync/
-.env
 package-lock.json
 COVERAGE/
 logs/

@@ -23,6 +23,27 @@ You can find complete end-to-end full-stack set up guides for DRLS REMS at the f
     npm run start
     ```
 
+### How To Override Defaults
+The .env file contains the default URI paths, these can be overwritten from the start command as follows:
+ `MONGO_URL=http://example.com SERVER_PORT=6000 npm start`
+ 
+Following are a list of modifiable paths: 
+
+| URI Name      | Default |
+| ----------- | ----------- |
+| MONGO_URL | `mongodb://rems-user:pass@127.0.0.1:27017` |
+| MONGO_DB_NAME | `remsadmin` |
+| WHITELIST | `http://localhost, http://localhost:3005` |
+| LOGGING_LEVEL | `debug` |
+| PORT | `8090` |
+| RESOURCE_SERVER | `http://localhost:8090` |
+| AUTH_SERVER_URI | `http://localhost:8090` |
+| VSAC_API_KEY | `changeMe` |
+| SMART_ENDPOINT | `http://localhost:3005/launch` |
+| HTTPS_KEY_PATH | `server.key` |
+| HTTPS_CERT_PATH | `server.cert` |
+| USE_HTTPS | `false`|
+
 ## Running the Mongo DB instance 
 1. On the first run use the following command to create a docker mongo instance:
     ```bash
