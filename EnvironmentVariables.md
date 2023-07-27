@@ -67,7 +67,10 @@
         + `redirect_base`: `${ehr_base}/_auth/`
     * Dockerfile.keycloak
         + `KEYCLOAK_IMPORT`: `/resources/ClientFhirServerRealm.json`
-
+- mcode/crd-request-generator
+    * src/properties.json: Its values are not currently used for setting environment variables, but rather are used in their place if they aren't already defined in these files.
+        + src/containers/RequestBuilder.js
+        + src/util/data.js
 
 ## Repositories that use environment variables
 - mcode/REMS
@@ -103,8 +106,6 @@
         + `oauth_authorize`
         + `oauth_token`
         + `redirect_base`
-
-
 - mcode/crd-request-generator
     * src/registerServiceWorker.js
         + `NODE_ENV`
