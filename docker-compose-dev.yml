@@ -2,7 +2,7 @@ version: '3.6'
 services:
   keycloak:
     container_name: rems_dev_keycloak
-    # command: ["-Djboss.http.port=8180"]
+    command: 'start-dev --import-realm'
     ports:
       - '8180:8080'
     environment:
@@ -10,8 +10,8 @@ services:
       - KEYCLOAK_PASSWORD=admin
       - DB_VENDOR=h2
     volumes:
-      - rems_dev_keycloak-data:/opt/jboss/keycloak/standalone/data/
-      - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/resources/ClientFhirServerRealm.json'
+      - rems_dev_keycloak-data:/opt/keycloak/data/
+      - '../test-ehr/src/main/resources/ClientFhirServerRealm.json:/opt/keycloak/data/import/ClientFhirServerRealm.json'
     build:
       context: ../test-ehr
       dockerfile: Dockerfile.keycloak
@@ -25,7 +25,7 @@ services:
       context: ../test-ehr
       dockerfile: Dockerfile.dev
     environment:
-      - oauth_token=http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token
+      - oauth_token=http://host.docker.internal:8180/realms/ClientFhirServer/protocol/openid-connect/token
     volumes:
       - rems_dev_test-ehr-sync:/test-ehr:nocopy #  nocopy is important
       - rems_dev_test-ehr-gradle:/test-ehr/.gradle
