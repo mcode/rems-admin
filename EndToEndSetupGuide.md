@@ -7,6 +7,8 @@ Follow this guide if you would like to start each application without using Dock
 
 [Developer Environment Set Up](DeveloperSetupGuide.md) - Follow this guide if you are a developer and intend on making code changes to the DRLS REMS project. This guide follows a much more technical set up process and is fully featured.
 
+[SSL Setup](SSLSetupGuide.md) - Follow this guide to enable SSL on the various REMS applications.
+
 
 ## Prerequisites
 - Java, gradle
@@ -36,35 +38,25 @@ git clone https://github.com/mcode/rems-smart-on-fhir.git
 
 ### keycloak
 - Setup and run KeyCloak
-	- Download KeyCloak 16.1.1 from [www.github.com/keycloak/keycloak/releases/tag/16.1.1](https://github.com/keycloak/keycloak/releases/tag/16.1.1)
+	- Download KeyCloak 22.0.1 from [www.github.com/keycloak/keycloak/releases/tag/22.0.1](https://github.com/keycloak/keycloak/releases/tag/22.0.1)
 	- Extract the downloaded file
 		
-		`tar -xvf keycloak-16.1.1.tar.gz`
+		`tar -xvf keycloak-22.0.1.tar.gz`
 	- Navigate into directory
 
-		`cd keycloak-16.1.1/bin`
+		`cd keycloak-22.0.1`
 	- Start Keycloak
 
-		`./standalone.sh -Djboss.socket.binding.port-offset=100`
-	- Create admin user and log in
-		- Launch the admin page in a web browser [localhost:8180/auth/](http://localhost:8180/auth/)
-		- Create a username and password for the admin user
-		- Select link for [Administration Console](http://localhost:8180/auth/admin/)
-		- Log in as user that was just created
-	- Import realm
-		- Select `Master` on top left and choose `Add realm`
-		- Select `Select file` in the middle
-			- In the file selection box choose `<test-ehr_location>/src/main/resources/ClientFhirServerRealm.json`
-		- Select `Create`
-	- Note: newer versions of Keycloak work as well. 
-		- Running 17, 18 or 19 with the legacy package (WildFly server) is setup the same as above. 
-		- Running a different version with the newer Quarkus server
-			- Update test-ehr and crd-request-generator configuration to point to the correct auth end points
-				- Remove `/auth` from the URLs
-			- Launch Keycloak
+		`KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start-dev --http-port=8180 --import-realm --hostname=localhost`
+	- Place realm file in proper folder
 
-				`KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start-dev --http-port=8180`
-			- Configuration address for importing realm: [localhost:8180/admin/](http://localhost:8180/admin/)
+		`mkdir data/import`
+
+		`cp <test-ehr_location>/src/main/resources/ClientFhirServerRealm.json data/import/`
+	- Log in as admin user (optional)
+		- Launch the admin page in a web browser [localhost:8180/admin/](http://localhost:8180/admin/)
+		- Select link for [Administration Console](http://localhost:8180/auth/admin/)
+		- Log in as admin/admin
 
 ### mongodb
 - Setup and Run MongoDB
