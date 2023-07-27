@@ -41,6 +41,7 @@
         + pims
             - `REMS_ADMIN_BASE`: `http://rems-administrator:8090`
             - `MONGO_URL`: `mongodb://pims_remsadmin_mongo:27017/pims`
+            
 - mcode/rems-smart-on-fhir
     * .env
         + `REACT_APP_REMS_ADMIN_SERVER_BASE`: `http://localhost:8090`
@@ -49,6 +50,7 @@
         + `REACT_APP_ETASU_STATUS_ENABLED`: `true`
         + `REACT_APP_PHARMACY_STATUS_ENABLED`: `true`
         + `PORT`: `4040`
+
 - mcode/test-ehr
     * src/main/resources/application.yml
         + `auth_base`: `http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect`
@@ -68,9 +70,21 @@
     * Dockerfile.keycloak
         + `KEYCLOAK_IMPORT`: `/resources/ClientFhirServerRealm.json`
 
-
 ## Repositories that use environment variables
 - mcode/REMS
+    * src/.env
+        + `MONGO_URL` : `mongodb://rems-user:pass@127.0.0.1:27017`
+        + `MONGO_DB_NAME` : `remsadmin`
+        + `WHITELIST` : `http://localhost, http://localhost:3005`
+        + `LOGGING_LEVEL` : `debug`
+        + `SERVER_PORT` : `8090`
+        + `RESOURCE_SERVER` : `http://localhost:8090`
+        + `AUTH_SERVER_URI` : `http://localhost:8090`
+        + `VSAC_API_KEY` : `changeMe`
+        + `SMART_ENDPOINT` : `http://localhost:3005/launch`
+        + `HTTPS_KEY_PATH` : `server.key`
+        + `HTTPS_CERT_PATH` : `server.cert`
+        + `USE_HTTPS` : `false`
     * src/config.ts
         + `WHITELIST`
         + `PORT`
@@ -82,6 +96,7 @@
         + `RESOURCE_SERVER`
         + `LOGGING_LEVEL`
         + `AUTH_SERVER_URI`
+
 - mcode/test-ehr
     * src/main/java/ca/uhn/fhir/jpa/starter/EnvironmentHelper.java
         + `elasticsearch.required_index_status`
@@ -103,7 +118,6 @@
         + `oauth_authorize`
         + `oauth_token`
         + `redirect_base`
-
 
 - mcode/crd-request-generator
     * src/registerServiceWorker.js
@@ -146,6 +160,7 @@
         + `PORT`
     * src/elmExecutor/buildPopulatedResourceBundle.js
         + `REACT_APP_EPIC_SUPPORTED_QUERIES`
+
 - mcode/pims
     * src/backend/server.js
         + `BACKEND_PORT`
@@ -166,6 +181,7 @@
     * frontend/src/App.tsx
         + `REACT_APP_PIMS_BACKEND_URL`
         + `REACT_APP_PIMS_BACKEND_PORT`
+
 - mcode/rems-smart-on-fhir
     * src/views/Patient/MedReqDropDown/MedReqDropDown.tsx
         + `REACT_APP_REMS_ADMIN_SERVER_BASE`
