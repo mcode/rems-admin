@@ -38,7 +38,7 @@ export default {
   },
   fhirServerConfig: {
     auth: {
-      // This servers URI
+      // This server's URI
       resourceServer: env.get('RESOURCE_SERVER').required().asUrlString()
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
@@ -51,7 +51,7 @@ export default {
     },
     server: {
       // support various ENV that uses PORT vs SERVER_PORT
-      port: env.get('PORT').asInt() || env.get('SERVER_PORT').asInt(),
+      port: env.get('PORT').asInt(),
       // allow Access-Control-Allow-Origin
       corsOptions: {
         maxAge: 86400,
