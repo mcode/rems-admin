@@ -28,7 +28,6 @@ keycloak:
       - DB_VENDOR=h2
     volumes:
       - rems_dev_keycloak-data:/opt/keycloak/data/
-      - ../test-ehr/src/main/resources/ClientFhirServerRealm.json:/opt/keycloak/data/import/ClientFhirServerRealm.json
       - /tmp/certs:/certs
     image: codexrems/keycloak:REMSvCurrent
 ```
