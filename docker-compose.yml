@@ -20,7 +20,7 @@ services:
       - '8080:8080' # Bind port 3000 of host to 3000 of container
     image: codexrems/test-ehr:REMSvCurrent
     environment:
-      - oauth_token=http://host.docker.internal:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token
+      - oauth_token=http://host.docker.internal:8180/realms/ClientFhirServer/protocol/openid-connect/token
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
