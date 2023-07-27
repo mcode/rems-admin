@@ -41,7 +41,7 @@
         + pims
             - `REMS_ADMIN_BASE`: `http://rems-administrator:8090`
             - `MONGO_URL`: `mongodb://pims_remsadmin_mongo:27017/pims`
-            
+
 - mcode/rems-smart-on-fhir
     * .env
         + `REACT_APP_REMS_ADMIN_SERVER_BASE`: `http://localhost:8090`
@@ -77,7 +77,7 @@
         + `MONGO_DB_NAME` : `remsadmin`
         + `WHITELIST` : `http://localhost, http://localhost:3005`
         + `LOGGING_LEVEL` : `debug`
-        + `SERVER_PORT` : `8090`
+        + `PORT` : `8090`
         + `RESOURCE_SERVER` : `http://localhost:8090`
         + `AUTH_SERVER_URI` : `http://localhost:8090`
         + `VSAC_API_KEY` : `changeMe`
@@ -147,6 +147,7 @@
         + `REACT_APP_AUTH`
         + `REACT_APP_REALM`
         + `REACT_APP_CLIENT`
+        
 - mcode/dtr
     * bin/prod
         + `REACT_APP_SERVER_PORT`

@@ -11,7 +11,7 @@ const whitelist_env = env.get('WHITELIST').asArray() || false;
 const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
 export default {
   server: {
-    port: env.get('PORT').asInt() || env.get('SERVER_PORT').asInt(),
+    port: env.get('PORT').asInt(),
     discoveryEndpoint: '/cds-services'
   },
   smart: {

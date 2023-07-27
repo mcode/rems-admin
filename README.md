@@ -35,7 +35,7 @@ Following are a list of modifiable paths:
 | MONGO_DB_NAME | `remsadmin` |
 | WHITELIST | `http://localhost, http://localhost:3005` |
 | LOGGING_LEVEL | `debug` |
-| SERVER_PORT | `8090` |
+| PORT | `8090` |
 | RESOURCE_SERVER | `http://localhost:8090` |
 | AUTH_SERVER_URI | `http://localhost:8090` |
 | VSAC_API_KEY | `changeMe` |
