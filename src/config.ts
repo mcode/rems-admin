@@ -15,7 +15,7 @@ export default {
     discoveryEndpoint: '/cds-services'
   },
   smart: {
-    endpoint: env.get('SMART_ENDPOINT').asUrlString()
+    endpoint: env.get('SMART_ENDPOINT').required().asUrlString()
   },
   logging: {
     level: 'info'
