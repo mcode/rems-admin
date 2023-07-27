@@ -120,7 +120,6 @@ class REMSServer extends Server {
   listen({ port }: any, callback: any) {
     // If we want to use https, read in the cert files and start https server
     if (env.get('USE_HTTPS').required().asBool()) {
-      
       const credentials = {
         key: fs.readFileSync(env.get('HTTPS_KEY_PATH').required().asUrlString()),
         cert: fs.readFileSync(env.get('HTTPS_CERT_PATH').required().asUrlString())

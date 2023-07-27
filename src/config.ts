@@ -1,7 +1,6 @@
 import { constants as fhirConstants } from '@projecttacoma/node-fhir-server-core';
-require('dotenv').config();
-const env = require('env-var');
-
+import 'dotenv/config';
+import * as env from 'env-var';
 
 // Set up whitelist
 const whitelist_env = env.get('WHITELIST').asArray() || false;
