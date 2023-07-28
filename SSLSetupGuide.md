@@ -43,10 +43,20 @@ TBD
 TBD
 
 ## crd-request-generator
-TBD
+
+#### Update ENV Variable in .env file
+`HTTPS = true`
 
 ## REMS
-TBD
+
+### Generate Certs
+#### self-signed
+
+`openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+
+### Update ENV variable in .env file
+`USE_HTTPS = true`
+Ensure the key and cert path are accurate, if not update HTTPS_KEY_PATH and HTTPS_CERT_PATH to point to generated certs. 
 
 ## pims
 TBD
