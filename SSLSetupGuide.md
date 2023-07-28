@@ -37,15 +37,25 @@ keycloak:
 KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start --import-realm --http-enabled=false --hostname=localhost --https-key-store-file=/tmp/certs/server.keystore --https-key-store-password=secret --https-port=8543`
 
 ## mongodb
-TBD
+### Running with MongoD or MongoS
+Consult Documentation: https://www.mongodb.com/docs/v2.4/tutorial/configure-ssl/
+
+### Running in Docker
+Consult Documentation: https://medium.com/@prabhashdilhanakmeemana/how-to-start-a-mongo-db-server-in-docker-with-tls-enabled-da2bdd99caaf
 
 ## test-ehr
 TBD
 
 ## crd-request-generator
 
-#### Update ENV Variable in .env file
-`HTTPS = true`
+### Generate Certs
+#### self-signed
+
+`openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+
+### Update ENV variable in env.json file
+`USE_HTTPS = true`
+Ensure the key and cert path are accurate, if not update SSL_KEY_FILE and SSL_CRT_FILE to point to generated certs.
 
 ## REMS
 
@@ -59,7 +69,32 @@ TBD
 Ensure the key and cert path are accurate, if not update HTTPS_KEY_PATH and HTTPS_CERT_PATH to point to generated certs. 
 
 ## pims
-TBD
+### Backend
+#### Generate Certs
+##### self-signed
+
+`openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+
+#### Update ENV variable in env.json file
+`USE_HTTPS = true`
+Ensure the key and cert path are accurate, if not update HTTPS_KEY_PATH and HTTPS_CERT_PATH to point to generated certs. 
+
+### Frontend
+#### Generate Certs
+##### self-signed
+
+`openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+
+#### Update ENV variable in env.json file
+`USE_HTTPS = true`
+Ensure the key and cert path are accurate, if not update SSL_KEY_FILE and SSL_CRT_FILE to point to generated certs. 
 
 ## rems-smart-on-fhir
-TBD
+### Generate Certs
+#### self-signed
+
+`openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+
+### Update ENV variable in env.json file
+`USE_HTTPS = true`
+Ensure the key and cert path are accurate, if not update SSL_KEY_FILE and SSL_CRT_FILE to point to generated certs.
