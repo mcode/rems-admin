@@ -43,7 +43,9 @@ TBD
 TBD
 
 ## crd-request-generator
-TBD
+
+#### Update ENV Variable in .env file
+`HTTPS = true`
 
 ## REMS
 
