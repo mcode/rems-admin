@@ -156,7 +156,8 @@ router.post('/met', async (req: Request, res: Response) => {
               patientDOB: patientDOB,
               metRequirements: []
             };
-            returnRemsRequest = true;
+            returnRemsRequest = true; // why is this being set two times? on line 145
+            // Q: should it be done in the rems request or the metReq
 
             // create the metReq that was submitted
             const metReq = {
@@ -187,7 +188,11 @@ router.post('/met', async (req: Request, res: Response) => {
             if (drug) {
               for (const requirement2 of drug.requirements) {
                 // skip if the req found is the same as in the outer loop and has already been processed
-                if (!(requirement2.resourceId === requirementId)) {
+                // && If the requirement is not the patient Status Form (when requiredToDispense == false)
+                if (
+                  !(requirement2.resourceId === requirementId) &&
+                  requirement2.requiredToDispense
+                ) {
                   // figure out which stakeholder the req corresponds to
                   const reqStakeholder2 = requirement2.stakeholderType;
                   const reqStakeholder2Reference =
@@ -255,79 +260,140 @@ router.post('/met', async (req: Request, res: Response) => {
             remsRequest.status = remsRequestCompletedStatus;
             returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
           } else {
-            const matchedMetReq3 = await metRequirementsCollection
-              .findOne({
-                stakeholderId: reqStakeholderReference,
-                requirementName: requirement.name,
-                drugName: drug?.name
-              })
-              .exec();
-            if (matchedMetReq3) {
-              if (!matchedMetReq3.completed) {
-                matchedMetReq3.completed = true;
-                matchedMetReq3.completedQuestionnaire = questionnaireResponse;
-                await matchedMetReq3.save();
-                // await metRequirementsCollection.findByIdAndUpdate(matchedMetReq3, {
-                //   $set: { completed: true, completedQuestionnaire: questionnaireResponse }
-                // });
-
-                returnedMetReqDoc = await metRequirementsCollection
-                  .findOne({
-                    _id: matchedMetReq3._id
-                  })
-                  .exec();
-
-                // this should be an array returned via .find() - tried using $in but could not get it to work - using the first element for now as a work around since we only have one patient
-                const remsRequestToUpdate = await remsCaseCollection
-                  .findOne({
-                    case_number: returnedMetReqDoc.case_numbers[0]
-                  })
-                  .exec();
-
-                // ToDO: iterate over multiple remsRequests - right now there will only be one that matches, but with multiple patients in the system there could be more
-
-                // for (let remsRequestToUpdate of remsRequestsToUpdate) {
-                let foundUncompleted = false;
-                const metReqArray = remsRequestToUpdate?.metRequirements;
-                for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
-                  const req4 = remsRequestToUpdate?.metRequirements[i];
-                  // _id comparison would not work for some reason
-                  if (req4.requirementName === matchedMetReq3.requirementName) {
-                    metReqArray[i].completed = true;
-                    req4.completed = true;
-                    await remsCaseCollection.updateOne(
-                      { _id: remsRequestToUpdate?._id },
-                      { $set: { metRequirements: metReqArray } }
-                    );
-                  }
-                  if (!req4.completed) {
-                    foundUncompleted = true;
-                  }
-                }
-
-                if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
-                  remsRequestToUpdate.status = 'Approved';
-                  await remsRequestToUpdate.save();
-                  // await remsCaseCollection.findByIdAndUpdate(remsRequestToUpdate, {
-                  //   $set: { status: 'Approved' }
+            // If its not the patient status requriement
+            if (requirement.requiredToDispense) {
+              const matchedMetReq3 = await metRequirementsCollection
+                .findOne({
+                  stakeholderId: reqStakeholderReference,
+                  requirementName: requirement.name,
+                  drugName: drug?.name
+                })
+                .exec();
+              // Has the patient enrollment been submited?
+              if (matchedMetReq3) {
+                // If the prescriber enrollment form is submitted twice then nothing will be update
+                // If this is the first time submitting the prescriber enrollment and there is a case then we set to true the comopleted status
+                if (!matchedMetReq3.completed) {
+                  matchedMetReq3.completed = true;
+                  matchedMetReq3.completedQuestionnaire = questionnaireResponse;
+                  await matchedMetReq3.save();
+                  // await metRequirementsCollection.findByIdAndUpdate(matchedMetReq3, {
+                  //   $set: { completed: true, completedQuestionnaire: questionnaireResponse }
                   // });
-                }
 
-                // }
+                  //Getting the update document
+                  returnedMetReqDoc = await metRequirementsCollection
+                    .findOne({
+                      _id: matchedMetReq3._id
+                    })
+                    .exec();
+
+                  // this should be an array returned via .find() - tried using $in but could not get it to work - using the first element for now as a work around since we only have one patient
+                  const remsRequestToUpdate = await remsCaseCollection
+                    .findOne({
+                      case_number: returnedMetReqDoc.case_numbers[0]
+                    })
+                    .exec();
+
+                  // ToDO: iterate over multiple remsRequests - right now there will only be one that matches, but with multiple patients in the system there could be more
+
+                  // for (let remsRequestToUpdate of remsRequestsToUpdate) {
+                  let foundUncompleted = false;
+                  const metReqArray = remsRequestToUpdate?.metRequirements;
+                  // Check to see if there are any uncompleted requirments, if all have been completed then set status to approved
+                  for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
+                    const req4 = remsRequestToUpdate?.metRequirements[i];
+                    // _id comparison would not work for some reason
+                    if (req4.requirementName === matchedMetReq3.requirementName) {
+                      metReqArray[i].completed = true;
+                      req4.completed = true;
+                      await remsCaseCollection.updateOne(
+                        { _id: remsRequestToUpdate?._id },
+                        { $set: { metRequirements: metReqArray } }
+                      );
+                    }
+                    if (!req4.completed) {
+                      foundUncompleted = true;
+                    }
+                  }
+
+                  if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
+                    remsRequestToUpdate.status = 'Approved';
+                    await remsRequestToUpdate.save();
+                    // await remsCaseCollection.findByIdAndUpdate(remsRequestToUpdate, {
+                    //   $set: { status: 'Approved' }
+                    // });
+                  }
+                  // }
+                }
+              } else {
+                // submitting the requirment but there is no case, create new met requirment
+                // create the metReq that was submitted
+                const newMetReq3 = {
+                  completed: true,
+                  completedQuestionnaire: questionnaireResponse,
+                  requirementName: requirement.name,
+                  requirementDescription: requirement.requirementDescription,
+                  drugName: drug?.name,
+                  stakeholderId: reqStakeholderReference,
+                  case_numbers: []
+                };
+
+                returnedMetReqDoc = await metRequirementsCollection.create(newMetReq3);
               }
             } else {
-              // create the metReq that was submitted
-              const newMetReq3 = {
-                completed: true,
-                completedQuestionnaire: questionnaireResponse,
-                requirementName: requirement.name,
-                requirementDescription: requirement.requirementDescription,
-                drugName: drug?.name,
-                stakeholderId: reqStakeholderReference,
-                case_numbers: []
-              };
+              // Finding the specific case associated with an individual patient for the patient status form
+              // TODO : Make this find one a find many and iterate over all cases (support multiple patients)
+              const remsRequestToUpdate2 = await remsCaseCollection
+                .findOne({
+                  patientFirstName: patientFirstName,
+                  patientLastName: patientLastName,
+                  patientDOB: patientDOB,
+                  drugCode: prescriptionCode
+                })
+                .exec();
+              // If you found a case for the patient status form to update
+              if (remsRequestToUpdate2) {
+                if (remsRequestToUpdate2.status === 'Approved') {
+                  const now = new Date();
+                  const metReq2 = {
+                    completed: true,
+                    completedQuestionnaire: questionnaireResponse,
+                    requirementName: requirement.name + ' - ' + now.toLocaleString(),
+                    requirementDescription: requirement.description,
+                    drugName: drug?.name,
+                    stakeholderId: reqStakeholderReference,
+                    case_numbers: [remsRequestToUpdate2.case_number]
+                  };
 
-              returnedMetReqDoc = await metRequirementsCollection.create(newMetReq3);
+                  try {
+                    const matchedMetReq4 = await metRequirementsCollection.create(metReq2);
+                    remsRequestToUpdate2.metRequirements.push({
+                      stakeholderId: matchedMetReq4?.stakeholderId,
+                      completed: matchedMetReq4?.completed,
+                      metRequirementId: matchedMetReq4?._id,
+                      requirementName: matchedMetReq4?.requirementName,
+                      requirementDescription: matchedMetReq4?.requirementDescription
+                    });
+
+                    await remsRequestToUpdate2.save();
+                    returnRemsRequest = true;
+                    returnedRemsRequestDoc = remsRequestToUpdate2;
+                  } catch (e) {
+                    console.log(e);
+                    console.log('create error');
+                  }
+                } else {
+                  console.log(
+                    'ETASU ERROR: case has not been approved (someone tried to submit the patient status form before all other ETASU have been met)'
+                  );
+                }
+              } else {
+                // TODO : Need to revisit and add an else for error handling if someone tries to submit the patient status form before a patient is enrolled
+                console.log(
+                  'ETASU ERROR: no case exits for this form to match (someone tried to submit the patient status form before a patient is enrolled)'
+                );
+              }
             }
           }
           break;
