@@ -40,7 +40,14 @@ KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin ./bin/kc.sh start --import
 TBD
 
 ## test-ehr
-TBD
+To launch the test EHR with ssl enabled, set the following environment variables:
+
+`EHR_SSL_ENABLED` defaults to false, needs to be true to use https.
+`EHR_KEY_STORE_TYPE` defaults to `jks` but can also be `pkcs12` if using a PKCS12 keystore
+`EHR_KEY_STORE_PATH` the path to the keystore file
+`EHR_KEY_STORE_PASSWORD` the password for the keystore
+`EHR_KEY_PASSWORD` the password for the key
+`EHR_KEY_ALIAS` the alias of the key
 
 ## crd-request-generator
 TBD
