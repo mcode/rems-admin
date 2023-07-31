@@ -123,19 +123,18 @@ Your computer must have these minimum requirements:
 1. Go to the EHR UI at http://localhost:3000 and play the role of a prescriber.
 2. Click **Patient Select** button in upper left.
 3. Find **Jon Snow** in the list of patients and click the first dropdown menu next to his name.
-4. Select 1 in the dropdown menu.
+4. Select **2183126 (MedicationRequest) Turalio 200 MG Oral Capsule**  in the dropdown menu.
 5. Click anywhere in the row to select Jon Snow.
 6. Click **Send Rx to PIMS** at the bottom of the page to send a prescription to the Pharmacist.
-7. Click **Submit to REMS-Admin** at the bottom of the page, which demonstrates the case where an EHR has CDS Hooks implimimented natively.
+7. Click **Submit to REMS-Admin** at the bottom of the page, which demonstrates the case where an EHR has CDS Hooks implemented natively.
 8. After several seconds you should receive a response in the form of two **CDS cards**:
-    - **Drug Has REMS: Documentation Required**.
 9. Select **Patient Enrollment Form** on the returned CDS card with summary **Drug Has REMS: Documentation Required**.
 10. If you are asked for login credentials, use **alice** for username and **alice** for password.
 11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 12. Fill out the questionnaire and hit **Submit REMS Bundle**.
     12a. Alternatively fill out only some of the questionnaire for an asynchronous workflow and hit **Save to EHR**.
     12b. Visit the Patient Portal at http://localhost:3000/patient-portal and lay the role of the patient.
-    12c. Login to the Patient Portal, use **jonsnow** for the username and **jon** for the password.
+    12c. Login to the Patient Portal, use **JonSnow** for the username and **jon** for the password.
     12d. Select the saved Questionnaire and fill out the rest of the questionnaire as well as the patient signature in the questionnaire and hit **Save to EHR** again.
     12e. Go back to the EHR UI at http://localhost:3000 and select the latest saved questionnaire from the second dropdown next to Jon Snow's name and continue in the role of the prescriber.
     12f. Click **Relaunch DTR** and fill out the remainder of the questionnaire, including the prescriber signature, then click **Submit REMS Bundle**.
@@ -146,14 +145,14 @@ Your computer must have these minimum requirements:
 	* Email: spharmichael@example.com
 	* Password: suzy -->
 15. Click **Doctor Orders** in the top hand navigation menu on the screen
-16. See the Doctor Order that was sent to the pharmacist from the prescriber and use the **Check ETASU** button to get a status update of the REMS requirements submitted
-17. Go Back to the EHR UI at http://localhost:3000 and play the role of the prescriber again, select patient Jon Snow from the patient select UI and click **Launch SMART on FHIR**, which will open the SMART on FHIR App in its own view and demonstrate the case where an EHR does not have CDS Hooks implemented natively.
-18. From the medications dropdown select **2183126 - Turalio 200 MG Oral Capsule**, which should populate the screen with cards as seen in step 7. 
+16. See the Doctor Order that was sent to the pharmacist from the prescriber and use the **Verify ETASU** button to get a status update of the REMS requirements submitted
+17. Go Back to the EHR UI at http://localhost:3000 and play the role of the prescriber again, select patient Jon Snow from the patient select UI and click **Launch SMART on FHIR App**, which will open the SMART on FHIR App in its own view and demonstrate the case where an EHR does not have CDS Hooks implemented natively.
+18. From the medications dropdown select **Turalio 200 MG Oral Capsule**, which should populate the screen with cards similar to those seen in step 7. 
 19. Use the **Check ETASU** and **Check Pharmacy** buttons to get status updates on the prescription and REMS request
-20. Use the links for the Prescriber Enrollment and Prescriber Knowledge Assessment Forms and repeat steps 9-12 to submit those ETASU requirements and see how the ETASU status changes in both the Pharmacist UI and Prescriber UI. 
-21. Once all the REMS ETASU are met, go back to http://localhost:5050 and play the role of the Pharmacist, using the  **Verify Order** button to move the prescription over to the **verified orders** tab. Click on the **Verified Orders** Tab and from there use the **Picked Up** button to move the prescription over to the **Picked Up Orders** Tab.
+20. Use the links for the **Prescriber Enrollment Form** and **Prescriber Knowledge Assessment** Questionnaires and repeat steps 9-12 to submit those ETASU requirements and see how the ETASU status changes in both the Pharmacist UI and Prescriber UI. 
+21. Once all the REMS ETASU are met, go back to http://localhost:5050 and play the role of the Pharmacist, using the  **Verify Order** button to move the prescription over to the **Verified Orders** Tab. Click on the **Verified Orders** Tab and from there use the **Mark as Picked Up** button to move the prescription over to the **Picked Up Orders** Tab.
 22. Go back to the SMART on FHIR App launched in step 17 and play the role of the prescriber using the **Check Pharmacy** button to see the status change of the prescription. 
-23. Lastly, repeat step 20 to open the **Patient Status** Form in the returned cards to submit follow up/monitoring requests on an as need basis. These forms can be submitted as many times as need be in the prototype and will show up as separate ETASU elements each time. 
+23. Lastly, repeat step 20 to open the **Patient Status Update Form**  in the returned cards to submit follow up/monitoring requests on an as need basis. These forms can be submitted as many times as need be in the prototype and will show up as separate ETASU elements each time. 
 
 Congratulations! the REMS prototype is fully installed and ready for you to use!
 
