@@ -316,12 +316,12 @@ Reference: https://docker-sync.readthedocs.io/en/latest/getting-started/commands
 10. If you are asked for login credentials, use **alice** for username and **alice** for password.
 11. A webpage should open in a new tab, and after a few seconds, a questionnaire should appear.
 12. Fill out the questionnaire and hit **Submit REMS Bundle**.
-    12a. Alternatively fill out only some of the questionnaire for an asynchronous workflow and hit **Save to EHR**.
-    12b. Visit the Patient Portal at http://localhost:3000/patient-portal and lay the role of the patient.
-    12c. Login to the Patient Portal, use **JonSnow** for the username and **jon** for the password.
-    12d. Select the saved Questionnaire and fill out the rest of the questionnaire as well as the patient signature in the questionnaire and hit **Save to EHR** again.
-    12e. Go back to the EHR UI at http://localhost:3000 and select the latest saved questionnaire from the second dropdown next to Jon Snow's name and continue in the role of the prescriber.
-    12f. Click **Relaunch DTR** and fill out the remainder of the questionnaire, including the prescriber signature, then click **Submit REMS Bundle**.
+    - 12a. Alternatively fill out only some of the questionnaire for an asynchronous workflow and hit **Save to EHR**.
+    - 12b. Visit the Patient Portal at http://localhost:3000/patient-portal and lay the role of the patient.
+    - 12c. Login to the Patient Portal, use **JonSnow** for the username and **jon** for the password.
+    - 12d. Select the saved Questionnaire and fill out the rest of the questionnaire as well as the patient signature in the questionnaire and hit **Save to EHR** again.
+    - 12e. Go back to the EHR UI at http://localhost:3000 and select the latest saved questionnaire from the second dropdown next to Jon Snow's name and continue in the role of the prescriber.
+    - 12f. Click **Relaunch DTR** and fill out the remainder of the questionnaire, including the prescriber signature, then click **Submit REMS Bundle**.
 13. A new UI will appear with REMS Admin Status and Pharmacy Status.
 14. Go to http://localhost:5050 and play the role of a pharmacist.
 <!-- 15. Click on **Log in as Admin** in the top right of the page -->
