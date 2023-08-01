@@ -133,28 +133,40 @@ export class FhirUtilities {
             description: 'Submit Patient Enrollment form to the REMS Administrator',
             stakeholderType: 'patient',
             createNewCase: true,
-            resourceId: 'TuralioRemsPatientEnrollment'
+            resourceId: 'TuralioRemsPatientEnrollment',
+            requiredToDispense: true
           },
           {
             name: 'Prescriber Enrollment',
             description: 'Submit Prescriber Enrollment form to the REMS Administrator',
             stakeholderType: 'prescriber',
             createNewCase: false,
-            resourceId: 'TuralioPrescriberEnrollmentForm'
+            resourceId: 'TuralioPrescriberEnrollmentForm',
+            requiredToDispense: true
           },
           {
             name: 'Prescriber Knowledge Assessment',
             description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
             stakeholderType: 'prescriber',
             createNewCase: false,
-            resourceId: 'TuralioPrescriberKnowledgeAssessment'
+            resourceId: 'TuralioPrescriberKnowledgeAssessment',
+            requiredToDispense: true
           },
           {
             name: 'Pharmacist Enrollment',
             description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
             stakeholderType: 'pharmacist',
             createNewCase: false,
-            resourceId: 'TuralioPharmacistEnrollment'
+            resourceId: 'TuralioPharmacistEnrollment',
+            requiredToDispense: true
+          },
+          {
+            name: 'Patient Status Update Form',
+            description: 'Submit Patient Status Update form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: false,
+            resourceId: 'TuralioRemsPatientStatus',
+            requiredToDispense: false
           }
         ]
       },
@@ -168,35 +180,40 @@ export class FhirUtilities {
             description: 'Submit Patient Enrollment form to the REMS Administrator',
             stakeholderType: 'patient',
             createNewCase: true,
-            resourceId: 'TIRFRemsPatientEnrollment'
+            resourceId: 'TIRFRemsPatientEnrollment',
+            requiredToDispense: true
           },
           {
             name: 'Prescriber Enrollment',
             description: 'Submit Prescriber Enrollment form to the REMS Administrator',
             stakeholderType: 'prescriber',
             createNewCase: false,
-            resourceId: 'TIRFPrescriberEnrollmentForm'
+            resourceId: 'TIRFPrescriberEnrollmentForm',
+            requiredToDispense: true
           },
           {
             name: 'Prescriber Knowledge Assessment',
             description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
             stakeholderType: 'prescriber',
             createNewCase: false,
-            resourceId: 'TIRFPrescriberKnowledgeAssessment'
+            resourceId: 'TIRFPrescriberKnowledgeAssessment',
+            requiredToDispense: true
           },
           {
             name: 'Pharmacist Enrollment',
             description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
             stakeholderType: 'pharmacist',
             createNewCase: false,
-            resourceId: 'TIRFPharmacistEnrollmentForm'
+            resourceId: 'TIRFPharmacistEnrollmentForm',
+            requiredToDispense: true
           },
           {
             name: 'Pharmacist Knowledge Assessment',
             description: 'Submit Pharmacist Knowledge Assessment form to the REMS Administrator',
             stakeholderType: 'pharmacist',
             createNewCase: false,
-            resourceId: 'TIRFPharmacistKnowledgeAssessment'
+            resourceId: 'TIRFPharmacistKnowledgeAssessment',
+            requiredToDispense: true
           }
         ]
       },
@@ -210,21 +227,24 @@ export class FhirUtilities {
             description: 'Submit Patient Enrollment form to the REMS Administrator',
             stakeholderType: 'patient',
             createNewCase: true,
-            resourceId: 'IPledgeRemsPatientEnrollment'
+            resourceId: 'IPledgeRemsPatientEnrollment',
+            requiredToDispense: true
           },
           {
             name: 'Prescriber Enrollment',
             description: 'Submit Prescriber Enrollment form to the REMS Administrator',
             stakeholderType: 'prescriber',
             createNewCase: false,
-            resourceId: 'IPledgeRemsPrescriberEnrollmentForm'
+            resourceId: 'IPledgeRemsPrescriberEnrollmentForm',
+            requiredToDispense: true
           },
           {
             name: 'Pharmacist Enrollment',
             description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
             stakeholderType: 'pharmacist',
             createNewCase: false,
-            resourceId: 'IPledgeRemsPharmacistEnrollmentForm'
+            resourceId: 'IPledgeRemsPharmacistEnrollmentForm',
+            requiredToDispense: true
           }
         ]
       }

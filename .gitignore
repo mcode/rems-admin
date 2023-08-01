@@ -1,6 +1,5 @@
 .cnab/
 .docker-sync/
-.env
 package-lock.json
 COVERAGE/
 logs/
@@ -9,3 +8,7 @@ dist/
 .idea/
 .DS_Store
 env.json
+
+# self signed certs for https
+server.cert
+server.key
