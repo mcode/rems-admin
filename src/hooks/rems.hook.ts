@@ -57,7 +57,8 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
-      ]
+      ],
+      summary: 'Turalio REMS Patient Requirements'
     },
     {
       links: [
@@ -97,7 +98,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(config.smart.endpoint)
         }
       ],
-      summary: 'Prescriber Forms'
+      summary: 'Turalio REMS Prescriber Requirements'
     }
   ],
   '6064': [
@@ -138,7 +139,8 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
-      ]
+      ],
+      summary: 'iPledge/Isotretinoin REMS Patient Requirements'
     },
     {
       links: [
@@ -164,7 +166,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(config.smart.endpoint)
         }
       ],
-      summary: 'Prescriber Forms'
+      summary: 'iPledge/Isotretinoin REMS Provider Requirements'
     }
   ],
   '1237051': [
@@ -198,7 +200,8 @@ const codeMap: { [key: string]: CardRule[] } = {
           type: 'smart',
           url: new URL(config.smart.endpoint)
         }
-      ]
+      ],
+      summary: 'TIRF REMS Patient Requirements'
     },
     {
       links: [
@@ -231,7 +234,7 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(config.smart.endpoint)
         }
       ],
-      summary: 'Prescriber Forms'
+      summary: 'TIRF REMS Prescriber Requirements'
     }
   ]
 };
