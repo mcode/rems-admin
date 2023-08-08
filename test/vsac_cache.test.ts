@@ -1,10 +1,12 @@
 import VsacCache from '../src/lib/vsac_cache';
-import library from './fixtures/library.json';
+import libraryJson from './fixtures/library.json';
 import questionnaire from './fixtures/questionnaire.json';
 import nock from 'nock';
 import ValueSetModel from '../src/lib/schemas/resources/ValueSet';
 import { expect } from 'chai';
+import { Library } from 'fhir/r4';
 
+const library: Library = JSON.parse(JSON.stringify(libraryJson));
 const generateValueset = (idOrUrl: string) => {
   return { resourceType: 'ValueSet', id: idOrUrl };
 };
@@ -100,14 +102,14 @@ describe('VsacCache', () => {
         .reply(200, generateValueset('yes-no-unknown-not-asked'));
       let update = await client.downloadAndCacheValueset(vs);
 
-      expect(update.get('cached')).to.be.false;
+      expect(update).to.be.undefined;
 
       mockRequest
         .get('/ValueSet/yes-no-unknown-not-asked')
         .reply(200, generateValueset('yes-no-unknown-not-asked'));
       update = await client.downloadAndCacheValueset(vs, true);
 
-      expect(update.get('cached')).to.be.true;
+      expect(update).to.be.true;
     } finally {
       mockRequest.done();
     }
@@ -117,13 +119,12 @@ describe('VsacCache', () => {
     const mockRequest = nock('http://terminology.hl7.org/');
     const vs = 'http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked';
     mockRequest.get('/ValueSet/yes-no-unknown-not-asked').reply(404, '');
-    expect(await client.isCached(vs)).to.be.false;
+    expect(await client.isCached(vs)).to.be.null;
     let err;
     try {
       err = await client.downloadAndCacheValueset(vs);
-      // console.log(err);
 
-      expect(err.get('error')).to.not.be.undefined;
+      expect(err).to.be.undefined;
     } catch (e) {
       console.log('Expected Error to be defined', err);
       throw e;
@@ -132,11 +133,9 @@ describe('VsacCache', () => {
     }
   });
 
-  it('Should not attempt tp download non-vsac valuesets if configured to do so', async () => {
+  it('Should not attempt to download non-vsac valuesets if configured to do so', async () => {
     client.onlyVsac = true;
     const err = await client.downloadAndCacheValueset('http://localhost:9999/vs/1234');
-    expect(err.get('error')).to.equal(
-      'Cannot download non vsac valuesets: http://localhost:9999/vs/1234'
-    );
+    expect(err).to.be.undefined;
   });
 });

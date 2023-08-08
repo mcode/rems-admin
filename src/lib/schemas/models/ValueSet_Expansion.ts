@@ -14,11 +14,11 @@ export default new mongoose.Schema<ValueSetExpansion>(
       default: void 0
     },
     total: {
-      type: integer,
+      type: Number,
       default: void 0
     },
     offset: {
-      type: integer,
+      type: Number,
       default: void 0
     },
     parameter: {
