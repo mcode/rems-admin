@@ -179,20 +179,6 @@ class VsacCache {
     const id = this.getValuesetId(idOrUrl);
     // Query our collection for this observation
     return await ValueSetModel.findOne({ id: id.toString() });
-    // return await new Promise<ValueSet | null>((resolve, _reject) => {
-    //   if (id) {
-    //     ValueSetModel.findOne({ id: id.toString() })
-    //       .exec()
-    //       .then((valueSet: any) => {
-    //         if (valueSet) {
-    //           resolve(valueSet);
-    //         }
-    //         resolve(null);
-    //       });
-    //   } else {
-    //     resolve(null);
-    //   }
-    // });
   }
 
   /**
