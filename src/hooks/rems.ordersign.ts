@@ -10,6 +10,7 @@ import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 import axios from 'axios';
+import { getFhirResource } from './hookResources';
 
 interface CardRule {
   links: Link[];
@@ -282,20 +283,6 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function getFhirResource(token: string) {
-    const ehrUrl = `${req.body.fhirServer}/${token}`;
-    const access_token = req.body.fhirAuthorization?.access_token;
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${access_token}`
-      }
-    };
-    const response = axios(ehrUrl, options);
-    return response.then(e => {
-      return e.data;
-    });
-  }
   function handleCard(hydratedPrefetch: OrderSignPrefetch) {
     const context = req.body.context;
     const contextRequest = context.draftOrders?.entry?.[0].resource;
