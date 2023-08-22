@@ -12,7 +12,6 @@ import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 import axios from 'axios';
 import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
 
-
 interface TypedRequestBody extends Express.Request {
   body: OrderSelectHook;
 }
@@ -41,16 +40,15 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-
   function handleCard(hydratedPrefetch: OrderSelectPrefetch) {
     console.log(hydratedPrefetch);
     const context = req.body.context;
     // const contextRequest = context.draftOrders?.entry?.[0].resource;
     const selection = context.selections?.[0];
-    const contextRequest = context.draftOrders?.entry?.filter((entry) => {
-        if(entry.resource) {
-            return selection === `${entry.resource.resourceType}/${entry.resource.id}`
-        }
+    const contextRequest = context.draftOrders?.entry?.filter(entry => {
+      if (entry.resource) {
+        return selection === `${entry.resource.resourceType}/${entry.resource.id}`;
+      }
     })[0].resource;
     const patient = hydratedPrefetch?.patient;
     const prefetchRequest = hydratedPrefetch?.request;
