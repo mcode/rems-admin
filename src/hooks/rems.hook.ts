@@ -4,8 +4,12 @@ import {
   SupportedHooks,
   OrderSignPrefetch
 } from '../rems-cds-hooks/resources/HookTypes';
+import {
+  medicationCollection,
+  remsCaseCollection
+} from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import { Coding } from 'fhir/r4';
+import { Coding, MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
@@ -14,6 +18,7 @@ import axios from 'axios';
 interface CardRule {
   links: Link[];
   summary?: string;
+  stakeholderType?: string;
 }
 const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
 // TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
@@ -42,22 +47,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
           )
-        },
-        {
-          label: 'Patient Status Update Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'Turalio REMS Patient Requirements'
     },
     {
@@ -82,22 +74,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Prescriber_Training.pdf'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Prescriber Knowledge Assessment',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'Turalio REMS Prescriber Requirements'
     }
   ],
@@ -131,15 +110,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Isotretinoin_2021_10_8_Contraception_Counseling_Guide.pdf'
           )
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'iPledge/Isotretinoin REMS Patient Requirements'
     },
     {
@@ -157,15 +130,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Isotretinoin_2021_10_8_Comprehension_Questions.pdf'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'iPledge/Isotretinoin REMS Provider Requirements'
     }
   ],
@@ -192,15 +159,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://tirfstorageproduction.blob.core.windows.net/tirf-public/tirf-patientfaq-frequently-asked-questions.pdf?skoid=417a7522-f809-43c4-b6a8-6b192d44b69e&sktid=59fc620e-de8c-4745-abcc-18182d1bf20e&skt=2022-09-20T19%3A06%3A21Z&ske=2022-09-26T19%3A11%3A21Z&sks=b&skv=2020-04-08&sv=2020-04-08&st=2021-03-21T21%3A27%3A00Z&se=2031-03-21T23%3A59%3A59Z&sr=b&sp=rc&sig=owSGAoUBZuCtsLE41F2XC3o12x%2BG%2Bt5ogykOIt796es%3D'
           )
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'TIRF REMS Patient Requirements'
     },
     {
@@ -218,22 +179,9 @@ const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://tirfstorageproduction.blob.core.windows.net/tirf-public/tirf-prfaq-frequently-asked-questions.pdf?skoid=417a7522-f809-43c4-b6a8-6b192d44b69e&sktid=59fc620e-de8c-4745-abcc-18182d1bf20e&skt=2022-09-20T19%3A06%3A53Z&ske=2022-09-26T19%3A11%3A53Z&sks=b&skv=2020-04-08&sv=2020-04-08&st=2021-03-21T21%3A35%3A43Z&se=2031-03-21T23%3A59%3A59Z&sr=b&sp=rc&sig=fqtDzsm7qi1G8MKau210Y3gNet%2Fi20zw2EThKODdEUM%3D'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Prescriber Knowledge Assessment',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'TIRF REMS Prescriber Requirements'
     }
   ]
@@ -296,7 +244,20 @@ const handler = (req: TypedRequestBody, res: any) => {
       return e.data;
     });
   }
-  function handleCard(hydratedPrefetch: OrderSignPrefetch) {
+
+  function createSmartLink(requirementName: string, appContext: string, request: MedicationRequest) {
+    const newLink: Link = {
+      label: requirementName + ' Form',
+      url: new URL(config.smart.endpoint),
+      type: 'smart',
+      appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
+        request.insurance?.[0].reference
+      }`
+    };
+    return newLink;
+  }
+
+  async function handleCard(hydratedPrefetch: OrderSignPrefetch) {
     const context = req.body.context;
     const contextRequest = context.draftOrders?.entry?.[0].resource;
     const patient = hydratedPrefetch?.patient;
@@ -344,6 +305,26 @@ const handler = (req: TypedRequestBody, res: any) => {
 
     const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
     if (medicationCode && medicationCode.code) {
+
+      // find the drug in the medicationCollection to get the smart links
+      const drug = await medicationCollection
+        .findOne({
+          code: medicationCode.code,
+          codeSystem: medicationCode.system
+        })
+        .exec();
+
+      // find a matching rems case for the patient and this drug to only return needed results
+      const patientName = patient?.name?.[0];
+      const etasu = await remsCaseCollection
+        .findOne({
+          patientFirstName: patientName?.given?.[0],
+          patientLastName: patientName?.family,
+          patientDOB: patient?.birthDate,
+          drugCode: medicationCode?.code
+        });
+
+
       const returnCard = validCodes.some(e => {
         return e.code === medicationCode.code && e.system === medicationCode.system;
       });
@@ -361,21 +342,44 @@ const handler = (req: TypedRequestBody, res: any) => {
             if (e.type == 'absolute') {
               // no construction needed
               card.addLink(e);
-            } else {
-              // link is SMART
-              // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-              const newLink: Link = {
-                label: e.label,
-                url: e.url,
-                type: e.type,
-                appContext: `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
-                  contextRequest.insurance?.[0].reference
-                }`
-              };
-              card.addLink(newLink);
             }
           });
-          cardArray.push(card);
+
+          var smartLinkCount = 0;
+
+          // process the smart links from the medicationCollection
+          // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+          for (const requirement of drug?.requirements) {
+            if (requirement.stakeholderType == rule.stakeholderType) {
+
+              // only add the link if the form has not already been processed / received
+              if (etasu) {
+                var found = false;
+                for (const metRequirement of etasu?.metRequirements) {
+                  if (metRequirement.requirementName == requirement.name) {
+                    found = true;
+                    if (!metRequirement.completed) {
+                      card.addLink(createSmartLink(requirement.name, requirement.appContext, contextRequest));
+                      smartLinkCount++;
+                    }
+                  }
+                }
+                if (!found) {
+                  card.addLink(createSmartLink(requirement.name, requirement.appContext, contextRequest));
+                  smartLinkCount++;
+                }
+              } else { // if (etasu)
+                // add all the links if no etasu to check
+                card.addLink(createSmartLink(requirement.name, requirement.appContext, contextRequest));
+                smartLinkCount++;
+              }
+            }
+          }
+
+          // only add the card if there are smart links to needed forms
+          if (smartLinkCount > 0) {
+            cardArray.push(card);
+          }
         }
         res.json({
           cards: cardArray
