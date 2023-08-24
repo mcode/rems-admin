@@ -135,7 +135,8 @@ export class FhirUtilities {
             createNewCase: true,
             resourceId: 'TuralioRemsPatientEnrollment',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -144,7 +145,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'TuralioPrescriberEnrollmentForm',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm'
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -153,7 +155,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'TuralioPrescriberKnowledgeAssessment',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment'
           },
           {
             name: 'Pharmacist Enrollment',
@@ -170,7 +173,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'TuralioRemsPatientStatus',
             requiredToDispense: false,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus'
           }
         ]
       },
@@ -186,7 +190,8 @@ export class FhirUtilities {
             createNewCase: true,
             resourceId: 'TIRFRemsPatientEnrollment',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -195,7 +200,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'TIRFPrescriberEnrollmentForm',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm'
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -204,7 +210,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'TIRFPrescriberKnowledgeAssessment',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment'
           },
           {
             name: 'Pharmacist Enrollment',
@@ -236,7 +243,8 @@ export class FhirUtilities {
             createNewCase: true,
             resourceId: 'IPledgeRemsPatientEnrollment',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment' 
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -245,7 +253,8 @@ export class FhirUtilities {
             createNewCase: false,
             resourceId: 'IPledgeRemsPrescriberEnrollmentForm',
             requiredToDispense: true,
-            appContext: 'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm'
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm'
           },
           {
             name: 'Pharmacist Enrollment',
