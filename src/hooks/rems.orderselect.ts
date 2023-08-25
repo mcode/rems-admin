@@ -5,11 +5,8 @@ import {
   OrderSelectHook
 } from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import { Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
-import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import axios from 'axios';
 import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
 
 interface TypedRequestBody extends Express.Request {
@@ -51,7 +48,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       }
     })[0].resource;
     const patient = hydratedPrefetch?.patient;
-    const prefetchRequest = hydratedPrefetch?.request;
+    const prefetchRequest = context.draftOrders?.entry?.[0].resource;
     const practitioner = hydratedPrefetch?.practitioner;
     const npi = practitioner?.identifier;
     console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
