@@ -1,5 +1,5 @@
 // import OrderSign from '../src/hooks/OrderSign';
-import getREMSHook from '../src/hooks/rems.hook';
+import getREMSHook from '../src/hooks/rems.orderselect';
 import { expect } from 'chai';
 
 describe.skip('hook: test rems', () => {
