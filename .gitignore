@@ -8,7 +8,7 @@ dist/
 .idea/
 .DS_Store
 env.json
-.env.local
+.env
 
 # self signed certs for https
 server.cert
