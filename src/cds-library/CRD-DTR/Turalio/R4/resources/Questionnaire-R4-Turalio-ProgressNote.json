@@ -11,7 +11,7 @@
   "extension": [
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
-      "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicClinicalInfo-prepopulation"
+      "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/TuralioProgressNote-prepopulation"
     }
   ],
   "title": "Turalio Rems Patient Status",
@@ -61,7 +61,16 @@
       "type": "open-choice",
       "repeats": true,
       "required": true,
-      "answerOption": []
+      "answerOption": [],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/cql",
+            "expression": "\"TuralioProgressNotePrepopulation\".AllDiagnoses"
+          }
+        }
+      ]
     },
     {
       "linkId": "5",
@@ -74,18 +83,45 @@
           "text": "Transplants for Order",
           "type": "open-choice",
           "repeats": true,
-          "answerOption": []
+          "answerOption": [],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "5.2",
           "text": "Date of transplant",
           "type": "date",
-          "required": true
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "5.3",
           "text": "Institution where transplant was performed",
-          "type": "string"
+          "type": "string",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "5.4",
@@ -94,6 +130,13 @@
           "required": true,
           "answerValueSet": "http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked",
           "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            },
             {
               "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
               "valueCodeableConcept": {
@@ -114,6 +157,13 @@
           "required": "true",
           "answerValueSet": "http://terminology.hl7.org/ValueSet/yes-no-unknown-not-asked",
           "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            },
             {
               "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
               "valueCodeableConcept": {
@@ -223,27 +273,72 @@
         {
           "linkId": "9.1",
           "type": "text",
-          "text": "RxNorm Code"
+          "text": "RxNorm Code",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "9.2",
           "type": "text",
-          "text": "Drug"
+          "text": "Drug",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "9.3",
           "type": "text",
-          "text": "Route"
+          "text": "Route",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "9.4",
           "type": "text",
-          "text": "Dose"
+          "text": "Dose",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         },
         {
           "linkId": "9.5",
           "type": "text",
-          "text": "Frequency"
+          "text": "Frequency",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".<TODO>"
+              }
+            }
+          ]
         }
       ]
     },

@@ -1,0 +1,44 @@
+{
+    "resourceType": "Library",
+  "id": "TuralioProgressNote-prepopulation",
+  "url": "http://hl7.org/fhir/us/davinci-dtr/Library/TuralioProgressNote-prepopulation",
+  "name": "TuralioProgressNote-prepopulation",
+  "version": "0.1.0",
+  "title": "TuralioProgressNote Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "Library/FHIRHelpers-4.0.0"
+    },
+    {
+      "type": "depends-on",
+      "resource": "Library/CDS_Connect_Commons_for_FHIRv400"
+    },
+    {
+      "type": "depends-on",
+      "resource": "Library/DTRHelpers"
+    }
+  ],
+  "dataRequirement": 
+  [
+   { "type": "TODO"}
+  ],
+  "content": [
+      {
+        "contentType": "text/cql",
+        "data": "TODO"
+      },
+      {
+        "contentType": "application/elm+json",
+        "data": "TODO"
+      }
+  ]
+}
