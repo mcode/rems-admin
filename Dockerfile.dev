@@ -1,5 +1,5 @@
 FROM node:18-alpine 
-WORKDIR /REMS
+WORKDIR /rems-admin
 COPY --chown=node:node . .
 RUN npm install
 EXPOSE 8090

@@ -272,7 +272,7 @@ const definition: CdsService = {
 };
 const source = {
   label: 'MCODE REMS Administrator Prototype',
-  url: new URL('https://github.com/mcode/REMS')
+  url: new URL('https://github.com/mcode/rems-admin')
 };
 function buildErrorCard(reason: string) {
   const errorCard = new Card('Bad Request', reason, source, 'warning');

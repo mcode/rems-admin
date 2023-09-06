@@ -1,9 +1,9 @@
-# REMS-admin
+# rems-admin
 
 ## Running only the REMS server project locally
 1.  Clone the REMS repositories from Github:
     ```bash
-    git clone https://github.com/mcode/REMS.git REMS  
+    git clone https://github.com/mcode/rems-admin.git rems-admin 
     ```
 2. Run dockerRunner.sh script
     ```bash
