@@ -7,6 +7,7 @@ import axios from 'axios';
 export interface CardRule {
   links: Link[];
   summary?: string;
+  stakeholderType?: string;
 }
 export const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
 // TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
@@ -35,22 +36,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
           )
-        },
-        {
-          label: 'Patient Status Update Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'Turalio REMS Patient Requirements'
     },
     {
@@ -75,22 +63,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Prescriber_Training.pdf'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Prescriber Knowledge Assessment',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'Turalio REMS Prescriber Requirements'
     }
   ],
@@ -124,15 +99,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Isotretinoin_2021_10_8_Contraception_Counseling_Guide.pdf'
           )
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'iPledge/Isotretinoin REMS Patient Requirements'
     },
     {
@@ -150,15 +119,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Isotretinoin_2021_10_8_Comprehension_Questions.pdf'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'iPledge/Isotretinoin REMS Provider Requirements'
     }
   ],
@@ -185,15 +148,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://tirfstorageproduction.blob.core.windows.net/tirf-public/tirf-patientfaq-frequently-asked-questions.pdf?skoid=417a7522-f809-43c4-b6a8-6b192d44b69e&sktid=59fc620e-de8c-4745-abcc-18182d1bf20e&skt=2022-09-20T19%3A06%3A21Z&ske=2022-09-26T19%3A11%3A21Z&sks=b&skv=2020-04-08&sv=2020-04-08&st=2021-03-21T21%3A27%3A00Z&se=2031-03-21T23%3A59%3A59Z&sr=b&sp=rc&sig=owSGAoUBZuCtsLE41F2XC3o12x%2BG%2Bt5ogykOIt796es%3D'
           )
-        },
-        {
-          label: 'Patient Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'patient',
       summary: 'TIRF REMS Patient Requirements'
     },
     {
@@ -211,22 +168,9 @@ export const codeMap: { [key: string]: CardRule[] } = {
           url: new URL(
             'https://tirfstorageproduction.blob.core.windows.net/tirf-public/tirf-prfaq-frequently-asked-questions.pdf?skoid=417a7522-f809-43c4-b6a8-6b192d44b69e&sktid=59fc620e-de8c-4745-abcc-18182d1bf20e&skt=2022-09-20T19%3A06%3A53Z&ske=2022-09-26T19%3A11%3A53Z&sks=b&skv=2020-04-08&sv=2020-04-08&st=2021-03-21T21%3A35%3A43Z&se=2031-03-21T23%3A59%3A59Z&sr=b&sp=rc&sig=fqtDzsm7qi1G8MKau210Y3gNet%2Fi20zw2EThKODdEUM%3D'
           )
-        },
-        {
-          label: 'Prescriber Enrollment Form',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
-        },
-        {
-          label: 'Prescriber Knowledge Assessment',
-          appContext:
-            'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
-          type: 'smart',
-          url: new URL(config.smart.endpoint)
         }
       ],
+      stakeholderType: 'prescriber',
       summary: 'TIRF REMS Prescriber Requirements'
     }
   ]

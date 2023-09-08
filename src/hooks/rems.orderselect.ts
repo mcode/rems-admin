@@ -4,10 +4,14 @@ import {
   OrderSelectPrefetch,
   OrderSelectHook
 } from '../rems-cds-hooks/resources/HookTypes';
+import { medicationCollection, remsCaseCollection } from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
+import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
+import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
+import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
   body: OrderSelectHook;
@@ -37,7 +41,38 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function handleCard(hydratedPrefetch: OrderSelectPrefetch) {
+  function getFhirResource(token: string) {
+    const ehrUrl = `${req.body.fhirServer}/${token}`;
+    const access_token = req.body.fhirAuthorization?.access_token;
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    };
+    const response = axios(ehrUrl, options);
+    return response.then(e => {
+      return e.data;
+    });
+  }
+
+  function createSmartLink(
+    requirementName: string,
+    appContext: string,
+    request: MedicationRequest
+  ) {
+    const newLink: Link = {
+      label: requirementName + ' Form',
+      url: new URL(config.smart.endpoint),
+      type: 'smart',
+      appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
+        request.insurance?.[0].reference
+      }`
+    };
+    return newLink;
+  }
+
+  async function handleCard(hydratedPrefetch: OrderSelectPrefetch) {
     console.log(hydratedPrefetch);
     const context = req.body.context;
     // const contextRequest = context.draftOrders?.entry?.[0].resource;
@@ -92,6 +127,23 @@ const handler = (req: TypedRequestBody, res: any) => {
 
     const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
     if (medicationCode && medicationCode.code) {
+      // find the drug in the medicationCollection to get the smart links
+      const drug = await medicationCollection
+        .findOne({
+          code: medicationCode.code,
+          codeSystem: medicationCode.system
+        })
+        .exec();
+
+      // find a matching rems case for the patient and this drug to only return needed results
+      const patientName = patient?.name?.[0];
+      const etasu = await remsCaseCollection.findOne({
+        patientFirstName: patientName?.given?.[0],
+        patientLastName: patientName?.family,
+        patientDOB: patient?.birthDate,
+        drugCode: medicationCode?.code
+      });
+
       const returnCard = validCodes.some(e => {
         return e.code === medicationCode.code && e.system === medicationCode.system;
       });
@@ -109,21 +161,52 @@ const handler = (req: TypedRequestBody, res: any) => {
             if (e.type == 'absolute') {
               // no construction needed
               card.addLink(e);
-            } else {
-              // link is SMART
-              // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-              const newLink: Link = {
-                label: e.label,
-                url: e.url,
-                type: e.type,
-                appContext: `${e.appContext}&order=${JSON.stringify(contextRequest)}&coverage=${
-                  contextRequest.insurance?.[0].reference
-                }`
-              };
-              card.addLink(newLink);
             }
           });
-          cardArray.push(card);
+
+          let smartLinkCount = 0;
+
+          // process the smart links from the medicationCollection
+          // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+          if (drug) {
+            for (const requirement of drug.requirements) {
+              if (requirement.stakeholderType == rule.stakeholderType) {
+                // only add the link if the form has not already been processed / received
+                if (etasu) {
+                  let found = false;
+                  for (const metRequirement of etasu.metRequirements) {
+                    if (metRequirement.requirementName == requirement.name) {
+                      found = true;
+                      if (!metRequirement.completed) {
+                        card.addLink(
+                          createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                        );
+                        smartLinkCount++;
+                      }
+                    }
+                  }
+                  if (!found) {
+                    card.addLink(
+                      createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                    );
+                    smartLinkCount++;
+                  }
+                } else {
+                  // if (etasu)
+                  // add all the links if no etasu to check
+                  card.addLink(
+                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                  );
+                  smartLinkCount++;
+                }
+              }
+            }
+          }
+
+          // only add the card if there are smart links to needed forms
+          if (smartLinkCount > 0) {
+            cardArray.push(card);
+          }
         }
         res.json({
           cards: cardArray
