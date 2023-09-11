@@ -1,0 +1,511 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "TuralioRemsPatientStatus",
+  "name": "TuralioRemsPatientStatus",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+      "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/TuralioProgressNote-prepopulation"
+    }
+  ],
+  "title": "Turalio Rems Patient Status",
+  "status": "draft",
+  "date": "2020-04-09",
+  "publisher": "Da Vinci DTR",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+          "valueCanonical": "questionnaire/patient-info"
+        }
+      ],
+      "type": "display",
+      "text": "This is a placeholder for Patient/Beneficiary Demographics"
+    },
+    {
+      "linkId": "2",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+          "valueCanonical": "questionnaire/practitioner-info"
+        }
+      ],
+      "type": "display",
+      "text": "This is a placeholder for Physician/NPP Demographics"
+    },
+    {
+      "linkId": "3",
+      "type": "group",
+      "text": "Hepatic Monitoring Information",
+      "item": [
+        {
+          "linkId": "3.1",
+          "type": "display",
+          "text": "Obtain liver tests as follows:\n\t• Weekly for the first 8 weeks of treatment\n\t• Every 2 weeks for the next month\n\t• Every 3 months thereafter"
+        },
+        {
+          "linkId": "3.2",
+          "type": "boolean",
+          "text": "Is the patient still under your care?",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".IsPatientInCare"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.3",
+          "type": "boolean",
+          "text": "Is the patient alive?",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"TuralioProgressNotePrepopulation\".IsPatientAlive"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.4",
+          "type": "boolean",
+          "text": "Are you monitoring the patient as recommended in the Prescribing Information?"
+        },
+        {
+          "linkId": "3.5",
+          "type": "boolean",
+          "text": "Is the patient continuing TURALIO?",
+          "initial": [
+            {
+              "valueBoolean": false
+            }
+          ]
+        },
+        {
+          "linkId": "3.5.1",
+          "type": "string",
+          "text": "Withheld, reason: ",
+          "enableWhen": [
+            {
+              "question": "3.5",
+              "operator": "=",
+              "answerBoolean": false
+            }
+          ]
+        },
+        {
+          "linkId": "3.5.2",
+          "type": "string",
+          "text": "Discontinued, reason: ",
+          "enableWhen": [
+            {
+              "question": "3.5",
+              "operator": "=",
+              "answerBoolean": false
+            }
+          ]
+        }
+
+      ]
+    },
+    {
+      "linkId": "4",
+      "type": "group",
+      "text": "Since starting TURALIO or since submission of the last Patient Status Form, whichever is later, has the patient experienced any of the following:",
+      "item": [
+        {
+          "linkId": "4.1",
+          "type": "group",
+          "text": "Laboratory Tests",
+          "item": [
+            {
+              "linkId": "4.1.1",
+              "type": "boolean",
+              "text": "ALT or AST >3x ULN and TBIL >2x ULN?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".AltOrAstWithTbil"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.1.2",
+              "type": "boolean",
+              "text": "ALT or AST > 10x ULN with or without TBIL elevation?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".AltOrAstNoTBIL"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.1.3",
+              "type": "boolean",
+              "text": "TBIL ≥2x ULN (or DBIL >1.5 x ULN) without changes in ALT or AST?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".TbilWithoutAltOrAst"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.1.4",
+              "type": "boolean",
+              "text": "ALP >2x ULN with GGT >2x ULN?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".AlpWithGgt"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "type": "group",
+          "text": "Procedures/Imaging/Referrals",
+          "item": [
+            {
+              "linkId": "4.2.1",
+              "type": "boolean",
+              "text": " Liver ultrasound: ",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".LiverUltrasoundProcedure"
+                  }
+                }
+              ]
+            },
+            {
+                "linkId": "4.2.2",
+                "type": "boolean",
+                "text": "CT or MRI/MRA/MRV of the liver: ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".LiverImagingProcedure"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.3",
+                "type": "boolean",
+                "text": "Liver biopsy: ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".LiverBiopsyProcedure"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.4",
+                "type": "boolean",
+                "text": "Hepatology evaluation/referral ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".HepatologyEvaluation"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.5",
+                "type": "boolean",
+                "text": "Referral for liver transplantation: ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".ReferralForTransplant"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.6",
+                "type": "boolean",
+                "text": "Endoscopic retrograde cholangiopancreatography (ERCP): ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".EndoscopicProcedure"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.7",
+                "type": "boolean",
+                "text": "Hepatobiliary iminodiacetic acid (HIDA) scan: ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".HIDAScan"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.8",
+                "type": "boolean",
+                "text": "Hospitalization for management of liver toxicity:",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".Hospitalization"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.9",
+                "type": "boolean",
+                "text": "Other procedure/referral: ",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                    "valueExpression": {
+                      "language": "text/cql",
+                      "expression": "\"TuralioProgressNotePrepopulation\".OtherProcedure"
+                    }
+                  }
+                ]
+              },
+              {
+                "linkId": "4.2.9.1",
+                "type": "string",
+                "text": "Describe: ",
+                "enableWhen": {
+                  "question": "4.2.9",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              }
+          ]
+        },
+        {
+          "linkId": "4.3",
+          "type": "group",
+          "text": "Medications prescribed to treat liver injury",
+          "item": [
+            {
+              "linkId": "4.3.1",
+              "type": "boolean",
+              "text": "Were steroids used?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".SteroidsUsed"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.3.1.1",
+              "type": "string",
+              "text": "If yes, describe therapy, dose, and date(s): ",
+              "enableWhen": {
+                "question": "4.3.1",
+                "operator": "=",
+                "answerBoolean": true
+              },
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".SteroidsUsedExplanation"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.3.2",
+              "type": "boolean",
+              "text": "Was ursodeoxycholic acid used? ",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".UsedUrsodiol"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.3.2.1",
+              "type": "string",
+              "text": "If yes, describe therapy, dose, and date(s): ",
+              "enableWhen": {
+                "question": "4.3.2",
+                "operator": "=",
+                "answerBoolean": true
+              },
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".UrsodiolText"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.3.3",
+              "type": "boolean",
+              "text": "Other?",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".OtherUsed"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "4.3.3.1",
+              "type": "string",
+              "text": "If yes, describe therapy, dose, and date(s): ",
+              "enableWhen": {
+                "question": "4.3.3",
+                "operator": "=",
+                "answerBoolean": true
+              },
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"TuralioProgressNotePrepopulation\".OtherUsedExplanation"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "4.4",
+          "type": "group",
+          "text": "",
+          "item": [
+            {
+              "linkId": "4.4.1",
+              "type": "display",
+              "text": "If the answer to any of the questions on this page is Yes, submit a Liver Adverse Event Reporting Form to the REMS."
+            },
+            {
+              "linkId": "4.4.2",
+              "type": "date",
+              "text": "Date Submitted"
+            },
+            {
+              "linkId": "4.4.3",
+              "type": "group",
+              "text": "Complete if Yes to any of the above questions",
+              "item": [
+                {
+                  "linkId": "4.4.3.1",
+                  "text": "Concomitant prescription medications while on TURALIO treatment: ",
+                  "type": "string",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                      "valueExpression": {
+                        "language": "text/cql",
+                        "expression": "\"TuralioProgressNotePrepopulation\".OtherPrescriptions"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "linkId": "4.4.3.2",
+                  "text": "Concomitant non-prescription medications or herbal and dietary supplements while on TURALIO treatment:",
+                  "type": "string",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                      "valueExpression": {
+                        "language": "text/cql",
+                        "expression": "\"TuralioProgressNotePrepopulation\".OtherNonPrescriptions"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+
+      ]
+    },
+    {
+      "linkId": "5",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+          "valueCanonical": "questionnaire/provider-signature"
+        }
+      ],
+      "type": "display",
+      "text": "This is a placeholder for Provider Signature"
+    }
+  ]
+}
