@@ -38,7 +38,11 @@
       "extension": [
         {
           "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-          "valueCanonical": "questionnaire/practitioner-info"
+          "valueCanonical": "questionnaire/practitioner-info-base"
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+          "valueBoolean": true
         }
       ],
       "type": "display",
