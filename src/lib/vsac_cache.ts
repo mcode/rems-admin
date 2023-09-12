@@ -2,18 +2,24 @@ import axios from 'axios';
 import fhirpath from 'fhirpath';
 import { FhirUtilities } from '../fhir/utilities';
 import ValueSetModel from './schemas/resources/ValueSet';
-import { ValueSet } from 'fhir/r4';
+import { Library, ValueSet } from 'fhir/r4';
+
+interface ValueSetMapEntry {
+  valueSet?: ValueSet;
+  cached?: boolean;
+  error?: any;
+}
 class VsacCache {
   cacheDir: string;
   apiKey: string;
-  baseUrl: string;
+  baseUrl: string[];
   onlyVsac: boolean;
   base_version: string;
 
   constructor(
     cacheDir: string,
     apiKey: string,
-    baseUrl = 'http://cts.nlm.nih.gov/fhir/',
+    baseUrl = ['http://cts.nlm.nih.gov/fhir/', 'https://cts.nlm.nih.gov/fhir/'],
     onlyVsac = false,
     base_version = '4_0_0'
   ) {
@@ -30,7 +36,7 @@ class VsacCache {
    * @param forceReload flag to force reaching valuesets already cached
    * @returns Map of caching results url: {valueSet, error, cached}
    */
-  async cacheLibrary(library: any, forceReload = false) {
+  async cacheLibrary(library: Library, forceReload = false) {
     const valueSets = this.collectLibraryValuesets(library);
     return await this.cacheValuesets(valueSets, forceReload);
   }
@@ -52,7 +58,7 @@ class VsacCache {
    * @param library The fhir Library to download valuesets from
    * @returns a Set that includes all of the valueset urls found in the Library
    */
-  collectLibraryValuesets(library: any) {
+  collectLibraryValuesets(library: Library) {
     // ensure only unique values
     return new Set(fhirpath.evaluate(library, 'Library.dataRequirement.codeFilter.valueSet'));
   }
@@ -85,12 +91,16 @@ class VsacCache {
    */
   async cacheValuesets(valueSets: Set<string> | [], forceReload = false) {
     const values = Array.from(valueSets);
-    const results = new Map<string, any>();
-    return await Promise.all(
+    const results: ValueSet[] = [];
+    await Promise.all(
       values.map(async vs => {
-        return results.set(vs, await this.downloadAndCacheValueset(vs, forceReload));
+        const vsResource = await this.downloadAndCacheValueset(vs, forceReload);
+        if (vsResource) {
+          results.push(vsResource);
+        }
       })
     );
+    return results;
   }
 
   /**
@@ -100,19 +110,19 @@ class VsacCache {
    * @returns Map that contains results url: {cached, valueSet, error}
    */
   async downloadAndCacheValueset(idOrUrl: string, forceReload = false) {
-    if (forceReload || !(await this.isCached(idOrUrl))) {
+    const isVsCached = await this.isCached(idOrUrl);
+    if (forceReload || !isVsCached) {
       const vs = await this.downloadValueset(idOrUrl);
-      if (vs.get('error')) {
-        console.log('Error Downloading ', idOrUrl, typeof vs.get('error'));
-      } else if (vs.get('valueSet')) {
-        await this.storeValueSet(this.getValuesetId(idOrUrl), vs.get('valueSet'));
-        vs.set('cached', true);
+      if (vs.error) {
+        console.log('Error Downloading ', idOrUrl, typeof vs.error);
+      } else if (vs.valueSet) {
+        await this.storeValueSet(this.getValuesetId(idOrUrl), vs.valueSet);
+        vs.cached = true;
       }
-      return vs;
+      return vs.valueSet;
+    } else if (isVsCached) {
+      return isVsCached; // returns cached resource if available
     }
-    const ret = new Map<string, any>();
-    ret.set('cached', false);
-    return ret;
   }
 
   /**
@@ -121,22 +131,23 @@ class VsacCache {
    * @returns Map that contains results url: {valueset, error}
    */
   async downloadValueset(idOrUrl: string) {
-    const retValue = new Map<string, any>();
+    const retValue: ValueSetMapEntry = {};
     const vsUrl = this.gtValuesetURL(idOrUrl);
     const headers: any = {
       Accept: 'application/json+fhir'
     };
     let isVsac = false;
     // this will only add headers to vsac urls
-    if (vsUrl.startsWith(this.baseUrl)) {
-      headers['Authorization'] = 'Basic ' + Buffer.from(':' + this.apiKey).toString('base64');
+    const isBaseUrlVsac = this.baseUrl.find(str => vsUrl.startsWith(str));
+    if (isBaseUrlVsac) {
+      headers['Authorization'] = 'Basic ' + Buffer.from('apikey:' + this.apiKey).toString('base64');
       isVsac = true;
     }
     // this will try to download valuesets that are not in vsac as well based on the
     // connonical url passed in.
     let url = vsUrl;
-    if (vsUrl.startsWith(this.baseUrl)) {
-      url = url + '/$expand';
+    if (isBaseUrlVsac) {
+      url = vsUrl + '/$expand';
     }
     // axios cleanup
     await process.nextTick(() => {
@@ -148,12 +159,12 @@ class VsacCache {
         const vs = await axios.get(url, {
           headers: headers
         });
-        retValue.set('valueSet', vs.data);
+        retValue.valueSet = vs.data;
       } catch (error: any) {
-        retValue.set('error', error);
+        retValue.error = error;
       }
     } else {
-      retValue.set('error', 'Cannot download non vsac valuesets: ' + url);
+      retValue.error = 'Cannot download non vsac valuesets: ' + url;
     }
 
     return retValue;
@@ -164,23 +175,10 @@ class VsacCache {
    * @param idOrUrl url to test if already cached
    * @returns true or false
    */
-  async isCached(idOrUrl: string) {
+  async isCached(idOrUrl: string): Promise<ValueSet | null | undefined> {
     const id = this.getValuesetId(idOrUrl);
     // Query our collection for this observation
-    return await new Promise((resolve, _reject) => {
-      if (id) {
-        ValueSetModel.findOne({ id: id.toString() })
-          .exec()
-          .then((valueSet: any) => {
-            if (valueSet) {
-              resolve(valueSet);
-            }
-            resolve(false);
-          });
-      } else {
-        resolve(false);
-      }
-    });
+    return await ValueSetModel.findOne({ id: id.toString() });
   }
 
   /**
@@ -220,7 +218,7 @@ class VsacCache {
     if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://')) {
       return idOrUrl;
     }
-    let path = `${this.baseUrl}/ValueSet/${idOrUrl}`;
+    let path = `${this.baseUrl[0]}/ValueSet/${idOrUrl}`;
     path = path.replace('//', '/');
     return path;
   }

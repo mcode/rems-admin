@@ -42,7 +42,9 @@ const medicationCollectionSchema = new Schema<Medication>({
         questionnaire: { type: 'object' },
         stakeholderType: { type: 'string' },
         createNewCase: { type: 'boolean' },
-        resourceId: { type: 'string' }
+        resourceId: { type: 'string' },
+        requiredToDispense: { type: 'boolean' },
+        appContext: { type: 'string' }
       }
     }
   }

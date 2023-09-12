@@ -134,7 +134,9 @@ export class FhirUtilities {
             stakeholderType: 'patient',
             createNewCase: true,
             resourceId: 'TuralioRemsPatientEnrollment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -142,7 +144,9 @@ export class FhirUtilities {
             stakeholderType: 'prescriber',
             createNewCase: false,
             resourceId: 'TuralioPrescriberEnrollmentForm',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm'
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -150,7 +154,9 @@ export class FhirUtilities {
             stakeholderType: 'prescriber',
             createNewCase: false,
             resourceId: 'TuralioPrescriberKnowledgeAssessment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment'
           },
           {
             name: 'Pharmacist Enrollment',
@@ -166,7 +172,9 @@ export class FhirUtilities {
             stakeholderType: 'patient',
             createNewCase: false,
             resourceId: 'TuralioRemsPatientStatus',
-            requiredToDispense: false
+            requiredToDispense: false,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus'
           }
         ]
       },
@@ -181,7 +189,9 @@ export class FhirUtilities {
             stakeholderType: 'patient',
             createNewCase: true,
             resourceId: 'TIRFRemsPatientEnrollment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -189,7 +199,9 @@ export class FhirUtilities {
             stakeholderType: 'prescriber',
             createNewCase: false,
             resourceId: 'TIRFPrescriberEnrollmentForm',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm'
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -197,7 +209,9 @@ export class FhirUtilities {
             stakeholderType: 'prescriber',
             createNewCase: false,
             resourceId: 'TIRFPrescriberKnowledgeAssessment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment'
           },
           {
             name: 'Pharmacist Enrollment',
@@ -228,7 +242,9 @@ export class FhirUtilities {
             stakeholderType: 'patient',
             createNewCase: true,
             resourceId: 'IPledgeRemsPatientEnrollment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment'
           },
           {
             name: 'Prescriber Enrollment',
@@ -236,7 +252,9 @@ export class FhirUtilities {
             stakeholderType: 'prescriber',
             createNewCase: false,
             resourceId: 'IPledgeRemsPrescriberEnrollmentForm',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm'
           },
           {
             name: 'Pharmacist Enrollment',

@@ -17,6 +17,7 @@ import axios from 'axios';
 import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
 import LibraryModel from '../lib/schemas/resources/Library';
+import VsacCache from '../lib/vsac_cache';
 
 interface ResourceTable {
   [key: string]: FhirResource;
@@ -33,6 +34,7 @@ const CQF_LIBRARY_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/cqf-libra
 
 export class QuestionnaireUtilities {
   static logger = container.get('application');
+  static vsacCache = new VsacCache('./tmp', config.general.VsacApiKey);
   static async createPackageFromQuestionnaire(questionnaire: Questionnaire) {
     questionnaire = await this.processSubQuestionnaires(questionnaire);
     const processedQuestionnaire = await this.processValueSets(questionnaire);
@@ -59,7 +61,7 @@ export class QuestionnaireUtilities {
       const library: Library = fetchedLibraries[key];
       const libraryEntry: BundleEntry = { resource: library };
       entries.push(libraryEntry);
-      const valueSets = await this.processLibraryCodeFilters(library, fetchedSets);
+      const valueSets = await this.vsacCache.cacheLibrary(library);
       for (const valueSet of valueSets) {
         const valueSetEntry: BundleEntry = { resource: valueSet };
         entries.push(valueSetEntry);
@@ -101,64 +103,10 @@ export class QuestionnaireUtilities {
       }
     }
   }
-  static async fetchValueSetFromVSAC(url: string) {
-    const username = 'apikey';
-    const password = config.general.VsacApiKey;
-    const response = await axios(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Basic ${Buffer.from(username + ':' + password).toString('base64')}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    try {
-      const body: ValueSet = await response.data;
-      // the url returns with http but it should be https? This might be a product of not using the ticket API here
-      // nevertheless, to search by url on our own database, the url must match what's in the library resource.
-      // so here the http version of the url is replaced by the one used to fetch the resource (https version of the url)
-      body.url = url;
-      return body;
-    } catch {
-      this.logger.warn(`VSAC Loader >> Failed to fetch ValueSet: ${url}`);
-      return undefined;
-    }
-  }
   // On load of new library, finds ValueSets in codefilters and
   // loads them as well
   static async processLibraryCodeFilters(library: Library, fetchedSets: ValueSetMap) {
-    const returnValue: ValueSet[] = [];
-    const dataReqs: DataRequirement[] = library.dataRequirement || [];
-    for (const dataReq of dataReqs) {
-      const filters = dataReq.codeFilter || [];
-      for (const filter of filters) {
-        const valueSetUrl = filter.valueSet;
-        if (valueSetUrl) {
-          const keys = Object.keys(fetchedSets);
-          if (!(valueSetUrl in keys)) {
-            // needs case where valueSet is not from VSAC, it could be a local reference
-            if (valueSetUrl.startsWith(VSAC_CANONICAL_BASE)) {
-              let valueSet = await this.findValueSetByUrl(valueSetUrl);
-              if (!valueSet) {
-                valueSet = await this.fetchValueSetFromVSAC(valueSetUrl);
-                if (valueSet) {
-                  await FhirUtilities.store(valueSet, ValueSetModel);
-                } else {
-                  this.logger.warn(`Library Processor >> Failed to find ValueSet: ${valueSetUrl}`);
-                }
-              }
-
-              if (valueSet && valueSet.url) {
-                // add valueSets we've already fetched to the fetched sets so we don't do it again
-                if (!fetchedSets[valueSet.url]) {
-                  fetchedSets[valueSet.url] = valueSet;
-                }
-                returnValue.push(valueSet);
-              }
-            }
-          }
-        }
-      }
-    }
+    const returnValue = this.vsacCache.cacheLibrary(library);
     return returnValue;
   }
   static async findQuestionnaire(id: string): Promise<Questionnaire | null | undefined> {
