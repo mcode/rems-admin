@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { CdsService } from './rems-cds-hooks/resources/CdsService';
 import remsService from './hooks/rems.ordersign';
 import orderSelectService from './hooks/rems.orderselect';
+import patientViewService from './hooks/rems.patientview';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
 import env from 'env-var';
@@ -98,6 +99,7 @@ class REMSServer extends Server {
     this.cdsHooksEndpoint = discoveryEndpoint;
     this.registerService(remsService);
     this.registerService(orderSelectService);
+    this.registerService(patientViewService);
     this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
       res.json({ services: this.services })
     );

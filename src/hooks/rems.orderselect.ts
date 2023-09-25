@@ -86,8 +86,6 @@ const handler = (req: TypedRequestBody, res: any) => {
     const prefetchRequest = context.draftOrders?.entry?.[0].resource;
     const practitioner = hydratedPrefetch?.practitioner;
     const npi = practitioner?.identifier;
-    console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
-    console.log('    Patient: ' + patient?.id);
 
     console.log('    MedicationRequest: ' + prefetchRequest?.id);
     console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
@@ -218,6 +216,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       res.json(buildErrorCard('MedicationRequest does not contain a code'));
     }
   }
+
   console.log('REMS order-select hook');
   try {
     const fhirUrl = req.body.fhirServer;
