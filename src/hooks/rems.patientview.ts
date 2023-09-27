@@ -115,9 +115,9 @@ const handler = (req: TypedRequestBody, res: any) => {
 
     // loop through all the rems cases in the list
     for (const remsCase of remsCaseList) {
-
       // find the drug in the medicationCollection that matches the REMS case to get the smart links
-      const drug = await medicationCollection.findOne({
+      const drug = await medicationCollection
+        .findOne({
           code: remsCase.drugCode,
           name: remsCase.drugName
         })
@@ -134,34 +134,27 @@ const handler = (req: TypedRequestBody, res: any) => {
 
       // create the card
       let smartLinkCount = 0;
-      const card = new Card(
-          summary,
-          CARD_DETAILS,
-          source,
-          'info'
-      )
+      const card = new Card(summary, CARD_DETAILS, source, 'info');
 
       // find the matching MedicationRequest for the context
       const request = medicationRequestsBundle?.entry?.filter(entry => {
         if (entry.resource) {
           if (entry.resource.resourceType === 'MedicationRequest') {
-            let medReq : MedicationRequest = entry.resource;
+            let medReq: MedicationRequest = entry.resource;
             return remsCase.drugCode === medReq?.medicationCodeableConcept?.coding?.[0].code;
           }
         }
       })[0].resource;
-      
+
       // if no valid request or not a MedicationRequest found skip this REMS case
-      if ((!request) || (request && request.resourceType !== 'MedicationRequest')) {
+      if (!request || (request && request.resourceType !== 'MedicationRequest')) {
         continue;
       }
 
       // loop through all of the ETASU requirements for this drug
       for (const requirement of drug?.requirements) {
-        
         // find all of the matching patient forms
         if (requirement?.stakeholderType === 'patient') {
-
           let found = false;
           // match the requirement to the metRequirement of the REMS case
           for (const metRequirement of remsCase.metRequirements) {
@@ -169,9 +162,7 @@ const handler = (req: TypedRequestBody, res: any) => {
             if (metRequirement.requirementName === requirement.name) {
               found = true;
               if (!metRequirement.completed) {
-                card.addLink(
-                  createSmartLink(requirement.name, requirement.appContext, request)
-                );
+                card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
                 smartLinkCount++;
               }
             }
@@ -179,12 +170,9 @@ const handler = (req: TypedRequestBody, res: any) => {
 
           // if not in the list of metReuirements, add it as well
           if (!found) {
-            card.addLink(
-              createSmartLink(requirement.name, requirement.appContext, request)
-            );
+            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
             smartLinkCount++;
           }
-
         }
       }
 
