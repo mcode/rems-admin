@@ -1,7 +1,6 @@
 import {
   Bundle,
   BundleEntry,
-  DataRequirement,
   Extension,
   FhirResource,
   Library,
@@ -10,10 +9,8 @@ import {
   QuestionnaireItem,
   ValueSet
 } from 'fhir/r4';
-import { FhirUtilities } from './utilities';
 import container from '../lib/winston';
 import config from '../config';
-import axios from 'axios';
 import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import QuestionnaireModel from '../lib/schemas/resources/Questionnaire';
 import LibraryModel from '../lib/schemas/resources/Library';
@@ -29,7 +26,6 @@ interface LibraryMap {
   [key: string]: Library;
 }
 
-const VSAC_CANONICAL_BASE = 'https://cts.nlm.nih.gov/fhir/ValueSet/';
 const CQF_LIBRARY_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/cqf-library';
 
 export class QuestionnaireUtilities {
@@ -41,7 +37,6 @@ export class QuestionnaireUtilities {
     const bundle: Bundle = { resourceType: 'Bundle', type: 'collection' };
     const entries: BundleEntry[] = [];
     const extensions: Extension[] = processedQuestionnaire.extension || [];
-    const fetchedSets: ValueSetMap = {};
     const fetchedLibraries: LibraryMap = {};
     for (const extension of extensions) {
       if (extension.url === CQF_LIBRARY_EXTENSION) {
@@ -105,7 +100,7 @@ export class QuestionnaireUtilities {
   }
   // On load of new library, finds ValueSets in codefilters and
   // loads them as well
-  static async processLibraryCodeFilters(library: Library, fetchedSets: ValueSetMap) {
+  static async processLibraryCodeFilters(library: Library) {
     const returnValue = this.vsacCache.cacheLibrary(library);
     return returnValue;
   }

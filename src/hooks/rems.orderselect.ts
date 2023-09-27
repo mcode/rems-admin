@@ -10,7 +10,7 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
+import { validCodes, codeMap, CARD_DETAILS } from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {

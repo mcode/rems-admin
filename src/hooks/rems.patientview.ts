@@ -10,7 +10,7 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
+import { codeMap, CARD_DETAILS } from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -140,7 +140,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       const request = medicationRequestsBundle?.entry?.filter(entry => {
         if (entry.resource) {
           if (entry.resource.resourceType === 'MedicationRequest') {
-            let medReq: MedicationRequest = entry.resource;
+            const medReq: MedicationRequest = entry.resource;
             return remsCase.drugCode === medReq?.medicationCodeableConcept?.coding?.[0].code;
           }
         }
@@ -152,7 +152,8 @@ const handler = (req: TypedRequestBody, res: any) => {
       }
 
       // loop through all of the ETASU requirements for this drug
-      for (const requirement of drug?.requirements) {
+      const requirements = drug?.requirements;
+      for (const requirement of requirements) {
         // find all of the matching patient forms
         if (requirement?.stakeholderType === 'patient') {
           let found = false;
