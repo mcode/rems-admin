@@ -1,7 +1,6 @@
 import { Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
-import config from '../config';
-import { Hook, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
+import { TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import axios from 'axios';
 
 export interface CardRule {
