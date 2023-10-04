@@ -2,7 +2,6 @@ name: Docker Tagged Image CD
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
     tags:
       - '*'
 
@@ -37,6 +36,7 @@ jobs:
         context: .
         push: true
         multiPlatform: true
+        enableBuildKit: true
         platforms: linux/amd64,linux/arm64
         tags: ${{ steps.docker-meta-data.outputs.tags }}
         labels: ${{ steps.docker-meta-data.outputs.labels }}
