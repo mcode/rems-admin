@@ -34,7 +34,6 @@ jobs:
         context: .
         push: true
         multiPlatform: true
-        enableBuildKit: true
         platforms: linux/amd64,linux/arm64
         tags: ${{ steps.docker-meta-data.outputs.tags }}
         labels: ${{ steps.docker-meta-data.outputs.labels }}

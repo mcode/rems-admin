@@ -26,7 +26,6 @@ jobs:
       with:
         context: .
         multiPlatform: true
-        enableBuildKit: true
         platforms: linux/amd64,linux/arm64
         push: true
         tags: codexrems/rems-administrator:latest
