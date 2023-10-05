@@ -21,9 +21,9 @@ jobs:
     - name: Docker meta data
       id: docker-meta-data
       uses: docker/metadata-action@v4
-      flavor: latest=false
       with:
         images: codexrems/rems-administrator
+        flavor: latest=false
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
