@@ -32,12 +32,10 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        multiPlatform: true
-        enableBuildKit: true
         platforms: linux/amd64,linux/arm64
         tags: ${{ steps.docker-meta-data.outputs.tags }}
         labels: ${{ steps.docker-meta-data.outputs.labels }}
