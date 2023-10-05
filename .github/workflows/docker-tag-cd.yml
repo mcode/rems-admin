@@ -21,9 +21,9 @@ jobs:
     - name: Docker meta data
       id: docker-meta-data
       uses: docker/metadata-action@v4
-      flavor: latest=false
       with:
         images: codexrems/rems-administrator
+        flavor: latest=false
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -32,7 +32,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v6
       with:
         context: .
         push: true
