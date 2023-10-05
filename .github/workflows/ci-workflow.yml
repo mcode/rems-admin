@@ -1,0 +1,40 @@
+name: Lint and Test
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Check tsc, lint, and prettier
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+        node-version: '14.x'
+        
+    - run: npm install
+    - run: npm run lint
+    - run: npm run prettier
+      env:
+        CI: true
+  test:
+    name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - run: git submodule update --init
+    - run: npm test
+      env:
+        CI: true
