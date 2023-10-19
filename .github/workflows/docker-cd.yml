@@ -15,6 +15,16 @@ jobs:
       with:
         submodules: true
 
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Docker meta data
+      id: docker-meta-data
+      uses: docker/metadata-action@v4
+      with:
+        images: codexrems/rems-administrator
+        flavor: latest=false
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -22,11 +32,10 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
       
     - name: Build and push Server Docker image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: .
-        multiPlatform: true
-        enableBuildKit: true
         platforms: linux/amd64,linux/arm64
         push: true
         tags: codexrems/rems-administrator:latest
+        labels: ${{ steps.docker-meta-data.outputs.labels }}
