@@ -3,8 +3,10 @@ import { FhirUtilities } from '../fhir/utilities';
 import {
   medicationCollection,
   metRequirementsCollection,
-  remsCaseCollection
+  remsCaseCollection,
+  Medication
 } from '../fhir/models';
+import { Patient } from 'fhir/r4';
 import { uid } from 'uid';
 const router = Router();
 
@@ -18,7 +20,7 @@ router.get('/:drug', async (req: Request, res: Response) => {
 });
 
 router.get('/met/:caseId', async (req: Request, res: Response) => {
-  console.log('get etasu by caseId');
+  console.log('get etasu by caseId: ' + req.params.caseId);
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
@@ -80,11 +82,294 @@ router.post('/reset', async (req: Request, res: Response) => {
   res.send('reset etasu database collections');
 });
 
+
+const pushMetRequirements = (matchedMetReq: any, remsRequest: any) => {
+    remsRequest.metRequirements.push({
+      stakeholderId: matchedMetReq?.stakeholderId,
+      completed: matchedMetReq?.completed,
+      metRequirementId: matchedMetReq?._id,
+      requirementName: matchedMetReq?.requirementName,
+      requirementDescription: matchedMetReq?.requirementDescription
+    });
+};
+
+const createMetRequirements = async (metReq: any) => {
+    return await metRequirementsCollection.create(metReq);
+};
+
+const createAndPushMetRequirements = async (metReq: any, remsRequest: any) => {
+  try {
+    const matchedMetReq = await createMetRequirements(metReq);
+    pushMetRequirements(matchedMetReq, remsRequest);
+
+  } catch (e) {
+    console.log('ERROR: failed in createAndPushMetRequirements');
+    console.log(e);
+    return false;
+  }
+  return true;
+};
+
+const createMetRequirementAndNewCase = async (patient: any, drug: Medication, requirement: any, questionnaireResponse: any, res: Response, 
+    reqStakeholderReference: any, practitionerReference: string, pharmacistReference: string, patientReference: string) => {
+  const patientFirstName = patient.name[0].given[0];
+  const patientLastName = patient.name[0].family;
+  const patientDOB = patient.birthDate;
+  let message = '';
+  var createNewCase = true;
+  let returnedRemsRequestDoc: any;
+  const case_number = uid();
+
+  // create new rems request and add the created metReq to it
+  let remsRequestCompletedStatus = 'Approved';
+  const remsRequest: any = {
+    case_number: case_number,
+    status: remsRequestCompletedStatus,
+    drugName: drug?.name,
+    drugCode: drug?.code,
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    metRequirements: []
+  };
+
+  // create the metReq that was submitted
+  const metReq = {
+    completed: true,
+    completedQuestionnaire: questionnaireResponse,
+    requirementName: requirement.name,
+    requirementDescription: requirement.description,
+    drugName: drug?.name,
+    stakeholderId: reqStakeholderReference,
+    case_numbers: [case_number]
+  };
+
+  if (! await createAndPushMetRequirements(metReq, remsRequest)) {
+    createNewCase = false;
+    res.status(200);
+    message = "ERROR: failed to create new met requirement for form initial to case";
+    console.log(message);
+    res.send(message);
+    return res;
+  }
+
+  // iterate through all other reqs again to create corresponding false metReqs / assign to existing
+  for (const requirement2 of drug.requirements) {
+    // skip if the req found is the same as in the outer loop and has already been processed
+    // && If the requirement is not the patient Status Form (when requiredToDispense == false)
+    if (
+      !(requirement2.resourceId === requirement.resourceId) &&
+      requirement2.requiredToDispense
+    ) {
+      // figure out which stakeholder the req corresponds to
+      const reqStakeholder2 = requirement2.stakeholderType;
+      const reqStakeholder2Reference =
+        reqStakeholder2 === 'prescriber'
+          ? practitionerReference
+          : reqStakeholder2 === 'pharmacist'
+          ? pharmacistReference
+          : patientReference;
+
+      const matchedMetReq2 = await metRequirementsCollection
+        .findOne({
+          stakeholderId: reqStakeholder2Reference,
+          requirementName: requirement2.name,
+          drugName: drug?.name
+        })
+        .exec();
+      if (matchedMetReq2) {
+        pushMetRequirements(matchedMetReq2, remsRequest);
+
+        if (!matchedMetReq2.completed) {
+          remsRequestCompletedStatus = 'Pending';
+        }
+        matchedMetReq2.case_numbers.push(case_number);
+        await matchedMetReq2.save();
+
+      } else {
+        // create the metReq that was submitted
+        const newMetReq = {
+          completed: false,
+          completedQuestionnaire: null,
+          requirementName: requirement2.name,
+          requirementDescription: requirement2.description,
+          drugName: drug?.name,
+          stakeholderId: reqStakeholder2Reference,
+          case_numbers: [case_number]
+        };
+
+        remsRequestCompletedStatus = 'Pending';
+
+        if (! await createAndPushMetRequirements(newMetReq, remsRequest)) {
+          message = "ERROR: failed to create new met requirement for form initial to case";
+          console.log(message);
+        }
+      }
+    }
+  }
+
+  if (createNewCase) {
+    remsRequest.status = remsRequestCompletedStatus;
+    returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
+  }
+
+  res.status(201);
+  res.send(returnedRemsRequestDoc);
+
+  return res;
+};
+
+const createMetRequirementAndUpdateCase = async (drug: Medication, requirement: any, questionnaireResponse: any, res: Response, reqStakeholderReference: any) => {
+  let returnedMetReqDoc: any;
+
+  const matchedMetReq = await metRequirementsCollection
+  .findOne({
+    stakeholderId: reqStakeholderReference,
+    requirementName: requirement.name,
+    drugName: drug?.name
+  })
+  .exec();
+  // Has the patient enrollment been submitted?
+  if (matchedMetReq) {
+    // If the prescriber enrollment form is submitted twice then nothing will be update
+    // If this is the first time submitting the prescriber enrollment and there is a case then we set to true the completed status
+    if (!matchedMetReq.completed) {
+      matchedMetReq.completed = true;
+      matchedMetReq.completedQuestionnaire = questionnaireResponse;
+      await matchedMetReq.save();
+
+      //Getting the update document
+      returnedMetReqDoc = await metRequirementsCollection
+        .findOne({
+          _id: matchedMetReq._id
+        })
+        .exec();
+
+
+      for (const case_number of returnedMetReqDoc.case_numbers) {
+
+        // get the rems case to update, search by the case_number
+        const remsRequestToUpdate = await remsCaseCollection
+          .findOne({
+            case_number: case_number
+          })
+          .exec();
+
+        let foundUncompleted = false;
+        const metReqArray = remsRequestToUpdate?.metRequirements;
+        // Check to see if there are any uncompleted requirements, if all have been completed then set status to approved
+        for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
+          const req4 = remsRequestToUpdate?.metRequirements[i];
+          // _id comparison would not work for some reason
+          if (req4.requirementName === matchedMetReq.requirementName) {
+            metReqArray[i].completed = true;
+            req4.completed = true;
+            await remsCaseCollection.updateOne(
+              { _id: remsRequestToUpdate?._id },
+              { $set: { metRequirements: metReqArray } }
+            );
+          }
+          if (!req4.completed) {
+            foundUncompleted = true;
+          }
+        }
+
+        if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
+          remsRequestToUpdate.status = 'Approved';
+          await remsRequestToUpdate.save();
+        }
+      }
+    }
+  } else {
+    // submitting the requirment but there is no case, create new met requirment
+    // create the metReq that was submitted
+    const newMetReq = {
+      completed: true,
+      completedQuestionnaire: questionnaireResponse,
+      requirementName: requirement.name,
+      requirementDescription: requirement.requirementDescription,
+      drugName: drug?.name,
+      stakeholderId: reqStakeholderReference,
+      case_numbers: []
+    };
+
+    returnedMetReqDoc = await createMetRequirements(newMetReq);
+  }
+
+  res.status(201);
+  res.send(returnedMetReqDoc);
+  return res;
+};
+
+const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (patient: any, drug: Medication, requirement: any, questionnaireResponse: any, res: Response, reqStakeholderReference: any) => {
+  // Find the specific case associated with an individual patient for the patient status form
+  // Is it possible for there to be multiple cases for this patient and the same drug?
+  let returnedRemsRequestDoc: any;
+  let returnRemsRequest = false;
+  let message = '';
+
+  const patientFirstName = patient.name[0].given[0];
+  const patientLastName = patient.name[0].family;
+  const patientDOB = patient.birthDate;
+
+  const remsRequestToUpdate = await remsCaseCollection
+    .findOne({
+      patientFirstName: patientFirstName,
+      patientLastName: patientLastName,
+      patientDOB: patientDOB,
+      drugCode: drug?.code
+    })
+    .exec();
+  // If you found a case for the patient status form to update
+  if (remsRequestToUpdate) {
+    if (remsRequestToUpdate.status === 'Approved') {
+      const now = new Date();
+      const metReq = {
+        completed: true,
+        completedQuestionnaire: questionnaireResponse,
+        requirementName: requirement.name + ' - ' + now.toLocaleString(),
+        requirementDescription: requirement.description,
+        drugName: drug?.name,
+        stakeholderId: reqStakeholderReference,
+        case_numbers: [remsRequestToUpdate.case_number]
+      };
+
+      if (! await createAndPushMetRequirements(metReq, remsRequestToUpdate)) {
+        message = "ERROR: failed to create new met requirement for form not required to dispense";
+        console.log(message);
+      } else {
+
+        try {
+          await remsRequestToUpdate.save();
+          returnRemsRequest = true;
+          returnedRemsRequestDoc = remsRequestToUpdate;
+        } catch (e) {
+          console.log(e);
+          message = 'ERROR: failed to update rems case with requirement not needed to dispense';
+          console.log(message);
+        }
+      }
+    } else {
+      message = 'ERROR: rems case has not been approved, status form (or other form not required to dispense) submitted before all other ETASU have been met';
+      console.log(message);
+    }
+  } else {
+    // should not get here since a form not required for dispensing should not be given to the provider until a case is created
+    message = 'ERROR: no case exists for this form to match status form (or other form not required to dispense) submitted before initial form creating case was sent (patient status form)';
+    console.log(message);
+  }
+
+  res.status(201);
+  if (returnRemsRequest) {
+    res.send(returnedRemsRequestDoc);
+  } else {
+    res.send(message);
+  }
+  return res;
+};
+
 router.post('/met', async (req: Request, res: Response) => {
   try {
-    let returnedRemsRequestDoc: any;
-    let returnedMetReqDoc: any;
-    let returnRemsRequest = false;
     const requestBody = req.body;
 
     // extract params and questionnaire response identifier
@@ -111,13 +396,10 @@ router.post('/met', async (req: Request, res: Response) => {
     }
 
     // obtain drug information from database
-    const presciption = getResource(requestBody, prescriptionReference);
-    const prescriptionSystem = presciption.medicationCodeableConcept.coding[0].system;
-    const prescriptionCode = presciption.medicationCodeableConcept.coding[0].code;
+    const prescription = getResource(requestBody, prescriptionReference);
+    const prescriptionSystem = prescription.medicationCodeableConcept.coding[0].system;
+    const prescriptionCode = prescription.medicationCodeableConcept.coding[0].code;
     const patient = getResource(requestBody, patientReference);
-    const patientFirstName = patient.name[0].given[0];
-    const patientLastName = patient.name[0].family;
-    const patientDOB = patient.birthDate;
 
     const drug = await medicationCollection
       .findOne({
@@ -141,259 +423,24 @@ router.post('/met', async (req: Request, res: Response) => {
         if (requirement.resourceId === requirementId) {
           // if the req submitted is a patient enrollment form and requires creating a new case
           if (requirement.createNewCase) {
-            returnRemsRequest = true;
-            const case_number = uid();
 
-            // create new rems request and add the created metReq to it
-            let remsRequestCompletedStatus = 'Approved';
-            const remsRequest: any = {
-              case_number: case_number,
-              status: remsRequestCompletedStatus,
-              drugName: drug?.name,
-              drugCode: prescriptionCode,
-              patientFirstName: patientFirstName,
-              patientLastName: patientLastName,
-              patientDOB: patientDOB,
-              metRequirements: []
-            };
-            returnRemsRequest = true; // why is this being set two times? on line 145
-            // Q: should it be done in the rems request or the metReq
+            await createMetRequirementAndNewCase(patient, drug, requirement, questionnaireResponse, res, 
+              reqStakeholderReference, practitionerReference, pharmacistReference, patientReference);
 
-            // create the metReq that was submitted
-            const metReq = {
-              completed: true,
-              completedQuestionnaire: questionnaireResponse,
-              requirementName: requirement.name,
-              requirementDescription: requirement.description,
-              drugName: drug?.name,
-              stakeholderId: reqStakeholderReference,
-              case_numbers: [case_number]
-            };
+            return;
 
-            try {
-              const matchedMetReq = await metRequirementsCollection.create(metReq);
-              remsRequest.metRequirements.push({
-                stakeholderId: matchedMetReq?.stakeholderId,
-                completed: matchedMetReq?.completed,
-                metRequirementId: matchedMetReq?._id,
-                requirementName: matchedMetReq?.requirementName,
-                requirementDescription: matchedMetReq?.requirementDescription
-              });
-            } catch (e) {
-              console.log(e);
-              console.log('create error');
-            }
-
-            // iterate through all other reqs again to create corresponding false metReqs / assign to existing
-            if (drug) {
-              for (const requirement2 of drug.requirements) {
-                // skip if the req found is the same as in the outer loop and has already been processed
-                // && If the requirement is not the patient Status Form (when requiredToDispense == false)
-                if (
-                  !(requirement2.resourceId === requirementId) &&
-                  requirement2.requiredToDispense
-                ) {
-                  // figure out which stakeholder the req corresponds to
-                  const reqStakeholder2 = requirement2.stakeholderType;
-                  const reqStakeholder2Reference =
-                    reqStakeholder2 === 'prescriber'
-                      ? practitionerReference
-                      : reqStakeholder2 === 'pharmacist'
-                      ? pharmacistReference
-                      : patientReference;
-
-                  const matchedMetReq2 = await metRequirementsCollection
-                    .findOne({
-                      stakeholderId: reqStakeholder2Reference,
-                      requirementName: requirement2.name,
-                      drugName: drug?.name
-                    })
-                    .exec();
-                  if (matchedMetReq2) {
-                    remsRequest.metRequirements.push({
-                      stakeholderId: matchedMetReq2.stakeholderId,
-                      completed: matchedMetReq2.completed,
-                      metRequirementId: matchedMetReq2._id,
-                      requirementName: matchedMetReq2.requirementName,
-                      requirementDescription: matchedMetReq2.requirementDescription
-                    });
-                    if (!matchedMetReq2.completed) {
-                      remsRequestCompletedStatus = 'Pending';
-                    }
-                    matchedMetReq2.case_numbers.push(case_number);
-                    await matchedMetReq2.save();
-                    // await metRequirementsCollection.findByIdAndUpdate(matchedMetReq2, {
-                    //   $addToSet: { case_numbers: case_number }
-                    // });
-                  } else {
-                    // create the metReq that was submitted
-                    const newMetReq = {
-                      completed: false,
-                      completedQuestionnaire: null,
-                      requirementName: requirement2.name,
-                      requirementDescription: requirement2.description,
-                      drugName: drug?.name,
-                      stakeholderId: reqStakeholder2Reference,
-                      case_numbers: [case_number]
-                    };
-
-                    remsRequestCompletedStatus = 'Pending';
-
-                    // TODO: make this check more robust
-                    try {
-                      const newMetReqDoc = await metRequirementsCollection.create(newMetReq);
-                      remsRequest.metRequirements.push({
-                        stakeholderId: newMetReqDoc?.stakeholderId,
-                        completed: newMetReqDoc?.completed,
-                        metRequirementId: newMetReqDoc?._id,
-                        requirementName: newMetReqDoc?.requirementName,
-                        requirementDescription: newMetReqDoc?.requirementDescription
-                      });
-                    } catch {
-                      console.log('create error');
-                    }
-                  }
-                }
-              }
-            }
-
-            remsRequest.status = remsRequestCompletedStatus;
-            returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
           } else {
-            // If its not the patient status requriement
+            // If its not the patient status requirement
             if (requirement.requiredToDispense) {
-              const matchedMetReq3 = await metRequirementsCollection
-                .findOne({
-                  stakeholderId: reqStakeholderReference,
-                  requirementName: requirement.name,
-                  drugName: drug?.name
-                })
-                .exec();
-              // Has the patient enrollment been submited?
-              if (matchedMetReq3) {
-                // If the prescriber enrollment form is submitted twice then nothing will be update
-                // If this is the first time submitting the prescriber enrollment and there is a case then we set to true the comopleted status
-                if (!matchedMetReq3.completed) {
-                  matchedMetReq3.completed = true;
-                  matchedMetReq3.completedQuestionnaire = questionnaireResponse;
-                  await matchedMetReq3.save();
-                  // await metRequirementsCollection.findByIdAndUpdate(matchedMetReq3, {
-                  //   $set: { completed: true, completedQuestionnaire: questionnaireResponse }
-                  // });
 
-                  //Getting the update document
-                  returnedMetReqDoc = await metRequirementsCollection
-                    .findOne({
-                      _id: matchedMetReq3._id
-                    })
-                    .exec();
+              await createMetRequirementAndUpdateCase(drug, requirement, questionnaireResponse, res, reqStakeholderReference);
+              return;
 
-                  // this should be an array returned via .find() - tried using $in but could not get it to work - using the first element for now as a work around since we only have one patient
-                  const remsRequestToUpdate = await remsCaseCollection
-                    .findOne({
-                      case_number: returnedMetReqDoc.case_numbers[0]
-                    })
-                    .exec();
-
-                  // ToDO: iterate over multiple remsRequests - right now there will only be one that matches, but with multiple patients in the system there could be more
-
-                  // for (let remsRequestToUpdate of remsRequestsToUpdate) {
-                  let foundUncompleted = false;
-                  const metReqArray = remsRequestToUpdate?.metRequirements;
-                  // Check to see if there are any uncompleted requirments, if all have been completed then set status to approved
-                  for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
-                    const req4 = remsRequestToUpdate?.metRequirements[i];
-                    // _id comparison would not work for some reason
-                    if (req4.requirementName === matchedMetReq3.requirementName) {
-                      metReqArray[i].completed = true;
-                      req4.completed = true;
-                      await remsCaseCollection.updateOne(
-                        { _id: remsRequestToUpdate?._id },
-                        { $set: { metRequirements: metReqArray } }
-                      );
-                    }
-                    if (!req4.completed) {
-                      foundUncompleted = true;
-                    }
-                  }
-
-                  if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
-                    remsRequestToUpdate.status = 'Approved';
-                    await remsRequestToUpdate.save();
-                    // await remsCaseCollection.findByIdAndUpdate(remsRequestToUpdate, {
-                    //   $set: { status: 'Approved' }
-                    // });
-                  }
-                  // }
-                }
-              } else {
-                // submitting the requirment but there is no case, create new met requirment
-                // create the metReq that was submitted
-                const newMetReq3 = {
-                  completed: true,
-                  completedQuestionnaire: questionnaireResponse,
-                  requirementName: requirement.name,
-                  requirementDescription: requirement.requirementDescription,
-                  drugName: drug?.name,
-                  stakeholderId: reqStakeholderReference,
-                  case_numbers: []
-                };
-
-                returnedMetReqDoc = await metRequirementsCollection.create(newMetReq3);
-              }
             } else {
-              // Finding the specific case associated with an individual patient for the patient status form
-              // TODO : Make this find one a find many and iterate over all cases (support multiple patients)
-              const remsRequestToUpdate2 = await remsCaseCollection
-                .findOne({
-                  patientFirstName: patientFirstName,
-                  patientLastName: patientLastName,
-                  patientDOB: patientDOB,
-                  drugCode: prescriptionCode
-                })
-                .exec();
-              // If you found a case for the patient status form to update
-              if (remsRequestToUpdate2) {
-                if (remsRequestToUpdate2.status === 'Approved') {
-                  const now = new Date();
-                  const metReq2 = {
-                    completed: true,
-                    completedQuestionnaire: questionnaireResponse,
-                    requirementName: requirement.name + ' - ' + now.toLocaleString(),
-                    requirementDescription: requirement.description,
-                    drugName: drug?.name,
-                    stakeholderId: reqStakeholderReference,
-                    case_numbers: [remsRequestToUpdate2.case_number]
-                  };
 
-                  try {
-                    const matchedMetReq4 = await metRequirementsCollection.create(metReq2);
-                    remsRequestToUpdate2.metRequirements.push({
-                      stakeholderId: matchedMetReq4?.stakeholderId,
-                      completed: matchedMetReq4?.completed,
-                      metRequirementId: matchedMetReq4?._id,
-                      requirementName: matchedMetReq4?.requirementName,
-                      requirementDescription: matchedMetReq4?.requirementDescription
-                    });
+              await createMetRequirementAndUpdateCaseNotRequiredToDispense(patient, drug, requirement, questionnaireResponse, res, reqStakeholderReference);
+              return;
 
-                    await remsRequestToUpdate2.save();
-                    returnRemsRequest = true;
-                    returnedRemsRequestDoc = remsRequestToUpdate2;
-                  } catch (e) {
-                    console.log(e);
-                    console.log('create error');
-                  }
-                } else {
-                  console.log(
-                    'ETASU ERROR: case has not been approved (someone tried to submit the patient status form before all other ETASU have been met)'
-                  );
-                }
-              } else {
-                // TODO : Need to revisit and add an else for error handling if someone tries to submit the patient status form before a patient is enrolled
-                console.log(
-                  'ETASU ERROR: no case exits for this form to match (someone tried to submit the patient status form before a patient is enrolled)'
-                );
-              }
             }
           }
           break;
@@ -401,14 +448,6 @@ router.post('/met', async (req: Request, res: Response) => {
       }
     }
 
-    // return MetReq unless a new case is created in which case return the Rems request
-    if (returnRemsRequest) {
-      res.status(201);
-      res.send(returnedRemsRequestDoc);
-    } else {
-      res.status(201);
-      res.send(returnedMetReqDoc);
-    }
   } catch (error) {
     console.log(error);
     throw error;
