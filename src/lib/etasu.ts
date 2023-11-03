@@ -82,26 +82,24 @@ router.post('/reset', async (req: Request, res: Response) => {
   res.send('reset etasu database collections');
 });
 
-
 const pushMetRequirements = (matchedMetReq: any, remsRequest: any) => {
-    remsRequest.metRequirements.push({
-      stakeholderId: matchedMetReq?.stakeholderId,
-      completed: matchedMetReq?.completed,
-      metRequirementId: matchedMetReq?._id,
-      requirementName: matchedMetReq?.requirementName,
-      requirementDescription: matchedMetReq?.requirementDescription
-    });
+  remsRequest.metRequirements.push({
+    stakeholderId: matchedMetReq?.stakeholderId,
+    completed: matchedMetReq?.completed,
+    metRequirementId: matchedMetReq?._id,
+    requirementName: matchedMetReq?.requirementName,
+    requirementDescription: matchedMetReq?.requirementDescription
+  });
 };
 
 const createMetRequirements = async (metReq: any) => {
-    return await metRequirementsCollection.create(metReq);
+  return await metRequirementsCollection.create(metReq);
 };
 
 const createAndPushMetRequirements = async (metReq: any, remsRequest: any) => {
   try {
     const matchedMetReq = await createMetRequirements(metReq);
     pushMetRequirements(matchedMetReq, remsRequest);
-
   } catch (e) {
     console.log('ERROR: failed in createAndPushMetRequirements');
     console.log(e);
@@ -110,8 +108,17 @@ const createAndPushMetRequirements = async (metReq: any, remsRequest: any) => {
   return true;
 };
 
-const createMetRequirementAndNewCase = async (patient: any, drug: Medication, requirement: any, questionnaireResponse: any, res: Response, 
-    reqStakeholderReference: any, practitionerReference: string, pharmacistReference: string, patientReference: string) => {
+const createMetRequirementAndNewCase = async (
+  patient: any,
+  drug: Medication,
+  requirement: any,
+  questionnaireResponse: any,
+  res: Response,
+  reqStakeholderReference: any,
+  practitionerReference: string,
+  pharmacistReference: string,
+  patientReference: string
+) => {
   const patientFirstName = patient.name[0].given[0];
   const patientLastName = patient.name[0].family;
   const patientDOB = patient.birthDate;
@@ -144,10 +151,10 @@ const createMetRequirementAndNewCase = async (patient: any, drug: Medication, re
     case_numbers: [case_number]
   };
 
-  if (! await createAndPushMetRequirements(metReq, remsRequest)) {
+  if (!(await createAndPushMetRequirements(metReq, remsRequest))) {
     createNewCase = false;
     res.status(200);
-    message = "ERROR: failed to create new met requirement for form initial to case";
+    message = 'ERROR: failed to create new met requirement for form initial to case';
     console.log(message);
     res.send(message);
     return res;
@@ -157,10 +164,7 @@ const createMetRequirementAndNewCase = async (patient: any, drug: Medication, re
   for (const requirement2 of drug.requirements) {
     // skip if the req found is the same as in the outer loop and has already been processed
     // && If the requirement is not the patient Status Form (when requiredToDispense == false)
-    if (
-      !(requirement2.resourceId === requirement.resourceId) &&
-      requirement2.requiredToDispense
-    ) {
+    if (!(requirement2.resourceId === requirement.resourceId) && requirement2.requiredToDispense) {
       // figure out which stakeholder the req corresponds to
       const reqStakeholder2 = requirement2.stakeholderType;
       const reqStakeholder2Reference =
@@ -185,7 +189,6 @@ const createMetRequirementAndNewCase = async (patient: any, drug: Medication, re
         }
         matchedMetReq2.case_numbers.push(case_number);
         await matchedMetReq2.save();
-
       } else {
         // create the metReq that was submitted
         const newMetReq = {
@@ -200,8 +203,8 @@ const createMetRequirementAndNewCase = async (patient: any, drug: Medication, re
 
         remsRequestCompletedStatus = 'Pending';
 
-        if (! await createAndPushMetRequirements(newMetReq, remsRequest)) {
-          message = "ERROR: failed to create new met requirement for form initial to case";
+        if (!(await createAndPushMetRequirements(newMetReq, remsRequest))) {
+          message = 'ERROR: failed to create new met requirement for form initial to case';
           console.log(message);
         }
       }
@@ -219,16 +222,22 @@ const createMetRequirementAndNewCase = async (patient: any, drug: Medication, re
   return res;
 };
 
-const createMetRequirementAndUpdateCase = async (drug: Medication, requirement: any, questionnaireResponse: any, res: Response, reqStakeholderReference: any) => {
+const createMetRequirementAndUpdateCase = async (
+  drug: Medication,
+  requirement: any,
+  questionnaireResponse: any,
+  res: Response,
+  reqStakeholderReference: any
+) => {
   let returnedMetReqDoc: any;
 
   const matchedMetReq = await metRequirementsCollection
-  .findOne({
-    stakeholderId: reqStakeholderReference,
-    requirementName: requirement.name,
-    drugName: drug?.name
-  })
-  .exec();
+    .findOne({
+      stakeholderId: reqStakeholderReference,
+      requirementName: requirement.name,
+      drugName: drug?.name
+    })
+    .exec();
   // Has the patient enrollment been submitted?
   if (matchedMetReq) {
     // If the prescriber enrollment form is submitted twice then nothing will be update
@@ -245,9 +254,7 @@ const createMetRequirementAndUpdateCase = async (drug: Medication, requirement: 
         })
         .exec();
 
-
       for (const case_number of returnedMetReqDoc.case_numbers) {
-
         // get the rems case to update, search by the case_number
         const remsRequestToUpdate = await remsCaseCollection
           .findOne({
@@ -301,7 +308,14 @@ const createMetRequirementAndUpdateCase = async (drug: Medication, requirement: 
   return res;
 };
 
-const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (patient: any, drug: Medication, requirement: any, questionnaireResponse: any, res: Response, reqStakeholderReference: any) => {
+const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
+  patient: any,
+  drug: Medication,
+  requirement: any,
+  questionnaireResponse: any,
+  res: Response,
+  reqStakeholderReference: any
+) => {
   // Find the specific case associated with an individual patient for the patient status form
   // Is it possible for there to be multiple cases for this patient and the same drug?
   let returnedRemsRequestDoc: any;
@@ -334,11 +348,10 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (patient: a
         case_numbers: [remsRequestToUpdate.case_number]
       };
 
-      if (! await createAndPushMetRequirements(metReq, remsRequestToUpdate)) {
-        message = "ERROR: failed to create new met requirement for form not required to dispense";
+      if (!(await createAndPushMetRequirements(metReq, remsRequestToUpdate))) {
+        message = 'ERROR: failed to create new met requirement for form not required to dispense';
         console.log(message);
       } else {
-
         try {
           await remsRequestToUpdate.save();
           returnRemsRequest = true;
@@ -350,12 +363,14 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (patient: a
         }
       }
     } else {
-      message = 'ERROR: rems case has not been approved, status form (or other form not required to dispense) submitted before all other ETASU have been met';
+      message =
+        'ERROR: rems case has not been approved, status form (or other form not required to dispense) submitted before all other ETASU have been met';
       console.log(message);
     }
   } else {
     // should not get here since a form not required for dispensing should not be given to the provider until a case is created
-    message = 'ERROR: no case exists for this form to match status form (or other form not required to dispense) submitted before initial form creating case was sent (patient status form)';
+    message =
+      'ERROR: no case exists for this form to match status form (or other form not required to dispense) submitted before initial form creating case was sent (patient status form)';
     console.log(message);
   }
 
@@ -423,31 +438,46 @@ router.post('/met', async (req: Request, res: Response) => {
         if (requirement.resourceId === requirementId) {
           // if the req submitted is a patient enrollment form and requires creating a new case
           if (requirement.createNewCase) {
-
-            await createMetRequirementAndNewCase(patient, drug, requirement, questionnaireResponse, res, 
-              reqStakeholderReference, practitionerReference, pharmacistReference, patientReference);
+            await createMetRequirementAndNewCase(
+              patient,
+              drug,
+              requirement,
+              questionnaireResponse,
+              res,
+              reqStakeholderReference,
+              practitionerReference,
+              pharmacistReference,
+              patientReference
+            );
 
             return;
-
           } else {
             // If its not the patient status requirement
             if (requirement.requiredToDispense) {
-
-              await createMetRequirementAndUpdateCase(drug, requirement, questionnaireResponse, res, reqStakeholderReference);
+              await createMetRequirementAndUpdateCase(
+                drug,
+                requirement,
+                questionnaireResponse,
+                res,
+                reqStakeholderReference
+              );
               return;
-
             } else {
-
-              await createMetRequirementAndUpdateCaseNotRequiredToDispense(patient, drug, requirement, questionnaireResponse, res, reqStakeholderReference);
+              await createMetRequirementAndUpdateCaseNotRequiredToDispense(
+                patient,
+                drug,
+                requirement,
+                questionnaireResponse,
+                res,
+                reqStakeholderReference
+              );
               return;
-
             }
           }
           break;
         }
       }
     }
-
   } catch (error) {
     console.log(error);
     throw error;
