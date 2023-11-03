@@ -6,7 +6,6 @@ import {
   remsCaseCollection,
   Medication
 } from '../fhir/models';
-import { Patient } from 'fhir/r4';
 import { uid } from 'uid';
 const router = Router();
 
@@ -123,7 +122,7 @@ const createMetRequirementAndNewCase = async (
   const patientLastName = patient.name[0].family;
   const patientDOB = patient.birthDate;
   let message = '';
-  var createNewCase = true;
+  let createNewCase = true;
   let returnedRemsRequestDoc: any;
   const case_number = uid();
 
