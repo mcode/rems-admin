@@ -84,7 +84,7 @@ export class FhirUtilities {
         switch (resource.resourceType) {
           case 'Library':
             model = LibraryModel;
-            await QuestionnaireUtilities.processLibraryCodeFilters(resource, {});
+            await QuestionnaireUtilities.processLibraryCodeFilters(resource);
             break;
           case 'Patient':
             model = PatientModel;

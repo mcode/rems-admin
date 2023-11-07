@@ -10,7 +10,7 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
+import { validCodes, codeMap, CARD_DETAILS } from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -80,8 +80,6 @@ const handler = (req: TypedRequestBody, res: any) => {
     const prefetchRequest = hydratedPrefetch?.request;
     const practitioner = hydratedPrefetch?.practitioner;
     const npi = practitioner?.identifier;
-    console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
-    console.log('    Patient: ' + patient?.id);
 
     console.log('    MedicationRequest: ' + prefetchRequest?.id);
     console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
@@ -212,6 +210,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       res.json(buildErrorCard('MedicationRequest does not contain a code'));
     }
   }
+
   console.log('REMS order-sign hook');
   try {
     const fhirUrl = req.body.fhirServer;

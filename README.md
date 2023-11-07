@@ -53,7 +53,7 @@ NOTE: The REMS Administrator is a work in progress.
 ## Running the REMS Adminstrator
 
 #### Initialization
-After cloning the repsistory, the submodules must be initialized. To do this you can run:
+After cloning the repository, the submodules must be initialized. To do this you can run:
 
 ```
 git submodule update --init
@@ -70,7 +70,7 @@ npm test
 ```
 npm start
 ```
-Application will be runnin on port 8090.
+Application will be running on port 8090.
 
 To reach the CDS Services discovery information:
 
