@@ -50,12 +50,12 @@ const handler = (req: TypedRequestBody, res: any) => {
         Authorization: `Bearer ${access_token}`
       }
     };
-    // application errors out here if you can't reach out to the EHR and results in server stopping and subsequent requests failing 
-    let response = {data: {}};
+    // application errors out here if you can't reach out to the EHR and results in server stopping and subsequent requests failing
+    let response = {data: {} };
     try {
       response = await axios(ehrUrl, options);
-    } catch (error: any)  {
-      console.warn("Could not connect to EHR Server: " + error);
+    } catch (error: any) {
+      console.warn('Could not connect to EHR Server: '+ error);
       response = error;
     }
     return response?.data;
