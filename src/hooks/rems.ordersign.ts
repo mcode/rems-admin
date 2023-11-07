@@ -41,7 +41,7 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function getFhirResource(token: string) {
+  async function getFhirResource(token: string) {
     const ehrUrl = `${req.body.fhirServer}/${token}`;
     const access_token = req.body.fhirAuthorization?.access_token;
     const options = {
@@ -50,10 +50,15 @@ const handler = (req: TypedRequestBody, res: any) => {
         Authorization: `Bearer ${access_token}`
       }
     };
-    const response = axios(ehrUrl, options);
-    return response.then(e => {
-      return e.data;
-    });
+    // application errors out here if you can't reach out to the EHR and results in server stopping and subsequent requests failing 
+    let response = {data: {}};
+    try {
+      response = await axios(ehrUrl, options);
+    } catch (error: any)  {
+      console.warn("Could not connect to EHR Server: " + error);
+      response = error;
+    }
+    return response?.data;
   }
 
   function createSmartLink(
