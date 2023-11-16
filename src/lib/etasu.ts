@@ -122,8 +122,6 @@ const createMetRequirementAndNewCase = async (
   const patientLastName = patient.name[0].family;
   const patientDOB = patient.birthDate;
   let message = '';
-  let createNewCase = true;
-  let returnedRemsRequestDoc: any;
   const case_number = uid();
 
   // create new rems request and add the created metReq to it
@@ -151,7 +149,6 @@ const createMetRequirementAndNewCase = async (
   };
 
   if (!(await createAndPushMetRequirements(metReq, remsRequest))) {
-    createNewCase = false;
     res.status(200);
     message = 'ERROR: failed to create new met requirement for form initial to case';
     console.log(message);
@@ -210,11 +207,8 @@ const createMetRequirementAndNewCase = async (
     }
   }
 
-  if (createNewCase) {
-    remsRequest.status = remsRequestCompletedStatus;
-    returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
-  }
-
+  remsRequest.status = remsRequestCompletedStatus;
+  const returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
   res.status(201);
   res.send(returnedRemsRequestDoc);
 
