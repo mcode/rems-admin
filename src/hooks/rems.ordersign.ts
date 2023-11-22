@@ -73,7 +73,6 @@ const handler = (req: TypedRequestBody, res: any) => {
   }
 
   async function handleCard(hydratedPrefetch: OrderSignPrefetch) {
-    console.log(hydratedPrefetch);
     const context = req.body.context;
     const contextRequest = context.draftOrders?.entry?.[0].resource;
     const patient = hydratedPrefetch?.patient;
@@ -215,7 +214,8 @@ const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS order-sign hook');
   try {
     const fhirUrl = req.body.fhirServer;
-    if (fhirUrl) {
+    const fhirAuth = req.body.fhirAuthorization;
+    if (fhirUrl && fhirAuth && fhirAuth.access_token) {
       hydrate(getFhirResource, hookPrefetch, req.body).then(
         (hydratedPrefetch: OrderSignPrefetch) => {
           handleCard(hydratedPrefetch);
