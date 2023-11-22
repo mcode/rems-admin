@@ -191,7 +191,8 @@ const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS patient-view hook');
   try {
     const fhirUrl = req.body.fhirServer;
-    if (fhirUrl) {
+    const fhirAuth = req.body.fhirAuthorization;
+    if (fhirUrl && fhirAuth && fhirAuth.access_token) {
       hydrate(getFhirResource, hookPrefetch, req.body).then(
         (hydratedPrefetch: PatientViewPrefetch) => {
           handleCard(hydratedPrefetch);
