@@ -11,9 +11,9 @@ import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 import {
-  validCodes, 
-  codeMap, 
-  CARD_DETAILS, 
+  validCodes,
+  codeMap,
+  CARD_DETAILS,
   getDrugCodeFromMedicationRequest
 } from './hookResources';
 import axios from 'axios';

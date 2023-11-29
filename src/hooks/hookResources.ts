@@ -225,9 +225,8 @@ export function getDrugCodeFromMedicationRequest(medicationRequest: MedicationRe
           }
         }
       });
-      return coding; 
+      return coding;
     }
   }
   return null;
 }
-

@@ -11,9 +11,9 @@ import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 import {
-  validCodes, 
-  codeMap, 
-  CARD_DETAILS, 
+  validCodes,
+  codeMap,
+  CARD_DETAILS,
   getDrugCodeFromMedicationRequest
 } from './hookResources';
 import axios from 'axios';
@@ -129,7 +129,9 @@ const handler = (req: TypedRequestBody, res: any) => {
     }
 
     const medicationCode = getDrugCodeFromMedicationRequest(contextRequest);
-    if (!medicationCode) { return; }
+    if (!medicationCode) {
+      return;
+    }
     if (medicationCode && medicationCode?.code) {
       // find the drug in the medicationCollection to get the smart links
       const drug = await medicationCollection
@@ -248,4 +250,3 @@ const handler = (req: TypedRequestBody, res: any) => {
 };
 
 export default { definition, handler };
-
