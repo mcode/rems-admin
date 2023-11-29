@@ -188,12 +188,13 @@ const handler = (req: TypedRequestBody, res: any) => {
                     smartLinkCount++;
                   }
                 } else {
-                  // if (etasu)
-                  // add all the links if no etasu to check
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  smartLinkCount++;
+                  // add all the required to dispense links if no etasu to check
+                  if (requirement.requiredToDispense) {
+                    card.addLink(
+                      createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                    );
+                    smartLinkCount++;
+                  }
                 }
               }
             }
