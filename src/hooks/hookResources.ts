@@ -1,4 +1,4 @@
-import { Coding } from 'fhir/r4';
+import { MedicationRequest, Coding } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import { TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import axios from 'axios';
@@ -204,3 +204,30 @@ export function getFhirResource(token: string, req: TypedRequestBody) {
     return e.data;
   });
 }
+
+/*
+ * Retrieve the coding for the medication from the medicationCodeableConcept if available.
+ * Read coding from contained Medication matching the medicationReference otherwise.
+ */
+export function getDrugCodeFromMedicationRequest(medicationRequest: MedicationRequest) {
+  if (medicationRequest) {
+    if (medicationRequest?.medicationCodeableConcept) {
+      console.log('Get Medication code from CodeableConcept');
+      return medicationRequest?.medicationCodeableConcept?.coding?.[0];
+    } else if (medicationRequest?.medicationReference) {
+      const reference = medicationRequest?.medicationReference;
+      let coding = null;
+      medicationRequest?.contained?.every(e => {
+        if (e.resourceType + '/' + e.id === reference.reference) {
+          if (e.resourceType === 'Medication') {
+            console.log('Get Medication code from contained resource');
+            coding = e.code?.coding?.[0];
+          }
+        }
+      });
+      return coding; 
+    }
+  }
+  return null;
+}
+

@@ -10,7 +10,11 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { codeMap, CARD_DETAILS } from './hookResources';
+import {
+  codeMap, 
+  CARD_DETAILS, 
+  getDrugCodeFromMedicationRequest
+} from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -141,7 +145,8 @@ const handler = (req: TypedRequestBody, res: any) => {
         if (entry.resource) {
           if (entry.resource.resourceType === 'MedicationRequest') {
             const medReq: MedicationRequest = entry.resource;
-            return remsCase.drugCode === medReq?.medicationCodeableConcept?.coding?.[0].code;
+            const medicationCode = getDrugCodeFromMedicationRequest(medReq);
+            return remsCase.drugCode === medicationCode?.code;
           }
         }
       })[0].resource;
