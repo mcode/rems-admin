@@ -6,7 +6,7 @@ import {
 } from '../rems-cds-hooks/resources/HookTypes';
 import { medicationCollection, remsCaseCollection } from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import { MedicationRequest } from 'fhir/r4';
+import { Bundle, MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
@@ -20,7 +20,8 @@ interface TypedRequestBody extends Express.Request {
 const hookPrefetch: ServicePrefetch = {
   patient: 'Patient/{{context.patientId}}',
   practitioner: '{{context.userId}}',
-  medicationRequests: 'MedicationRequest?subject={{context.patientId}}'
+  medicationRequests:
+    'MedicationRequest?subject={{context.patientId}}&_include=MedicationRequest:medication'
 };
 const definition: CdsService = {
   id: 'rems-patient-view',
@@ -71,6 +72,49 @@ const handler = (req: TypedRequestBody, res: any) => {
       }`
     };
     return newLink;
+  }
+
+  // process the MedicationRequests to add the Medication into contained resources
+  function processMedicationRequests(medicationRequestsBundle: Bundle) {
+    medicationRequestsBundle?.entry?.forEach(entry => {
+      if (entry?.resource?.resourceType === 'MedicationRequest') {
+        if (entry?.resource?.medicationReference) {
+          const medicationReference = entry?.resource?.medicationReference;
+          medicationRequestsBundle?.entry?.forEach(e => {
+            if (e?.resource?.resourceType === 'Medication') {
+              if (
+                e?.resource?.resourceType + '/' + e?.resource?.id ===
+                medicationReference?.reference
+              ) {
+                if (entry) {
+                  if (entry.resource) {
+                    const reference = e?.resource;
+                    const request = entry.resource as MedicationRequest;
+
+                    // add the reference as a contained resource to the request
+                    if (!request?.contained) {
+                      request.contained = [];
+                      request.contained.push(reference);
+                    } else {
+                      // only add to contained if not already in there
+                      let found = false;
+                      request.contained.forEach(c => {
+                        if (c.id === reference.id) {
+                          found = true;
+                        }
+                      });
+                      if (!found) {
+                        request.contained.push(reference);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+    });
   }
 
   async function handleCard(hydratedPrefetch: PatientViewPrefetch) {
@@ -135,6 +179,11 @@ const handler = (req: TypedRequestBody, res: any) => {
       // create the card
       let smartLinkCount = 0;
       const card = new Card(summary, CARD_DETAILS, source, 'info');
+
+      // process the MedicationRequests to add the Medication into contained resources
+      if (medicationRequestsBundle) {
+        processMedicationRequests(medicationRequestsBundle);
+      }
 
       // find the matching MedicationRequest for the context
       const request = medicationRequestsBundle?.entry?.filter(entry => {
