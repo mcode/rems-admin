@@ -10,7 +10,12 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { validCodes, codeMap, CARD_DETAILS } from './hookResources';
+import {
+  validCodes,
+  codeMap,
+  CARD_DETAILS,
+  getDrugCodeFromMedicationRequest
+} from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -73,6 +78,7 @@ const handler = (req: TypedRequestBody, res: any) => {
   }
 
   async function handleCard(hydratedPrefetch: OrderSelectPrefetch) {
+    console.log(hydratedPrefetch);
     const context = req.body.context;
     // const contextRequest = context.draftOrders?.entry?.[0].resource;
     const selection = context.selections?.[0];
@@ -89,6 +95,12 @@ const handler = (req: TypedRequestBody, res: any) => {
     console.log('    MedicationRequest: ' + prefetchRequest?.id);
     console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
     console.log('    Patient: ' + patient?.id);
+
+    // verify there is a contextRequest
+    if (!contextRequest) {
+      res.json(buildErrorCard('DraftOrders does not contain a request'));
+      return;
+    }
 
     // verify a MedicationRequest was sent
     if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
@@ -122,7 +134,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       return;
     }
 
-    const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
+    const medicationCode = getDrugCodeFromMedicationRequest(contextRequest);
     if (medicationCode && medicationCode.code) {
       // find the drug in the medicationCollection to get the smart links
       const drug = await medicationCollection

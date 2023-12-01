@@ -6,6 +6,7 @@ import {
   remsCaseCollection,
   Medication
 } from '../fhir/models';
+import { getDrugCodeFromMedicationRequest } from '../hooks/hookResources';
 import { uid } from 'uid';
 const router = Router();
 
@@ -405,8 +406,9 @@ router.post('/met', async (req: Request, res: Response) => {
 
     // obtain drug information from database
     const prescription = getResource(requestBody, prescriptionReference);
-    const prescriptionSystem = prescription.medicationCodeableConcept.coding[0].system;
-    const prescriptionCode = prescription.medicationCodeableConcept.coding[0].code;
+    const medicationCode = getDrugCodeFromMedicationRequest(prescription);
+    const prescriptionSystem = medicationCode?.system;
+    const prescriptionCode = medicationCode?.code;
     const patient = getResource(requestBody, patientReference);
 
     const drug = await medicationCollection
