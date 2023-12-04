@@ -10,7 +10,12 @@ import { MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { validCodes, codeMap, CARD_DETAILS, getFhirResource } from './hookResources';
+import {
+  validCodes,
+  codeMap,
+  CARD_DETAILS,
+  getDrugCodeFromMedicationRequest
+} from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -41,7 +46,7 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function getFhirResource(token: string) {
+  async function getFhirResource(token: string) {
     const ehrUrl = `${req.body.fhirServer}/${token}`;
     const access_token = req.body.fhirAuthorization?.access_token;
     const options = {
@@ -50,10 +55,15 @@ const handler = (req: TypedRequestBody, res: any) => {
         Authorization: `Bearer ${access_token}`
       }
     };
-    const response = axios(ehrUrl, options);
-    return response.then(e => {
-      return e.data;
-    });
+    // application errors out here if you can't reach out to the EHR and results in server stopping and subsequent requests failing
+    let response = { data: {} };
+    try {
+      response = await axios(ehrUrl, options);
+    } catch (error: any) {
+      console.warn('Could not connect to EHR Server: ' + error);
+      response = error;
+    }
+    return response?.data;
   }
 
   function createSmartLink(
@@ -80,12 +90,16 @@ const handler = (req: TypedRequestBody, res: any) => {
     const prefetchRequest = hydratedPrefetch?.request;
     const practitioner = hydratedPrefetch?.practitioner;
     const npi = practitioner?.identifier;
-    console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
-    console.log('    Patient: ' + patient?.id);
 
     console.log('    MedicationRequest: ' + prefetchRequest?.id);
     console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
     console.log('    Patient: ' + patient?.id);
+
+    // verify there is a contextRequest
+    if (!contextRequest) {
+      res.json(buildErrorCard('DraftOrders does not contain a request'));
+      return;
+    }
 
     // verify a MedicationRequest was sent
     if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
@@ -119,8 +133,11 @@ const handler = (req: TypedRequestBody, res: any) => {
       return;
     }
 
-    const medicationCode = contextRequest?.medicationCodeableConcept?.coding?.[0];
-    if (medicationCode && medicationCode.code) {
+    const medicationCode = getDrugCodeFromMedicationRequest(contextRequest);
+    if (!medicationCode) {
+      return;
+    }
+    if (medicationCode && medicationCode?.code) {
       // find the drug in the medicationCollection to get the smart links
       const drug = await medicationCollection
         .findOne({
@@ -186,12 +203,13 @@ const handler = (req: TypedRequestBody, res: any) => {
                     smartLinkCount++;
                   }
                 } else {
-                  // if (etasu)
-                  // add all the links if no etasu to check
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  smartLinkCount++;
+                  // add all the required to dispense links if no etasu to check
+                  if (requirement.requiredToDispense) {
+                    card.addLink(
+                      createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                    );
+                    smartLinkCount++;
+                  }
                 }
               }
             }
@@ -212,10 +230,12 @@ const handler = (req: TypedRequestBody, res: any) => {
       res.json(buildErrorCard('MedicationRequest does not contain a code'));
     }
   }
+
   console.log('REMS order-sign hook');
   try {
     const fhirUrl = req.body.fhirServer;
-    if (fhirUrl) {
+    const fhirAuth = req.body.fhirAuthorization;
+    if (fhirUrl && fhirAuth && fhirAuth.access_token) {
       hydrate(getFhirResource, hookPrefetch, req.body).then(
         (hydratedPrefetch: OrderSignPrefetch) => {
           handleCard(hydratedPrefetch);

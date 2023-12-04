@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { ValueSetExpansion } from 'fhir/r4';
-import integer from './integer';
 import ValueSet_Parameter from './ValueSet_Parameter';
 import ValueSet_Contains from './ValueSet_Contains';
 export default new mongoose.Schema<ValueSetExpansion>(

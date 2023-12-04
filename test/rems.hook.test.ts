@@ -4,10 +4,12 @@ import { expect } from 'chai';
 
 describe.skip('hook: test rems', () => {
   it('should have definition and handler', () => {
+    /*
     const prefetch = {
       patient: 'Patient/{{context.patientId}}',
       practitioner: 'Practitioner/{{context.userId}}'
     };
+    */
     // const expectedDefinition = new OrderSign(
     //   'rems-order-sign',
     //   'order-sign',
