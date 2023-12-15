@@ -26,7 +26,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-info-base"
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-info-base"
             },
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
@@ -326,7 +326,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/practitioner-info-base"
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/practitioner-info-base"
             },
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
@@ -1138,7 +1138,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/provider-signature"
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/provider-signature"
             }
           ],
           "type": "display"
@@ -1161,7 +1161,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-signature"
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-signature"
             }
           ],
           "type": "display"
