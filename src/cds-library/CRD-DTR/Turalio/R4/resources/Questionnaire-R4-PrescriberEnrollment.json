@@ -504,7 +504,7 @@
                     "linkId": "4.2",
                     "extension": [
                       {
-                        "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
                         "valueCanonical": "http://hl7.org/fhir/Questionnaire/provider-signature"
                       }
                     ],

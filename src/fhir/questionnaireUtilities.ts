@@ -170,7 +170,7 @@ export class QuestionnaireUtilities {
   ) {
     const ext = this.getExtension(
       item,
-      'http://hl7.org/fhir/StructureDefinition/sub-questionnaire'
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire'
     );
     if (ext) {
       const subQ = ext.valueCanonical;
@@ -180,10 +180,10 @@ export class QuestionnaireUtilities {
         let expandRootItem = false;
         const expandExt = this.getExtension(
           item,
-          'http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand'
+          'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible'
         );
         if (expandExt && expandExt.valueBoolean) {
-          expandRootItem = expandExt.valueBoolean;
+          expandRootItem = expandExt.valueCode === 'default-open';
         }
         const subQuestionnaire = await this.findQuestionnaireByUrl(subQ);
         if (subQuestionnaire) {
