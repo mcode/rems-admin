@@ -2,7 +2,7 @@
 
 ## Running only the REMS server project locally
 
-1.  Clone the REMS repositories from Github:
+1.  Clone the REMS repositories from GitHub:
     ```bash
     git clone https://github.com/mcode/rems-admin.git rems-admin
     ```
@@ -13,25 +13,27 @@
 
 ### How To Override Defaults
 
-The .env file contains the default URI paths, these can be overwritten from the start command as follows:
-`MONGO_URL=http://example.com SERVER_PORT=6000 npm start`
+The .env file contains the default URI paths, which can be overwritten from the start command as follows:
+a) `REACT_APP_LAUNCH_URL=http://example.com PORT=6000 npm start` or b) by specifying the environment variables and desired values in a `.env.local`.
+
+> **Bug**: Do note that the `SMART_ENDPOINT` environment variable cannot be overwritten in a `.env.local`, it must be done in the `.env`.
 
 Following are a list of modifiable paths:
 
 | URI Name        | Default                                    |
 | --------------- | ------------------------------------------ |
-| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` |
-| MONGO_DB_NAME   | `remsadmin`                                |
-| WHITELIST       | `http://localhost, http://localhost:3005`  |
+| AUTH_SERVER_URI | `http://localhost:8090`                    |
+| HTTPS_CERT_PATH | `server.cert`                              |
+| HTTPS_KEY_PATH  | `server.key`                               |
 | LOGGING_LEVEL   | `debug`                                    |
+| MONGO_DB_NAME   | `remsadmin`                                |
+| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` |
 | PORT            | `8090`                                     |
 | RESOURCE_SERVER | `http://localhost:8090`                    |
-| AUTH_SERVER_URI | `http://localhost:8090`                    |
-| VSAC_API_KEY    | `changeMe`                                 |
-| SMART_ENDPOINT  | `http://localhost:3005/launch`             |
-| HTTPS_KEY_PATH  | `server.key`                               |
-| HTTPS_CERT_PATH | `server.cert`                              |
+| SMART_ENDPOINT  | `http://localhost:4040/launch`             |
 | USE_HTTPS       | `false`                                    |
+| VSAC_API_KEY    | `changeMe`                                 |
+| WHITELIST       | `http://localhost, http://localhost:3005`  |
 
 ## Running the Mongo DB instance
 
@@ -56,7 +58,7 @@ Following are a list of modifiable paths:
 
 NOTE: The REMS Administrator is a work in progress.
 
-## Running the REMS Adminstrator
+## Running the REMS Administrator
 
 #### Initialization
 
