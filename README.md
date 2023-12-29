@@ -37,13 +37,13 @@ Following are a list of modifiable paths:
 
 ## Running the Mongo DB instance
 
-1. On the first run use the following command to create a docker mongo instance:
+1. On the first run use the following command to create a Docker MongoDB instance:
 
    ```bash
        docker run --name rems_local_pims_remsadmin_mongo --expose 27017 -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME='rems-admin-pims-root' -e MONGO_INITDB_ROOT_PASSWORD='rems-admin-pims-password' -v rems_local_pims_remsadmin_mongo:/data/db -v "$(pwd)"/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js mongo
    ```
 
-   To stop the running container, simply use ctrl + c
+   To stop the running container, simply use Ctrl + C.
 
 2. On subsequent runs use the following command to start the existing mongo container:
    ```bash
