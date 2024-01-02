@@ -104,9 +104,7 @@ export class QuestionnaireUtilities {
     const returnValue = this.vsacCache.cacheLibrary(library);
     return returnValue;
   }
-  static async findQuestionnaire(id: string): Promise<Questionnaire | null | undefined> {
-    return await QuestionnaireModel.findOne({ id: id.toString() });
-  }
+
   static async findQuestionnaireByUrl(url: string): Promise<Questionnaire | null | undefined> {
     return await QuestionnaireModel.findOne({ url: url.toString() });
   }
