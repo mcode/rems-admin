@@ -2,15 +2,16 @@ import Card from '../cards/Card';
 import {
   PatientViewHook,
   SupportedHooks,
-  PatientViewPrefetch
+  PatientViewPrefetch,
+  HookPrefetch
 } from '../rems-cds-hooks/resources/HookTypes';
 import { medicationCollection, remsCaseCollection } from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import { Bundle, MedicationRequest } from 'fhir/r4';
+import { Bundle, FhirResource, MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { codeMap, CARD_DETAILS, getDrugCodeFromMedicationRequest } from './hookResources';
+import { codeMap, CARD_DETAILS, getDrugCodeFromMedicationRequest, createSmartLink, handleHook } from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -43,36 +44,6 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-  function getFhirResource(token: string) {
-    const ehrUrl = `${req.body.fhirServer}/${token}`;
-    const access_token = req.body.fhirAuthorization?.access_token;
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${access_token}`
-      }
-    };
-    const response = axios(ehrUrl, options);
-    return response.then(e => {
-      return e.data;
-    });
-  }
-
-  function createSmartLink(
-    requirementName: string,
-    appContext: string,
-    request: MedicationRequest | undefined
-  ) {
-    const newLink: Link = {
-      label: requirementName + ' Form',
-      url: new URL(config.smart.endpoint),
-      type: 'smart',
-      appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
-        request?.insurance?.[0].reference
-      }`
-    };
-    return newLink;
-  }
 
   // process the MedicationRequests to add the Medication into contained resources
   function processMedicationRequests(medicationRequestsBundle: Bundle) {
@@ -117,44 +88,25 @@ const handler = (req: TypedRequestBody, res: any) => {
     });
   }
 
-  async function handleCard(hydratedPrefetch: PatientViewPrefetch) {
-    console.log(hydratedPrefetch);
-    const context = req.body.context;
-    const patient = hydratedPrefetch?.patient;
-    const practitioner = hydratedPrefetch?.practitioner;
-    const medicationRequestsBundle = hydratedPrefetch?.medicationRequests;
-    const npi = practitioner?.identifier;
-
-    console.log('    Practitioner: ' + practitioner?.id + ' NPI: ' + npi);
-    console.log('    Patient: ' + patient?.id);
-
-    // verify ids
-    if (
-      patient?.id &&
-      patient.id.replace('Patient/', '') !== context.patientId.replace('Patient/', '')
-    ) {
-      res.json(buildErrorCard('Context patientId does not match prefetch Patient ID'));
-      return;
-    }
-    if (
-      practitioner?.id &&
-      practitioner.id.replace('Practitioner/', '') !== context.userId.replace('Practitioner/', '')
-    ) {
-      res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
-      return;
-    }
-
+  async function handleCard(res: any,
+    hookPrefetch: HookPrefetch | undefined,
+    contextRequest: FhirResource | undefined,
+    patient: FhirResource | undefined) {
     //TODO: should we add the other pdf information links to the card, or just have the smart links?
+
+    const medResource = hookPrefetch?.medicationRequests;
+    const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
 
     // create empty card array
     const cardArray: Card[] = [];
 
     // find all matching rems cases for the patient
-    const patientName = patient?.name?.[0];
+    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0]: undefined;
+    const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
     const remsCaseList = await remsCaseCollection.find({
       patientFirstName: patientName?.given?.[0],
       patientLastName: patientName?.family,
-      patientDOB: patient?.birthDate
+      patientDOB: patientBirth
     });
 
     // loop through all the rems cases in the list
@@ -238,27 +190,9 @@ const handler = (req: TypedRequestBody, res: any) => {
     });
   }
 
-  console.log('REMS patient-view hook');
-  try {
-    const fhirUrl = req.body.fhirServer;
-    const fhirAuth = req.body.fhirAuthorization;
-    if (fhirUrl && fhirAuth && fhirAuth.access_token) {
-      hydrate(getFhirResource, hookPrefetch, req.body).then(
-        (hydratedPrefetch: PatientViewPrefetch) => {
-          handleCard(hydratedPrefetch);
-        }
-      );
-    } else {
-      if (req.body.prefetch) {
-        handleCard(req.body.prefetch);
-      } else {
-        handleCard({});
-      }
-    }
-  } catch (error) {
-    console.log(error);
-    res.json(buildErrorCard('Unknown Error'));
-  }
+  // contextRequest is undefined
+  handleHook(req, res, hookPrefetch, undefined, handleCard);
+
 };
 
 export default { definition, handler };

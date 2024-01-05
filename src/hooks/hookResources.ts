@@ -1,8 +1,18 @@
-import { MedicationRequest, Coding } from 'fhir/r4';
-import { Link } from '../cards/Card';
-import { TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
-import axios from 'axios';
+import { MedicationRequest, Coding, FhirResource, Identifier } from 'fhir/r4';
+import Card, { Link } from '../cards/Card';
+import { HookPrefetch, OrderSignPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
+import config from '../config';
+import { medicationCollection, remsCaseCollection } from '../fhir/models';
 
+import axios from 'axios';
+import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
+import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+type HandleCallback = (
+  res: any,
+  hydratedPrefetch: HookPrefetch | undefined,
+  contextRequest: FhirResource | undefined,
+  patient: FhirResource | undefined,
+  ) => Promise<void>;
 export interface CardRule {
   links: Link[];
   summary?: string;
@@ -189,21 +199,10 @@ export const validCodes: Coding[] = [
     system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
   }
 ];
-
-export function getFhirResource(token: string, req: TypedRequestBody) {
-  const ehrUrl = `${req.body.fhirServer}/${token}`;
-  const access_token = req.body.fhirAuthorization?.access_token;
-  const options = {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${access_token}`
-    }
-  };
-  const response = axios(ehrUrl, options);
-  return response.then(e => {
-    return e.data;
-  });
-}
+const source = {
+  label: 'MCODE REMS Administrator Prototype',
+  url: new URL('https://github.com/mcode/rems-admin')
+};
 
 /*
  * Retrieve the coding for the medication from the medicationCodeableConcept if available.
@@ -230,3 +229,221 @@ export function getDrugCodeFromMedicationRequest(medicationRequest: MedicationRe
   }
   return null;
 }
+export function getFhirResource(token: string, req: TypedRequestBody) {
+  const ehrUrl = `${req.body.fhirServer}/${token}`;
+  const access_token = req.body.fhirAuthorization?.access_token;
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${access_token}`
+    }
+  };
+  const response = axios(ehrUrl, options);
+  return response.then(e => {
+    return e.data;
+  });
+}
+export function createSmartLink(
+  requirementName: string,
+  appContext: string,
+  request: MedicationRequest | undefined
+) {
+  const newLink: Link = {
+    label: requirementName + ' Form',
+    url: new URL(config.smart.endpoint),
+    type: 'smart',
+    appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
+      request?.insurance?.[0].reference
+    }`
+  };
+  return newLink;
+}
+export function buildErrorCard(reason: string) {
+  const errorCard = new Card('Bad Request', reason, source, 'warning');
+  const cards = {
+    cards: [errorCard.card]
+  };
+  return cards;
+}
+
+// handles order-sign and order-select currently
+export async function handleCardOrder(res: any,
+  hydratedPrefetch: HookPrefetch | undefined,
+  contextRequest: FhirResource | undefined,
+  patient: FhirResource | undefined) {
+  const prefetchRequest = hydratedPrefetch?.request;
+  console.log('    MedicationRequest: ' + prefetchRequest?.id);
+  // verify there is a contextRequest
+  if (!contextRequest) {
+    res.json(buildErrorCard('DraftOrders does not contain a request'));
+    return;
+  }
+
+  // verify a MedicationRequest was sent
+  if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
+    res.json(buildErrorCard('DraftOrders does not contain a MedicationRequest'));
+    return;
+  }
+  if (
+    prefetchRequest?.id &&
+    contextRequest &&
+    contextRequest.id &&
+    prefetchRequest.id.replace('MedicationRequest/', '') !==
+      contextRequest.id.replace('MedicationRequest/', '')
+  ) {
+    res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
+    return;
+  }
+
+  const medicationCode = contextRequest && contextRequest.resourceType === 'MedicationRequest' && getDrugCodeFromMedicationRequest(contextRequest);
+  if (!medicationCode) {
+    return;
+  }
+  if (medicationCode && medicationCode?.code) {
+    // find the drug in the medicationCollection to get the smart links
+    const drug = await medicationCollection
+      .findOne({
+        code: medicationCode.code,
+        codeSystem: medicationCode.system
+      })
+      .exec();
+
+    // find a matching rems case for the patient and this drug to only return needed results
+    const patientName = patient?.resourceType==='Patient' ? patient?.name?.[0] : undefined;
+    const patientBirth = patient?.resourceType==='Patient' ? patient?.birthDate : undefined;
+    const etasu = await remsCaseCollection.findOne({
+      patientFirstName: patientName?.given?.[0],
+      patientLastName: patientName?.family,
+      patientDOB: patientBirth,
+      drugCode: medicationCode?.code
+    });
+
+    const returnCard = validCodes.some(e => {
+      return e.code === medicationCode.code && e.system === medicationCode.system;
+    });
+    if (returnCard) {
+      const cardArray: Card[] = [];
+      const codeRule = codeMap[medicationCode.code];
+      for (const rule of codeRule) {
+        const card = new Card(
+          rule.summary || medicationCode.display || 'Rems',
+          CARD_DETAILS,
+          source,
+          'info'
+        );
+        rule.links.forEach(function (e) {
+          if (e.type == 'absolute') {
+            // no construction needed
+            card.addLink(e);
+          }
+        });
+
+        let smartLinkCount = 0;
+
+        // process the smart links from the medicationCollection
+        // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+        if (drug) {
+          for (const requirement of drug.requirements) {
+            if (requirement.stakeholderType == rule.stakeholderType) {
+              // only add the link if the form has not already been processed / received
+              if (etasu) {
+                let found = false;
+                for (const metRequirement of etasu.metRequirements) {
+                  if (metRequirement.requirementName == requirement.name) {
+                    found = true;
+                    if (!metRequirement.completed) {
+                      card.addLink(
+                        createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                      );
+                      smartLinkCount++;
+                    }
+                  }
+                }
+                if (!found) {
+                  card.addLink(
+                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                  );
+                  smartLinkCount++;
+                }
+              } else {
+                // add all the required to dispense links if no etasu to check
+                if (requirement.requiredToDispense) {
+                  card.addLink(
+                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
+                  );
+                  smartLinkCount++;
+                }
+              }
+            }
+          }
+        }
+
+        // only add the card if there are smart links to needed forms
+        if (smartLinkCount > 0) {
+          cardArray.push(card);
+        }
+      }
+      res.json({
+        cards: cardArray
+      });
+    } else {
+      res.json(buildErrorCard('Unsupported code'));
+    }
+  } else {
+    res.json(buildErrorCard('MedicationRequest does not contain a code'));
+  }
+}
+
+// handles preliminary card creation.  ALL hooks should go through this function.
+// make sure code here is applicable to all supported hooks.
+export async function handleCard(req: TypedRequestBody, res: any, hydratedPrefetch: HookPrefetch, contextRequest: FhirResource | undefined, callback: HandleCallback) {
+  const context = req.body.context;
+  const patient = hydratedPrefetch?.patient;
+  const practitioner = hydratedPrefetch?.practitioner;
+
+  console.log('    Patient: ' + patient?.id);
+
+  // verify ids
+  if (
+    patient?.id &&
+    patient.id.replace('Patient/', '') !== context.patientId.replace('Patient/', '')
+  ) {
+    res.json(buildErrorCard('Context patientId does not match prefetch Patient ID'));
+    return;
+  }
+  if (
+    practitioner?.id &&
+    practitioner.id.replace('Practitioner/', '') !== context.userId.replace('Practitioner/', '')
+  ) {
+    res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
+    return;
+  }
+  return callback(res, hydratedPrefetch, contextRequest, patient)
+  
+}
+
+
+// handles all hooks, any supported hook should pass through this function
+export function handleHook(req: TypedRequestBody, res: any, hookPrefetch: ServicePrefetch, contextRequest: FhirResource | undefined, callback: HandleCallback) {
+  try {
+    const fhirUrl = req.body.fhirServer;
+    const fhirAuth = req.body.fhirAuthorization;
+    if (fhirUrl && fhirAuth && fhirAuth.access_token) {
+      hydrate(getFhirResource, hookPrefetch, req.body).then(
+        (hydratedPrefetch) => {
+          handleCard(req, res, hydratedPrefetch, contextRequest, callback);
+        }
+      );
+    } else {
+      if (req.body.prefetch) {
+        handleCard(req, res, req.body.prefetch, contextRequest, callback);
+      } else {
+        handleCard(req, res, {}, contextRequest, callback);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.json(buildErrorCard('Unknown Error'));
+  }
+}
+
