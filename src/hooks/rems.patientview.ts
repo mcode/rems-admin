@@ -11,7 +11,13 @@ import { Bundle, FhirResource, MedicationRequest } from 'fhir/r4';
 import { Link } from '../cards/Card';
 import config from '../config';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { codeMap, CARD_DETAILS, getDrugCodeFromMedicationRequest, createSmartLink, handleHook } from './hookResources';
+import {
+  codeMap,
+  CARD_DETAILS,
+  getDrugCodeFromMedicationRequest,
+  createSmartLink,
+  handleHook
+} from './hookResources';
 import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
@@ -44,7 +50,6 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
-
   // process the MedicationRequests to add the Medication into contained resources
   function processMedicationRequests(medicationRequestsBundle: Bundle) {
     medicationRequestsBundle?.entry?.forEach(entry => {
@@ -88,20 +93,23 @@ const handler = (req: TypedRequestBody, res: any) => {
     });
   }
 
-  async function handleCard(res: any,
+  async function handleCard(
+    res: any,
     hookPrefetch: HookPrefetch | undefined,
     contextRequest: FhirResource | undefined,
-    patient: FhirResource | undefined) {
+    patient: FhirResource | undefined
+  ) {
     //TODO: should we add the other pdf information links to the card, or just have the smart links?
 
     const medResource = hookPrefetch?.medicationRequests;
-    const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
+    const medicationRequestsBundle =
+      medResource?.resourceType === 'Bundle' ? medResource : undefined;
 
     // create empty card array
     const cardArray: Card[] = [];
 
     // find all matching rems cases for the patient
-    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0]: undefined;
+    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
     const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
     const remsCaseList = await remsCaseCollection.find({
       patientFirstName: patientName?.given?.[0],
@@ -192,7 +200,6 @@ const handler = (req: TypedRequestBody, res: any) => {
 
   // contextRequest is undefined
   handleHook(req, res, hookPrefetch, undefined, handleCard);
-
 };
 
 export default { definition, handler };

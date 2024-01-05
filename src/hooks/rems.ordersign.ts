@@ -1,11 +1,6 @@
-import {
-  OrderSignHook,
-  SupportedHooks} from '../rems-cds-hooks/resources/HookTypes';
+import { OrderSignHook, SupportedHooks } from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import {
-  handleCardOrder,
-  handleHook
-} from './hookResources';
+import { handleCardOrder, handleHook } from './hookResources';
 
 interface TypedRequestBody extends Express.Request {
   body: OrderSignHook;
@@ -24,7 +19,6 @@ const definition: CdsService = {
 };
 
 const handler = (req: TypedRequestBody, res: any) => {
-
   console.log('REMS order-sign hook');
   const contextRequest = req.body.context.draftOrders?.entry?.[0]?.resource;
   handleHook(req, res, hookPrefetch, contextRequest, handleCardOrder);

@@ -1,6 +1,10 @@
 import { MedicationRequest, Coding, FhirResource, Identifier } from 'fhir/r4';
 import Card, { Link } from '../cards/Card';
-import { HookPrefetch, OrderSignPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
+import {
+  HookPrefetch,
+  OrderSignPrefetch,
+  TypedRequestBody
+} from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
 import { medicationCollection, remsCaseCollection } from '../fhir/models';
 
@@ -11,8 +15,8 @@ type HandleCallback = (
   res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined,
-  ) => Promise<void>;
+  patient: FhirResource | undefined
+) => Promise<void>;
 export interface CardRule {
   links: Link[];
   summary?: string;
@@ -267,10 +271,12 @@ export function buildErrorCard(reason: string) {
 }
 
 // handles order-sign and order-select currently
-export async function handleCardOrder(res: any,
+export async function handleCardOrder(
+  res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined) {
+  patient: FhirResource | undefined
+) {
   const prefetchRequest = hydratedPrefetch?.request;
   console.log('    MedicationRequest: ' + prefetchRequest?.id);
   // verify there is a contextRequest
@@ -295,7 +301,10 @@ export async function handleCardOrder(res: any,
     return;
   }
 
-  const medicationCode = contextRequest && contextRequest.resourceType === 'MedicationRequest' && getDrugCodeFromMedicationRequest(contextRequest);
+  const medicationCode =
+    contextRequest &&
+    contextRequest.resourceType === 'MedicationRequest' &&
+    getDrugCodeFromMedicationRequest(contextRequest);
   if (!medicationCode) {
     return;
   }
@@ -309,8 +318,8 @@ export async function handleCardOrder(res: any,
       .exec();
 
     // find a matching rems case for the patient and this drug to only return needed results
-    const patientName = patient?.resourceType==='Patient' ? patient?.name?.[0] : undefined;
-    const patientBirth = patient?.resourceType==='Patient' ? patient?.birthDate : undefined;
+    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
+    const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
     const etasu = await remsCaseCollection.findOne({
       patientFirstName: patientName?.given?.[0],
       patientLastName: patientName?.family,
@@ -396,7 +405,13 @@ export async function handleCardOrder(res: any,
 
 // handles preliminary card creation.  ALL hooks should go through this function.
 // make sure code here is applicable to all supported hooks.
-export async function handleCard(req: TypedRequestBody, res: any, hydratedPrefetch: HookPrefetch, contextRequest: FhirResource | undefined, callback: HandleCallback) {
+export async function handleCard(
+  req: TypedRequestBody,
+  res: any,
+  hydratedPrefetch: HookPrefetch,
+  contextRequest: FhirResource | undefined,
+  callback: HandleCallback
+) {
   const context = req.body.context;
   const patient = hydratedPrefetch?.patient;
   const practitioner = hydratedPrefetch?.practitioner;
@@ -418,22 +433,24 @@ export async function handleCard(req: TypedRequestBody, res: any, hydratedPrefet
     res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
     return;
   }
-  return callback(res, hydratedPrefetch, contextRequest, patient)
-  
+  return callback(res, hydratedPrefetch, contextRequest, patient);
 }
 
-
 // handles all hooks, any supported hook should pass through this function
-export function handleHook(req: TypedRequestBody, res: any, hookPrefetch: ServicePrefetch, contextRequest: FhirResource | undefined, callback: HandleCallback) {
+export function handleHook(
+  req: TypedRequestBody,
+  res: any,
+  hookPrefetch: ServicePrefetch,
+  contextRequest: FhirResource | undefined,
+  callback: HandleCallback
+) {
   try {
     const fhirUrl = req.body.fhirServer;
     const fhirAuth = req.body.fhirAuthorization;
     if (fhirUrl && fhirAuth && fhirAuth.access_token) {
-      hydrate(getFhirResource, hookPrefetch, req.body).then(
-        (hydratedPrefetch) => {
-          handleCard(req, res, hydratedPrefetch, contextRequest, callback);
-        }
-      );
+      hydrate(getFhirResource, hookPrefetch, req.body).then(hydratedPrefetch => {
+        handleCard(req, res, hydratedPrefetch, contextRequest, callback);
+      });
     } else {
       if (req.body.prefetch) {
         handleCard(req, res, req.body.prefetch, contextRequest, callback);
@@ -446,4 +463,3 @@ export function handleHook(req: TypedRequestBody, res: any, hookPrefetch: Servic
     res.json(buildErrorCard('Unknown Error'));
   }
 }
-

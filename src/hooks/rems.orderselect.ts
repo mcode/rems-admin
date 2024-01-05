@@ -1,12 +1,6 @@
-import {
-  SupportedHooks,
-  OrderSelectHook
-} from '../rems-cds-hooks/resources/HookTypes';
+import { SupportedHooks, OrderSelectHook } from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
-import {
-  handleCardOrder,
-  handleHook
-} from './hookResources';
+import { handleCardOrder, handleHook } from './hookResources';
 
 interface TypedRequestBody extends Express.Request {
   body: OrderSelectHook;
@@ -34,7 +28,6 @@ const handler = (req: TypedRequestBody, res: any) => {
     }
   })[0].resource;
   handleHook(req, res, hookPrefetch, contextRequest, handleCardOrder);
-
 };
 
 export default { definition, handler };
