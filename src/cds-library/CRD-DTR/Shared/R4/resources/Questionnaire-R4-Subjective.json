@@ -2,6 +2,8 @@
   "resourceType": "Questionnaire",
   "id": "subjective",
   "name": "Subjective Module",
+  "url": "http://hl7.org/fhir/Questionnaire/subjective",
+
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

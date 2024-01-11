@@ -104,8 +104,9 @@ export class QuestionnaireUtilities {
     const returnValue = this.vsacCache.cacheLibrary(library);
     return returnValue;
   }
-  static async findQuestionnaire(id: string): Promise<Questionnaire | null | undefined> {
-    return await QuestionnaireModel.findOne({ id: id.toString() });
+
+  static async findQuestionnaireByUrl(url: string): Promise<Questionnaire | null | undefined> {
+    return await QuestionnaireModel.findOne({ url: url.toString() });
   }
   static async findLibraryByUrl(url: string): Promise<Library | null | undefined> {
     return await LibraryModel.findOne({ url: url.toString() });
@@ -167,26 +168,22 @@ export class QuestionnaireUtilities {
   ) {
     const ext = this.getExtension(
       item,
-      'http://hl7.org/fhir/StructureDefinition/sub-questionnaire'
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire'
     );
     if (ext) {
       const subQ = ext.valueCanonical;
+      console.log(subQ);
       if (subQ) {
-        // not undefind
-        let id = subQ;
-        const parts = subQ.split('/');
-        if (id.length > 1) {
-          id = parts[1];
-        }
+        // not undefined
         let expandRootItem = false;
         const expandExt = this.getExtension(
           item,
-          'http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand'
+          'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible'
         );
         if (expandExt && expandExt.valueBoolean) {
-          expandRootItem = expandExt.valueBoolean;
+          expandRootItem = expandExt.valueCode === 'default-open';
         }
-        const subQuestionnaire = await this.findQuestionnaire(id);
+        const subQuestionnaire = await this.findQuestionnaireByUrl(subQ);
         if (subQuestionnaire) {
           const subExtensions = subQuestionnaire.extension || [];
           subExtensions.forEach(ext => {

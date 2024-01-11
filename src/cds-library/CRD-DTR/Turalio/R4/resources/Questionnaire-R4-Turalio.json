@@ -25,12 +25,12 @@
           "linkId": "1.1",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-info-base"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-info-base"
             },
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
-              "valueBoolean": true
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible",
+              "valueCode": "default-open"
             }
           ],
           "type": "display"
@@ -325,12 +325,12 @@
           "linkId": "2.1",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/practitioner-info-base"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/practitioner-info-base"
             },
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
-              "valueBoolean": true
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible",
+              "valueCode": "default-open"
             }
           ],
           "type": "display"
@@ -1137,8 +1137,8 @@
           "linkId": "6.2",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/provider-signature"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/provider-signature"
             }
           ],
           "type": "display"
@@ -1160,8 +1160,8 @@
           "linkId": "7.2",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-signature"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-signature"
             }
           ],
           "type": "display"
