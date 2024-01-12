@@ -2,6 +2,7 @@
   "resourceType": "Questionnaire",
   "id": "assessment-and-plan",
   "name": "Assessment and Plan Module",
+  "url": "http://hl7.org/fhir/Questionnaire/assessment-and-plan",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

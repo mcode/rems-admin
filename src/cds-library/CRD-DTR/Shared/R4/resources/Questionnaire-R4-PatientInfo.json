@@ -2,6 +2,7 @@
   "resourceType": "Questionnaire",
   "id": "patient-info",
   "name": "Patient Module",
+  "url": "http://hl7.org/fhir/Questionnaire/patient-info",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

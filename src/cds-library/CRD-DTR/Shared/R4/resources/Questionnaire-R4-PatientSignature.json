@@ -2,6 +2,7 @@
   "resourceType": "Questionnaire",
   "id": "patient-signature",
   "name": "Patient Signature",
+  "url": "http://hl7.org/fhir/Questionnaire/patient-signature",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
