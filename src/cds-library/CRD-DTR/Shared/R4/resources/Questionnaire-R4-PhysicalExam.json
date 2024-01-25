@@ -2,6 +2,7 @@
   "resourceType": "Questionnaire",
   "id": "physical-exam",
   "name": "Physican Exam Module",
+  "url": "http://hl7.org/fhir/Questionnaire/physical-exam",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
