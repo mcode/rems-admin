@@ -1,5 +1,13 @@
-import { MedicationRequest, Coding, FhirResource, Identifier } from 'fhir/r4';
-import Card, { Link } from '../cards/Card';
+import {
+  MedicationRequest,
+  Coding,
+  FhirResource,
+  Identifier,
+  Task,
+  Questionnaire,
+  Patient
+} from 'fhir/r4';
+import Card, { Link, Suggestion, Action } from '../cards/Card';
 import {
   HookPrefetch,
   OrderSignPrefetch,
@@ -17,6 +25,16 @@ type HandleCallback = (
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
 ) => Promise<void>;
+
+interface Requirement {
+  name: string;
+  description: string;
+  stakeholderType: string;
+  createNewCase: boolean;
+  resourceId: string;
+  requiredToDispense: boolean;
+  appContext?: string;
+}
 export interface CardRule {
   links: Link[];
   summary?: string;
@@ -364,6 +382,9 @@ export async function handleCardOrder(
                       card.addLink(
                         createSmartLink(requirement.name, requirement.appContext, contextRequest)
                       );
+                      if (patient && patient.resourceType === 'Patient') {
+                        createQuestionnaireSuggestion(card, requirement, patient);
+                      }
                       smartLinkCount++;
                     }
                   }
@@ -462,4 +483,68 @@ export function handleHook(
     console.log(error);
     res.json(buildErrorCard('Unknown Error'));
   }
+}
+
+export function createQuestionnaireSuggestion(
+  card: Card,
+  requirement: Requirement,
+  patient: Patient
+) {
+  if (requirement.appContext && requirement.appContext.includes('=')) {
+    const qArr = requirement.appContext.split('='); // break up into parts
+    let qUrl = null;
+    for (let i = 0; i < qArr.length; i++) {
+      if (qArr[i].toLowerCase() === 'questionnaire') {
+        if (i + 1 < qArr.length) {
+          // not at end of array
+          qUrl = qArr[i + 1];
+        }
+      }
+    }
+    if (qUrl) {
+      const action: Action = {
+        type: 'create',
+        description: `Create task for "completion of ${requirement.name} Questionnaire`,
+        resource: createQuestionnaireCompletionTask(requirement.name, qUrl, patient)
+      };
+      const suggestion: Suggestion = {
+        label: `Add "Completion of ${requirement.name} Questionnaire" to task list`,
+        actions: [action]
+      };
+      card.addSuggestion(suggestion);
+    }
+  }
+}
+export function createQuestionnaireCompletionTask(
+  questionnaireTitle: string,
+  questionnaireUrl: string,
+  patient: Patient
+) {
+  const taskResource: Task = {
+    resourceType: 'Task',
+    status: 'ready',
+    intent: 'order',
+    code: {
+      coding: [
+        {
+          system: 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp',
+          code: 'complete-questionnaire'
+        }
+      ]
+    },
+    description: `Complete ${questionnaireTitle} Questionnaire`,
+    for: {
+      reference: `${patient.resourceType}/${patient.id}`
+    },
+    authoredOn: `${Date.now().toLocaleString()}`,
+    input: [
+      {
+        type: {
+          text: 'questionnaire'
+        },
+        valueCanonical: `${questionnaireUrl}`
+      }
+    ]
+  };
+  return taskResource;
 }
