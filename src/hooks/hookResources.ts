@@ -442,14 +442,14 @@ export async function handleCard(
   // verify ids
   if (
     patient?.id &&
-    patient.id.replace('Patient/', '') !== context.patientId.replace('Patient/', '')
+    patient.id.replace('Patient/', '') !== context.patientId?.replace('Patient/', '')
   ) {
     res.json(buildErrorCard('Context patientId does not match prefetch Patient ID'));
     return;
   }
   if (
     practitioner?.id &&
-    practitioner.id.replace('Practitioner/', '') !== context.userId.replace('Practitioner/', '')
+    practitioner.id.replace('Practitioner/', '') !== context.userId?.replace('Practitioner/', '')
   ) {
     res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
     return;
