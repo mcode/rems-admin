@@ -536,7 +536,7 @@ export function createQuestionnaireCompletionTask(
     for: {
       reference: `${patient.resourceType}/${patient.id}`
     },
-    authoredOn: `${Date.now().toLocaleString()}`,
+    authoredOn: `${new Date(Date.now()).toISOString()}`,
     input: [
       {
         type: {
