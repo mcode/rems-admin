@@ -393,6 +393,9 @@ export async function handleCardOrder(
                   card.addLink(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
+                  if (patient && patient.resourceType === 'Patient') {
+                    createQuestionnaireSuggestion(card, requirement, patient);
+                  }
                   smartLinkCount++;
                 }
               } else {
@@ -401,6 +404,9 @@ export async function handleCardOrder(
                   card.addLink(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
+                  if (patient && patient.resourceType === 'Patient') {
+                    createQuestionnaireSuggestion(card, requirement, patient);
+                  }
                   smartLinkCount++;
                 }
               }
