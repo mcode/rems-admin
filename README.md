@@ -32,7 +32,7 @@ Following are a list of modifiable paths:
 | RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                      |
 | SMART_ENDPOINT  | `http://localhost:4040/launch`             | Launch URL of associated SMART app, should be changed if not using the REMS Smart App.                |
 | USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.             |
-| VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets.                                                 |
+| VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets.  Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/)                                                 |
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.               |
 
 ## Running the Mongo DB instance
