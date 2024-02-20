@@ -20,20 +20,20 @@ a) `REACT_APP_LAUNCH_URL=http://example.com PORT=6000 npm start` or b) by specif
 
 Following are a list of modifiable paths:
 
-| URI Name        | Default                                    |
-| --------------- | ------------------------------------------ |
-| AUTH_SERVER_URI | `http://localhost:8090`                    |
-| HTTPS_CERT_PATH | `server.cert`                              |
-| HTTPS_KEY_PATH  | `server.key`                               |
-| LOGGING_LEVEL   | `debug`                                    |
-| MONGO_DB_NAME   | `remsadmin`                                |
-| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` |
-| PORT            | `8090`                                     |
-| RESOURCE_SERVER | `http://localhost:8090`                    |
-| SMART_ENDPOINT  | `http://localhost:4040/launch`             |
-| USE_HTTPS       | `false`                                    |
-| VSAC_API_KEY    | `changeMe`                                 |
-| WHITELIST       | `http://localhost, http://localhost:3005`  |
+| URI Name        | Default                                    | Description                                                                                           |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------|
+| AUTH_SERVER_URI | `http://localhost:8090`                    | The base url of the auth server, currently set to the base url of this app.                           |
+| HTTPS_CERT_PATH | `server.cert`                              | Path to a certificate for encryption, allowing HTTPS. Unnecessary if using HTTP.                      |
+| HTTPS_KEY_PATH  | `server.key`                               | Path to a key for encryption, allowing HTTPS. Unnecessary if using HTTP.                              |
+| LOGGING_LEVEL   | `debug`                                    | Amount to output in the log, can be changed to verbose, info, warn, or error.                         |
+| MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions below.   |                 
+| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions below.  |
+| PORT            | `8090`                                     | Port that this server should run on, change if there are conflicts with port usage.                   |
+| RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                      |
+| SMART_ENDPOINT  | `http://localhost:4040/launch`             | Launch URL of associated SMART app, should be changed if not using the REMS Smart App.                |
+| USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.             |
+| VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets.                                                 |
+| WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.               |
 
 ## Running the Mongo DB instance
 
