@@ -415,7 +415,7 @@
                 },
                 {
                     "linkId": "6.11",
-                    "text": "10. I will not give blood while taking isotretinoin or for 1 moth after I stop taking isotretinoin. I understand that if someone who is pregnant gets my donated blood, their baby may be exposed to isotretinoin and may be born with serious birth defects.",
+                    "text": "10. I will not give blood while taking isotretinoin or for 1 month after I stop taking isotretinoin. I understand that if someone who is pregnant gets my donated blood, their baby may be exposed to isotretinoin and may be born with serious birth defects.",
                     "type": "boolean",
                     "required": true
                 },
