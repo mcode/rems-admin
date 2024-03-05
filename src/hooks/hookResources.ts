@@ -496,7 +496,6 @@ export function createQuestionnaireSuggestion(
   requirement: Requirement,
   patient: Patient,
   request: MedicationRequest
-
 ) {
   if (requirement.appContext && requirement.appContext.includes('=')) {
     const qArr = requirement.appContext.split('='); // break up into parts
@@ -540,9 +539,9 @@ export function createQuestionnaireCompletionTask(
           code: 'complete-questionnaire'
         },
         {
-          system : 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
-          code : 'launch-app-ehr',
-          display : 'Launch application using the SMART EHR launch'
+          system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+          code: 'launch-app-ehr',
+          display: 'Launch application using the SMART EHR launch'
         }
       ]
     },
@@ -559,28 +558,30 @@ export function createQuestionnaireCompletionTask(
         valueCanonical: `${questionnaireUrl}`
       },
       {
-        type : {
-          coding : [
+        type: {
+          coding: [
             {
-              system : 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
-              code : 'smartonfhir-application',
-              display : 'SMART on FHIR application URL.'
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-application',
+              display: 'SMART on FHIR application URL.'
             }
           ]
         },
-        valueUrl : config.smart.endpoint
+        valueUrl: config.smart.endpoint
       },
       {
-        type : {
-          coding : [
+        type: {
+          coding: [
             {
-              system : 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
-              code : 'smartonfhir-appcontext',
-              display : 'Application context related to this launch.'
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-appcontext',
+              display: 'Application context related to this launch.'
             }
           ]
         },
-        valueString : `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${request?.insurance?.[0].reference}`
+        valueString: `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${
+          request?.insurance?.[0].reference
+        }`
       }
     ]
   };
