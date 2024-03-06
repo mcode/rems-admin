@@ -50,6 +50,7 @@ function buildErrorCard(reason: string) {
 }
 
 const handler = (req: TypedRequestBody, res: any) => {
+  console.log('REMS patient-view hook');
   // process the MedicationRequests to add the Medication into contained resources
   function processMedicationRequests(medicationRequestsBundle: Bundle) {
     medicationRequestsBundle?.entry?.forEach(entry => {

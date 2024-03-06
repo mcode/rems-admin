@@ -24,6 +24,35 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
+const getCaseInfo = async (remsCaseSearchDict: any, medicationSearchDict: any/*, 
+    patientFirstName: string, patientLastName: string, patientDOB: string*/) => {
+  let ret = await remsCaseCollection.findOne(remsCaseSearchDict);
+  // if there are no requirements, then return 'Approved'
+  if (!ret) {
+    // look for the medication by name in the medications list
+    const drug = await medicationCollection.findOne(medicationSearchDict).exec();
+
+    // iterate through each requirement of the drug
+    if (drug?.requirements.length == 0) {
+      // create simple rems request to return
+      const remsRequest: any = {
+        //case_number: case_number,
+        status: 'Approved',
+        drugName: drug?.name,
+        drugCode: drug?.code,
+        patientFirstName: remsCaseSearchDict.patientFirstName,
+        patientLastName: remsCaseSearchDict.patientLastName,
+        patientDOB: remsCaseSearchDict.patientDOB,
+        metRequirements: []
+      };
+      ret = remsRequest;
+    }
+  }
+
+  // not a supported medication or requirements / record not created yet will return null
+  return ret;
+};
+
 router.get(
   '/met/patient/:patientFirstName/:patientLastName/:patientDOB/drugCode/:drugCode',
   async (req: Request, res: Response) => {
@@ -37,14 +66,17 @@ router.get(
         ' - ' +
         req.params.drugCode
     );
-    const searchDict = {
+    const remsCaseSearchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
       patientDOB: req.params.patientDOB,
       drugCode: req.params.drugCode
     };
+    const medicationSearchDict = {
+      code: req.params.drugCode
+    }
 
-    res.send(await remsCaseCollection.findOne(searchDict));
+    res.send(await getCaseInfo(remsCaseSearchDict, medicationSearchDict));
   }
 );
 
@@ -61,14 +93,17 @@ router.get(
         ' - ' +
         req.params.drugName
     );
-    const searchDict = {
+    const remsCaseSearchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
       patientDOB: req.params.patientDOB,
       drugName: req.params.drugName
     };
+    const medicationSearchDict = {
+      name: req.params.drugName
+    }
 
-    res.send(await remsCaseCollection.findOne(searchDict));
+    res.send(await getCaseInfo(remsCaseSearchDict, medicationSearchDict));
   }
 );
 
