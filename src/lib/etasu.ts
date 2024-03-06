@@ -24,8 +24,7 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
-const getCaseInfo = async (remsCaseSearchDict: any, medicationSearchDict: any/*, 
-    patientFirstName: string, patientLastName: string, patientDOB: string*/) => {
+const getCaseInfo = async (remsCaseSearchDict: any, medicationSearchDict: any) => {
   let ret = await remsCaseCollection.findOne(remsCaseSearchDict);
   // if there are no requirements, then return 'Approved'
   if (!ret) {
@@ -74,7 +73,7 @@ router.get(
     };
     const medicationSearchDict = {
       code: req.params.drugCode
-    }
+    };
 
     res.send(await getCaseInfo(remsCaseSearchDict, medicationSearchDict));
   }
@@ -101,7 +100,7 @@ router.get(
     };
     const medicationSearchDict = {
       name: req.params.drugName
-    }
+    };
 
     res.send(await getCaseInfo(remsCaseSearchDict, medicationSearchDict));
   }

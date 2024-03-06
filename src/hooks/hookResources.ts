@@ -402,8 +402,7 @@ export async function handleCardOrder(
         if (drug) {
           for (const requirement of drug.requirements) {
             if (requirement.stakeholderType == rule.stakeholderType) {
-
-             smartLinkCount++;
+              smartLinkCount++;
 
               // only add the link if the form has not already been processed / received
               if (etasu) {
@@ -449,7 +448,7 @@ export async function handleCardOrder(
 
         // only add the card if there are smart links to needed forms
         // allow information only cards to be returned as well
-        if ((smartLinkCountAdded > 0) || (smartLinkCount == 0)) {
+        if (smartLinkCountAdded > 0 || smartLinkCount == 0) {
           cardArray.push(card);
         }
       }

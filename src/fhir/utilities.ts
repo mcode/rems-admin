@@ -270,8 +270,7 @@ export class FhirUtilities {
         name: 'Addyi',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '1666386',
-        requirements: [
-        ]
+        requirements: []
       }
     ];
 
