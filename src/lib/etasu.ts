@@ -4,10 +4,22 @@ import {
   medicationCollection,
   metRequirementsCollection,
   remsCaseCollection,
-  Medication
+  Medication,
+  RemsCase,
+  Requirement,
+  MetRequirements
 } from '../fhir/models';
 import { getDrugCodeFromMedicationRequest } from '../hooks/hookResources';
 import { uid } from 'uid';
+import {
+  Bundle,
+  Coding,
+  MedicationRequest,
+  MessageHeader,
+  Parameters,
+  Patient,
+  QuestionnaireResponse
+} from 'fhir/r4';
 const router = Router();
 
 // const medicationCollection = db.collection('medication-requirements');
@@ -24,32 +36,35 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
-const getCaseInfo = async (remsCaseSearchDict: any, medicationSearchDict: any) => {
-  let ret = await remsCaseCollection.findOne(remsCaseSearchDict);
+const getCaseInfo = async (
+  remsCaseSearchDict: Partial<RemsCase>,
+  medicationSearchDict: Partial<Medication>
+): Promise<Omit<RemsCase, 'case_number'> | null> => {
+  const foundRequirements = await remsCaseCollection.findOne(remsCaseSearchDict);
+
   // if there are no requirements, then return 'Approved'
-  if (!ret) {
+  if (!foundRequirements) {
     // look for the medication by name in the medications list
     const drug = await medicationCollection.findOne(medicationSearchDict).exec();
 
     // iterate through each requirement of the drug
-    if (drug?.requirements.length == 0) {
+    if (drug?.requirements.length === 0) {
       // create simple rems request to return
-      const remsRequest: any = {
-        //case_number: case_number,
+      const remsRequest: Omit<RemsCase, 'case_number'> = {
         status: 'Approved',
         drugName: drug?.name,
         drugCode: drug?.code,
-        patientFirstName: remsCaseSearchDict.patientFirstName,
-        patientLastName: remsCaseSearchDict.patientLastName,
-        patientDOB: remsCaseSearchDict.patientDOB,
+        patientFirstName: remsCaseSearchDict.patientFirstName || '',
+        patientLastName: remsCaseSearchDict.patientLastName || '',
+        patientDOB: remsCaseSearchDict.patientDOB || '',
         metRequirements: []
       };
-      ret = remsRequest;
+      return remsRequest;
     }
   }
 
   // not a supported medication or requirements / record not created yet will return null
-  return ret;
+  return foundRequirements;
 };
 
 router.get(
@@ -116,7 +131,7 @@ router.post('/reset', async (req: Request, res: Response) => {
   res.send('reset etasu database collections');
 });
 
-const pushMetRequirements = (matchedMetReq: any, remsRequest: any) => {
+const pushMetRequirements = (matchedMetReq: MetRequirements, remsRequest: RemsCase) => {
   remsRequest.metRequirements.push({
     stakeholderId: matchedMetReq?.stakeholderId,
     completed: matchedMetReq?.completed,
@@ -126,11 +141,14 @@ const pushMetRequirements = (matchedMetReq: any, remsRequest: any) => {
   });
 };
 
-const createMetRequirements = async (metReq: any) => {
+const createMetRequirements = async (metReq: Partial<MetRequirements>) => {
   return await metRequirementsCollection.create(metReq);
 };
 
-const createAndPushMetRequirements = async (metReq: any, remsRequest: any) => {
+const createAndPushMetRequirements = async (
+  metReq: Partial<MetRequirements>,
+  remsRequest: RemsCase
+) => {
   try {
     const matchedMetReq = await createMetRequirements(metReq);
     pushMetRequirements(matchedMetReq, remsRequest);
@@ -143,25 +161,25 @@ const createAndPushMetRequirements = async (metReq: any, remsRequest: any) => {
 };
 
 const createMetRequirementAndNewCase = async (
-  patient: any,
+  patient: Patient,
   drug: Medication,
-  requirement: any,
-  questionnaireResponse: any,
+  requirement: Requirement,
+  questionnaireResponse: QuestionnaireResponse,
   res: Response,
-  reqStakeholderReference: any,
+  reqStakeholderReference: string,
   practitionerReference: string,
   pharmacistReference: string,
   patientReference: string
 ) => {
-  const patientFirstName = patient.name[0].given[0];
-  const patientLastName = patient.name[0].family;
-  const patientDOB = patient.birthDate;
+  const patientFirstName = patient.name?.[0].given?.[0] || '';
+  const patientLastName = patient.name?.[0].family || '';
+  const patientDOB = patient.birthDate || '';
   let message = '';
   const case_number = uid();
 
   // create new rems request and add the created metReq to it
   let remsRequestCompletedStatus = 'Approved';
-  const remsRequest: any = {
+  const remsRequest: RemsCase = {
     case_number: case_number,
     status: remsRequestCompletedStatus,
     drugName: drug?.name,
@@ -224,7 +242,6 @@ const createMetRequirementAndNewCase = async (
         // create the metReq that was submitted
         const newMetReq = {
           completed: false,
-          completedQuestionnaire: null,
           requirementName: requirement2.name,
           requirementDescription: requirement2.description,
           drugName: drug?.name,
@@ -252,12 +269,12 @@ const createMetRequirementAndNewCase = async (
 
 const createMetRequirementAndUpdateCase = async (
   drug: Medication,
-  requirement: any,
-  questionnaireResponse: any,
+  requirement: Requirement,
+  questionnaireResponse: QuestionnaireResponse,
   res: Response,
-  reqStakeholderReference: any
+  reqStakeholderReference: string
 ) => {
-  let returnedMetReqDoc: any;
+  let returnedMetReqDoc;
 
   const matchedMetReq = await metRequirementsCollection
     .findOne({
@@ -282,7 +299,7 @@ const createMetRequirementAndUpdateCase = async (
         })
         .exec();
 
-      for (const case_number of returnedMetReqDoc.case_numbers) {
+      for (const case_number of returnedMetReqDoc?.case_numbers || []) {
         // get the rems case to update, search by the case_number
         const remsRequestToUpdate = await remsCaseCollection
           .findOne({
@@ -291,12 +308,12 @@ const createMetRequirementAndUpdateCase = async (
           .exec();
 
         let foundUncompleted = false;
-        const metReqArray = remsRequestToUpdate?.metRequirements;
+        const metReqArray = remsRequestToUpdate?.metRequirements || [];
         // Check to see if there are any uncompleted requirements, if all have been completed then set status to approved
-        for (let i = 0; i < remsRequestToUpdate?.metRequirements.length; i++) {
+        for (let i = 0; i < metReqArray.length; i++) {
           const req4 = remsRequestToUpdate?.metRequirements[i];
           // _id comparison would not work for some reason
-          if (req4.requirementName === matchedMetReq.requirementName) {
+          if (req4?.requirementName === matchedMetReq.requirementName) {
             metReqArray[i].completed = true;
             req4.completed = true;
             await remsCaseCollection.updateOne(
@@ -304,7 +321,7 @@ const createMetRequirementAndUpdateCase = async (
               { $set: { metRequirements: metReqArray } }
             );
           }
-          if (!req4.completed) {
+          if (!req4?.completed) {
             foundUncompleted = true;
           }
         }
@@ -316,13 +333,13 @@ const createMetRequirementAndUpdateCase = async (
       }
     }
   } else {
-    // submitting the requirment but there is no case, create new met requirment
+    // submitting the requirement but there is no case, create new met requirement
     // create the metReq that was submitted
     const newMetReq = {
       completed: true,
       completedQuestionnaire: questionnaireResponse,
       requirementName: requirement.name,
-      requirementDescription: requirement.requirementDescription,
+      requirementDescription: requirement.description,
       drugName: drug?.name,
       stakeholderId: reqStakeholderReference,
       case_numbers: []
@@ -337,22 +354,21 @@ const createMetRequirementAndUpdateCase = async (
 };
 
 const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
-  patient: any,
+  patient: Patient,
   drug: Medication,
-  requirement: any,
-  questionnaireResponse: any,
+  requirement: Requirement,
+  questionnaireResponse: QuestionnaireResponse,
   res: Response,
-  reqStakeholderReference: any
+  reqStakeholderReference: string
 ) => {
   // Find the specific case associated with an individual patient for the patient status form
   // Is it possible for there to be multiple cases for this patient and the same drug?
-  let returnedRemsRequestDoc: any;
   let returnRemsRequest = false;
   let message = '';
 
-  const patientFirstName = patient.name[0].given[0];
-  const patientLastName = patient.name[0].family;
-  const patientDOB = patient.birthDate;
+  const patientFirstName = patient.name?.[0].given?.[0] || '';
+  const patientLastName = patient.name?.[0].family || '';
+  const patientDOB = patient.birthDate || '';
 
   const remsRequestToUpdate = await remsCaseCollection
     .findOne({
@@ -362,6 +378,7 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
       drugCode: drug?.code
     })
     .exec();
+
   // If you found a case for the patient status form to update
   if (remsRequestToUpdate) {
     if (remsRequestToUpdate.status === 'Approved') {
@@ -383,7 +400,6 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
         try {
           await remsRequestToUpdate.save();
           returnRemsRequest = true;
-          returnedRemsRequestDoc = remsRequestToUpdate;
         } catch (e) {
           console.log(e);
           message = 'ERROR: failed to update rems case with requirement not needed to dispense';
@@ -404,7 +420,7 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
 
   res.status(201);
   if (returnRemsRequest) {
-    res.send(returnedRemsRequestDoc);
+    res.send(remsRequestToUpdate);
   } else {
     res.send(message);
   }
@@ -413,37 +429,40 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
 
 router.post('/met', async (req: Request, res: Response) => {
   try {
-    const requestBody = req.body;
+    const requestBody = req.body as Bundle;
 
     // extract params and questionnaire response identifier
-    const params = getResource(requestBody, requestBody.entry[0].resource.focus?.[0]?.reference);
-    const questionnaireResponse = getQuestionnaireResponse(requestBody);
-    const questionnaireStringArray = questionnaireResponse.questionnaire.split('/');
-    const requirementId = questionnaireStringArray[questionnaireStringArray.length - 1];
+    const params = getResource(
+      requestBody,
+      (requestBody.entry?.[0]?.resource as MessageHeader)?.focus?.[0]?.reference || ''
+    ) as Parameters;
+    const questionnaireResponse = getQuestionnaireResponse(requestBody) as QuestionnaireResponse;
+    const questionnaireStringArray = questionnaireResponse?.questionnaire?.split('/');
+    const requirementId = questionnaireStringArray?.[questionnaireStringArray.length - 1];
 
     // stakeholder and medication references
     let prescriptionReference = '';
     let practitionerReference = '';
     let pharmacistReference = '';
     let patientReference = '';
-    for (const param of params.parameter) {
+    for (const param of params.parameter || []) {
       if (param.name === 'prescription') {
-        prescriptionReference = param.valueReference.reference;
+        prescriptionReference = param.valueReference?.reference || '';
       } else if (param.name === 'prescriber') {
-        practitionerReference = param.valueReference.reference;
+        practitionerReference = param.valueReference?.reference || '';
       } else if (param.name === 'pharmacy') {
-        pharmacistReference = param.valueReference.reference;
+        pharmacistReference = param.valueReference?.reference || '';
       } else if (param.name === 'source-patient') {
-        patientReference = param.valueReference.reference;
+        patientReference = param.valueReference?.reference || '';
       }
     }
 
     // obtain drug information from database
-    const prescription = getResource(requestBody, prescriptionReference);
-    const medicationCode = getDrugCodeFromMedicationRequest(prescription);
+    const prescription = getResource(requestBody, prescriptionReference) as MedicationRequest;
+    const medicationCode = getDrugCodeFromMedicationRequest(prescription) as Coding;
     const prescriptionSystem = medicationCode?.system;
     const prescriptionCode = medicationCode?.code;
-    const patient = getResource(requestBody, patientReference);
+    const patient = getResource(requestBody, patientReference) as Patient;
 
     const drug = await medicationCollection
       .findOne({
@@ -455,11 +474,11 @@ router.post('/met', async (req: Request, res: Response) => {
     if (drug) {
       for (const requirement of drug.requirements) {
         // figure out which stakeholder the req corresponds to
-        const reqStakeholder = requirement.stakeholderType;
-        const reqStakeholderReference =
-          reqStakeholder === 'prescriber'
+        const stakeholder = requirement.stakeholderType;
+        const stakeholderReference =
+          stakeholder === 'prescriber'
             ? practitionerReference
-            : reqStakeholder === 'pharmacist'
+            : stakeholder === 'pharmacist'
             ? pharmacistReference
             : patientReference;
 
@@ -473,7 +492,7 @@ router.post('/met', async (req: Request, res: Response) => {
               requirement,
               questionnaireResponse,
               res,
-              reqStakeholderReference,
+              stakeholderReference,
               practitionerReference,
               pharmacistReference,
               patientReference
@@ -481,14 +500,14 @@ router.post('/met', async (req: Request, res: Response) => {
 
             return;
           } else {
-            // If its not the patient status requirement
+            // If it's not the patient status requirement
             if (requirement.requiredToDispense) {
               await createMetRequirementAndUpdateCase(
                 drug,
                 requirement,
                 questionnaireResponse,
                 res,
-                reqStakeholderReference
+                stakeholderReference
               );
               return;
             } else {
@@ -498,7 +517,7 @@ router.post('/met', async (req: Request, res: Response) => {
                 requirement,
                 questionnaireResponse,
                 res,
-                reqStakeholderReference
+                stakeholderReference
               );
               return;
             }
@@ -513,28 +532,32 @@ router.post('/met', async (req: Request, res: Response) => {
   }
 });
 
-const getResource = (bundle: { entry: any[] }, resourceReference: string) => {
+const getResource = (bundle: Bundle, resourceReference: string) => {
   const temp = resourceReference.split('/');
   const _resourceType = temp[0];
   const _id = temp[1];
 
-  for (let i = 0; i < bundle.entry.length; i++) {
-    if (
-      bundle.entry[i].resource.resourceType === _resourceType &&
-      bundle.entry[i].resource.id === _id
-    ) {
-      return bundle.entry[i].resource;
+  if (bundle.entry) {
+    for (let i = 0; i < bundle.entry.length; i++) {
+      if (
+        bundle.entry[i].resource?.resourceType === _resourceType &&
+        bundle.entry[i].resource?.id === _id
+      ) {
+        return bundle.entry[i].resource;
+      }
     }
   }
   return null;
 };
 
-const getQuestionnaireResponse = (bundle: { entry: any[] }) => {
+const getQuestionnaireResponse = (bundle: Bundle) => {
   const _resourceType = 'QuestionnaireResponse';
 
-  for (let i = 0; i < bundle.entry.length; i++) {
-    if (bundle.entry[i].resource.resourceType === _resourceType) {
-      return bundle.entry[i].resource;
+  if (bundle.entry) {
+    for (let i = 0; i < bundle.entry.length; i++) {
+      if (bundle.entry[i].resource?.resourceType === _resourceType) {
+        return bundle.entry[i].resource as QuestionnaireResponse;
+      }
     }
   }
   return null;

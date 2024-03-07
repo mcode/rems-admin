@@ -1,20 +1,8 @@
-import {
-  MedicationRequest,
-  Coding,
-  FhirResource,
-  Identifier,
-  Task,
-  Questionnaire,
-  Patient
-} from 'fhir/r4';
+import { MedicationRequest, Coding, FhirResource, Task, Patient } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import {
-  HookPrefetch,
-  OrderSignPrefetch,
-  TypedRequestBody
-} from '../rems-cds-hooks/resources/HookTypes';
+import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { medicationCollection, remsCaseCollection } from '../fhir/models';
+import { Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
@@ -26,15 +14,6 @@ type HandleCallback = (
   patient: FhirResource | undefined
 ) => Promise<void>;
 
-interface Requirement {
-  name: string;
-  description: string;
-  stakeholderType: string;
-  createNewCase: boolean;
-  resourceId: string;
-  requiredToDispense: boolean;
-  appContext?: string;
-}
 export interface CardRule {
   links: Link[];
   summary?: string;
@@ -294,7 +273,7 @@ export function getFhirResource(token: string, req: TypedRequestBody) {
 }
 export function createSmartLink(
   requirementName: string,
-  appContext: string,
+  appContext: string | null,
   request: MedicationRequest | undefined
 ) {
   const newLink: Link = {
@@ -388,7 +367,7 @@ export async function handleCardOrder(
           'info'
         );
         rule.links.forEach(function (e) {
-          if (e.type == 'absolute') {
+          if (e.type === 'absolute') {
             // no construction needed
             card.addLink(e);
           }
@@ -401,14 +380,14 @@ export async function handleCardOrder(
         // TODO: smart links should be built with discovered questionnaires, not hard coded ones
         if (drug) {
           for (const requirement of drug.requirements) {
-            if (requirement.stakeholderType == rule.stakeholderType) {
+            if (requirement.stakeholderType === rule.stakeholderType) {
               smartLinkCount++;
 
               // only add the link if the form has not already been processed / received
               if (etasu) {
                 let found = false;
                 for (const metRequirement of etasu.metRequirements) {
-                  if (metRequirement.requirementName == requirement.name) {
+                  if (metRequirement.requirementName === requirement.name) {
                     found = true;
                     if (!metRequirement.completed) {
                       card.addLink(
@@ -448,7 +427,7 @@ export async function handleCardOrder(
 
         // only add the card if there are smart links to needed forms
         // allow information only cards to be returned as well
-        if (smartLinkCountAdded > 0 || smartLinkCount == 0) {
+        if (smartLinkCountAdded > 0 || smartLinkCount === 0) {
           cardArray.push(card);
         }
       }

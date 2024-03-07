@@ -2,15 +2,12 @@ import Card from '../cards/Card';
 import {
   PatientViewHook,
   SupportedHooks,
-  PatientViewPrefetch,
   HookPrefetch
 } from '../rems-cds-hooks/resources/HookTypes';
 import { medicationCollection, remsCaseCollection } from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { Bundle, FhirResource, MedicationRequest } from 'fhir/r4';
-import { Link } from '../cards/Card';
-import config from '../config';
-import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+
 import {
   codeMap,
   CARD_DETAILS,
@@ -18,7 +15,6 @@ import {
   createSmartLink,
   handleHook
 } from './hookResources';
-import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
   body: PatientViewHook;
@@ -163,7 +159,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       }
 
       // loop through all of the ETASU requirements for this drug
-      const requirements = drug?.requirements;
+      const requirements = drug?.requirements || [];
       for (const requirement of requirements) {
         // find all of the matching patient forms
         if (requirement?.stakeholderType === 'patient') {
