@@ -1,9 +1,5 @@
 import { Questionnaire, QuestionnaireResponse } from 'fhir/r4';
-import { Schema, model } from 'mongoose';
-
-interface MongoItemWithInternalId {
-  _id: string;
-}
+import { Schema, model, Document } from 'mongoose';
 
 export interface Requirement {
   name: string;
@@ -16,14 +12,14 @@ export interface Requirement {
   appContext: string | null;
 }
 
-export interface Medication {
+export interface Medication extends Document {
   name: string;
   codeSystem: string;
   code: string;
   requirements: Requirement[];
 }
 
-export interface MetRequirements extends MongoItemWithInternalId {
+export interface MetRequirements extends Document {
   completed: boolean;
   completedQuestionnaire: QuestionnaireResponse | null;
   requirementName: string;
@@ -34,7 +30,7 @@ export interface MetRequirements extends MongoItemWithInternalId {
   metRequirementId: string;
 }
 
-export interface RemsCase {
+export interface RemsCase extends Document {
   case_number: string;
   status: string;
   drugName: string;

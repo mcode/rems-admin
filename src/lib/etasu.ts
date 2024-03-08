@@ -20,6 +20,7 @@ import {
   Patient,
   QuestionnaireResponse
 } from 'fhir/r4';
+import { FilterQuery } from 'mongoose';
 const router = Router();
 
 // const medicationCollection = db.collection('medication-requirements');
@@ -37,9 +38,18 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
 });
 
 const getCaseInfo = async (
-  remsCaseSearchDict: Partial<RemsCase>,
-  medicationSearchDict: Partial<Medication>
-): Promise<Omit<RemsCase, 'case_number'> | null> => {
+  remsCaseSearchDict: FilterQuery<RemsCase>,
+  medicationSearchDict: FilterQuery<Medication>
+): Promise<Pick<
+  RemsCase,
+  | 'status'
+  | 'drugName'
+  | 'drugCode'
+  | 'patientFirstName'
+  | 'patientLastName'
+  | 'patientDOB'
+  | 'metRequirements'
+> | null> => {
   const foundRequirements = await remsCaseCollection.findOne(remsCaseSearchDict);
 
   // if there are no requirements, then return 'Approved'
@@ -50,7 +60,16 @@ const getCaseInfo = async (
     // iterate through each requirement of the drug
     if (drug?.requirements.length === 0) {
       // create simple rems request to return
-      const remsRequest: Omit<RemsCase, 'case_number'> = {
+      const remsRequest: Pick<
+        RemsCase,
+        | 'status'
+        | 'drugName'
+        | 'drugCode'
+        | 'patientFirstName'
+        | 'patientLastName'
+        | 'patientDOB'
+        | 'metRequirements'
+      > = {
         status: 'Approved',
         drugName: drug?.name,
         drugCode: drug?.code,
@@ -131,7 +150,10 @@ router.post('/reset', async (req: Request, res: Response) => {
   res.send('reset etasu database collections');
 });
 
-const pushMetRequirements = (matchedMetReq: MetRequirements, remsRequest: RemsCase) => {
+const pushMetRequirements = (
+  matchedMetReq: MetRequirements,
+  remsRequest: Pick<RemsCase, 'metRequirements'>
+) => {
   remsRequest.metRequirements.push({
     stakeholderId: matchedMetReq?.stakeholderId,
     completed: matchedMetReq?.completed,
@@ -147,7 +169,7 @@ const createMetRequirements = async (metReq: Partial<MetRequirements>) => {
 
 const createAndPushMetRequirements = async (
   metReq: Partial<MetRequirements>,
-  remsRequest: RemsCase
+  remsRequest: Pick<RemsCase, 'metRequirements'>
 ) => {
   try {
     const matchedMetReq = await createMetRequirements(metReq);
@@ -179,7 +201,17 @@ const createMetRequirementAndNewCase = async (
 
   // create new rems request and add the created metReq to it
   let remsRequestCompletedStatus = 'Approved';
-  const remsRequest: RemsCase = {
+  const remsRequest: Pick<
+    RemsCase,
+    | 'case_number'
+    | 'status'
+    | 'drugName'
+    | 'drugCode'
+    | 'patientFirstName'
+    | 'patientLastName'
+    | 'patientDOB'
+    | 'metRequirements'
+  > = {
     case_number: case_number,
     status: remsRequestCompletedStatus,
     drugName: drug?.name,
