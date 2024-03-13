@@ -394,7 +394,7 @@ export async function handleCardOrder(
                         createSmartLink(requirement.name, requirement.appContext, contextRequest)
                       );
                       if (patient && patient.resourceType === 'Patient') {
-                        createQuestionnaireSuggestion(card, requirement, patient);
+                        createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                       }
                       smartLinkCountAdded++;
                     }
@@ -405,7 +405,7 @@ export async function handleCardOrder(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
                   if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient);
+                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
                   smartLinkCountAdded++;
                 }
@@ -416,7 +416,7 @@ export async function handleCardOrder(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
                   if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient);
+                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
                   smartLinkCountAdded++;
                 }
@@ -506,7 +506,8 @@ export function handleHook(
 export function createQuestionnaireSuggestion(
   card: Card,
   requirement: Requirement,
-  patient: Patient
+  patient: Patient,
+  request: MedicationRequest
 ) {
   if (requirement.appContext && requirement.appContext.includes('=')) {
     const qArr = requirement.appContext.split('='); // break up into parts
@@ -522,8 +523,8 @@ export function createQuestionnaireSuggestion(
     if (qUrl) {
       const action: Action = {
         type: 'create',
-        description: `Create task for "completion of ${requirement.name} Questionnaire`,
-        resource: createQuestionnaireCompletionTask(requirement.name, qUrl, patient)
+        description: `Create task for "completion of ${requirement.name} Questionnaire"`,
+        resource: createQuestionnaireCompletionTask(requirement, patient, qUrl, request)
       };
       const suggestion: Suggestion = {
         label: `Add "Completion of ${requirement.name} Questionnaire" to task list`,
@@ -534,9 +535,10 @@ export function createQuestionnaireSuggestion(
   }
 }
 export function createQuestionnaireCompletionTask(
-  questionnaireTitle: string,
+  requirement: Requirement,
+  patient: Patient,
   questionnaireUrl: string,
-  patient: Patient
+  request: MedicationRequest
 ) {
   const taskResource: Task = {
     resourceType: 'Task',
@@ -547,10 +549,15 @@ export function createQuestionnaireCompletionTask(
         {
           system: 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp',
           code: 'complete-questionnaire'
+        },
+        {
+          system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+          code: 'launch-app-ehr',
+          display: 'Launch application using the SMART EHR launch'
         }
       ]
     },
-    description: `Complete ${questionnaireTitle} Questionnaire`,
+    description: `Complete ${requirement.name} Questionnaire`,
     for: {
       reference: `${patient.resourceType}/${patient.id}`
     },
@@ -561,6 +568,32 @@ export function createQuestionnaireCompletionTask(
           text: 'questionnaire'
         },
         valueCanonical: `${questionnaireUrl}`
+      },
+      {
+        type: {
+          coding: [
+            {
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-application',
+              display: 'SMART on FHIR application URL.'
+            }
+          ]
+        },
+        valueUrl: config.smart.endpoint
+      },
+      {
+        type: {
+          coding: [
+            {
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-appcontext',
+              display: 'Application context related to this launch.'
+            }
+          ]
+        },
+        valueString: `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${
+          request?.insurance?.[0].reference
+        }`
       }
     ]
   };
