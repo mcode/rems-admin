@@ -1,20 +1,8 @@
-import {
-  MedicationRequest,
-  Coding,
-  FhirResource,
-  Identifier,
-  Task,
-  Questionnaire,
-  Patient
-} from 'fhir/r4';
+import { MedicationRequest, Coding, FhirResource, Task, Patient } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import {
-  HookPrefetch,
-  OrderSignPrefetch,
-  TypedRequestBody
-} from '../rems-cds-hooks/resources/HookTypes';
+import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { medicationCollection, remsCaseCollection } from '../fhir/models';
+import { Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
@@ -26,19 +14,11 @@ type HandleCallback = (
   patient: FhirResource | undefined
 ) => Promise<void>;
 
-interface Requirement {
-  name: string;
-  description: string;
-  stakeholderType: string;
-  createNewCase: boolean;
-  resourceId: string;
-  requiredToDispense: boolean;
-  appContext?: string;
-}
 export interface CardRule {
   links: Link[];
   summary?: string;
   stakeholderType?: string;
+  cardDetails?: string;
 }
 export const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
 // TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
@@ -70,7 +50,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'Turalio REMS Patient Requirements'
+      summary: 'Turalio REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -97,7 +78,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'Turalio REMS Prescriber Requirements'
+      summary: 'Turalio REMS Prescriber Requirements',
+      cardDetails: CARD_DETAILS
     }
   ],
   '6064': [
@@ -133,7 +115,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'iPledge/Isotretinoin REMS Patient Requirements'
+      summary: 'iPledge/Isotretinoin REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -153,7 +136,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'iPledge/Isotretinoin REMS Provider Requirements'
+      summary: 'iPledge/Isotretinoin REMS Provider Requirements',
+      cardDetails: CARD_DETAILS
     }
   ],
   '1237051': [
@@ -182,7 +166,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'TIRF REMS Patient Requirements'
+      summary: 'TIRF REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -202,7 +187,24 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'TIRF REMS Prescriber Requirements'
+      summary: 'TIRF REMS Prescriber Requirements',
+      cardDetails: CARD_DETAILS
+    }
+  ],
+  '1666386': [
+    {
+      links: [
+        {
+          label: 'Medication Guide',
+          type: 'absolute',
+          url: new URL(
+            'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Addyi_2019_10_09_Medication_Guide.pdf'
+          )
+        }
+      ],
+      stakeholderType: '',
+      summary: 'Addyi REMS Patient Information',
+      cardDetails: 'Please review safety documentation'
     }
   ]
 };
@@ -218,6 +220,10 @@ export const validCodes: Coding[] = [
   },
   {
     code: '6064', // iPledge
+    system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+  },
+  {
+    code: '1666386', // Addyi
     system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
   }
 ];
@@ -267,7 +273,7 @@ export function getFhirResource(token: string, req: TypedRequestBody) {
 }
 export function createSmartLink(
   requirementName: string,
-  appContext: string,
+  appContext: string | null,
   request: MedicationRequest | undefined
 ) {
   const newLink: Link = {
@@ -335,6 +341,8 @@ export async function handleCardOrder(
       })
       .exec();
 
+    // count the total requirement for each type
+
     // find a matching rems case for the patient and this drug to only return needed results
     const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
     const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
@@ -354,29 +362,32 @@ export async function handleCardOrder(
       for (const rule of codeRule) {
         const card = new Card(
           rule.summary || medicationCode.display || 'Rems',
-          CARD_DETAILS,
+          rule.cardDetails || CARD_DETAILS,
           source,
           'info'
         );
         rule.links.forEach(function (e) {
-          if (e.type == 'absolute') {
+          if (e.type === 'absolute') {
             // no construction needed
             card.addLink(e);
           }
         });
 
+        let smartLinkCountAdded = 0;
         let smartLinkCount = 0;
 
         // process the smart links from the medicationCollection
         // TODO: smart links should be built with discovered questionnaires, not hard coded ones
         if (drug) {
           for (const requirement of drug.requirements) {
-            if (requirement.stakeholderType == rule.stakeholderType) {
+            if (requirement.stakeholderType === rule.stakeholderType) {
+              smartLinkCount++;
+
               // only add the link if the form has not already been processed / received
               if (etasu) {
                 let found = false;
                 for (const metRequirement of etasu.metRequirements) {
-                  if (metRequirement.requirementName == requirement.name) {
+                  if (metRequirement.requirementName === requirement.name) {
                     found = true;
                     if (!metRequirement.completed) {
                       card.addLink(
@@ -385,7 +396,7 @@ export async function handleCardOrder(
                       if (patient && patient.resourceType === 'Patient') {
                         createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                       }
-                      smartLinkCount++;
+                      smartLinkCountAdded++;
                     }
                   }
                 }
@@ -396,7 +407,7 @@ export async function handleCardOrder(
                   if (patient && patient.resourceType === 'Patient') {
                     createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCount++;
+                  smartLinkCountAdded++;
                 }
               } else {
                 // add all the required to dispense links if no etasu to check
@@ -407,7 +418,7 @@ export async function handleCardOrder(
                   if (patient && patient.resourceType === 'Patient') {
                     createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCount++;
+                  smartLinkCountAdded++;
                 }
               }
             }
@@ -415,7 +426,8 @@ export async function handleCardOrder(
         }
 
         // only add the card if there are smart links to needed forms
-        if (smartLinkCount > 0) {
+        // allow information only cards to be returned as well
+        if (smartLinkCountAdded > 0 || smartLinkCount === 0) {
           cardArray.push(card);
         }
       }
