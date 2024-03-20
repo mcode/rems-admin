@@ -19,7 +19,7 @@ module.exports.create = async (args: any, req: any) => {
 
 const getMedicationCode = (medication: Medication | undefined) => {
   // grab the medication drug code from the Medication resource
-  var drugCode = null;
+  let drugCode = null;
   medication?.code?.coding?.forEach(medCode => {
     if (medCode?.system?.endsWith('rxnorm')) {
       drugCode = medCode?.code;
@@ -31,9 +31,9 @@ const getMedicationCode = (medication: Medication | undefined) => {
 module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   console.log('Running GuidanceResponse rems-etasu check /$rems-etasu');
 
-  var parameters: Parameters = args?.resource;
-  var patient: Patient | undefined;
-  var medication: Medication | undefined;
+  let parameters: Parameters = args?.resource;
+  let patient: Patient | undefined;
+  let medication: Medication | undefined;
 
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
@@ -43,7 +43,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     }
   });
 
-  var drugCode = getMedicationCode(medication);
+  let drugCode = getMedicationCode(medication);
 
   // grab the patient demographics from the Patient resource in the parameters
   const remsCaseSearchDict = {

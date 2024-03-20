@@ -9,7 +9,7 @@ export class GuidanceResponseUtilities {
 
   static translateStatus(etasuStatus: string | undefined) {
     // translate the status
-    var remsStatus:
+    let remsStatus:
       | 'success'
       | 'data-requested'
       | 'data-required'
@@ -37,8 +37,8 @@ export class GuidanceResponseUtilities {
     > | null
   ) {
     // create the output parameters
-    var addedRequirementCount = 0;
-    var outputParameters: Parameters = {
+    let addedRequirementCount = 0;
+    let outputParameters: Parameters = {
       resourceType: 'Parameters',
       id: 'etasuOutputParameters'
     };
@@ -46,7 +46,7 @@ export class GuidanceResponseUtilities {
     // create the Parameters for the individual ETASU
     etasu?.metRequirements?.forEach(metRequirement => {
       // create a GuidanceResponse to embed with the individual requirement for the ETASU
-      var etasuGuidanceResponse: GuidanceResponse = {
+      let etasuGuidanceResponse: GuidanceResponse = {
         resourceType: 'GuidanceResponse',
         status: metRequirement?.completed ? 'success' : 'data-required',
         moduleUri: MODULE_URI,
@@ -97,7 +97,7 @@ export class GuidanceResponseUtilities {
     const remsStatus = this.translateStatus(etasu?.status);
 
     // create a GuidanceResponse representing the rems etasu status
-    var guidanceResponse: GuidanceResponse = {
+    let guidanceResponse: GuidanceResponse = {
       resourceType: 'GuidanceResponse',
       status: remsStatus,
       moduleUri: MODULE_URI
@@ -124,7 +124,7 @@ export class GuidanceResponseUtilities {
     }
 
     // create the return Parameters containing the GuidanceResponse for the ETASU
-    var returnParameters: Parameters = {
+    let returnParameters: Parameters = {
       resourceType: 'Parameters',
       parameter: [
         {
