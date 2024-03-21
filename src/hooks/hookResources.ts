@@ -373,7 +373,7 @@ export async function handleCardOrder(
           }
         });
 
-        let smartLinkCountAdded = 0;
+        let unmetRequirementSmartLinkCount = 0;
         let smartLinkCount = 0;
 
         // process the smart links from the medicationCollection
@@ -396,7 +396,7 @@ export async function handleCardOrder(
                       if (patient && patient.resourceType === 'Patient') {
                         createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                       }
-                      smartLinkCountAdded++;
+                      unmetRequirementSmartLinkCount++;
                     }
                   }
                 }
@@ -407,7 +407,7 @@ export async function handleCardOrder(
                   if (patient && patient.resourceType === 'Patient') {
                     createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCountAdded++;
+                  unmetRequirementSmartLinkCount++;
                 }
               } else {
                 // add all the required to dispense links if no etasu to check
@@ -418,7 +418,7 @@ export async function handleCardOrder(
                   if (patient && patient.resourceType === 'Patient') {
                     createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCountAdded++;
+                  unmetRequirementSmartLinkCount++;
                 }
               }
             }
@@ -427,7 +427,7 @@ export async function handleCardOrder(
 
         // only add the card if there are smart links to needed forms
         // allow information only cards to be returned as well
-        if (smartLinkCountAdded > 0 || smartLinkCount === 0) {
+        if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
           cardArray.push(card);
         }
       }
