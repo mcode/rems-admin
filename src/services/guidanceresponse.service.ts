@@ -29,9 +29,9 @@ const getMedicationCode = (medication: Medication | undefined) => {
 };
 
 module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
-  console.log('Running GuidanceResponse rems-etasu check /$rems-etasu');
+  logger.info('Running GuidanceResponse rems-etasu check /$rems-etasu');
 
-  let parameters: Parameters = args?.resource;
+  const parameters: Parameters = args?.resource;
   let patient: Patient | undefined;
   let medication: Medication | undefined;
 
@@ -43,7 +43,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     }
   });
 
-  let drugCode = getMedicationCode(medication);
+  const drugCode = getMedicationCode(medication);
 
   // grab the patient demographics from the Patient resource in the parameters
   const remsCaseSearchDict = {

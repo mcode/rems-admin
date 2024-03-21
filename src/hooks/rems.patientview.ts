@@ -37,13 +37,6 @@ const source = {
   label: 'MCODE REMS Administrator Prototype',
   url: new URL('https://github.com/mcode/rems-admin')
 };
-function buildErrorCard(reason: string) {
-  const errorCard = new Card('Bad Request', reason, source, 'warning');
-  const cards = {
-    cards: [errorCard.card]
-  };
-  return cards;
-}
 
 const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS patient-view hook');
