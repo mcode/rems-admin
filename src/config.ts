@@ -115,6 +115,19 @@ export default {
       valueset: {
         service: './src/services/valueset.service.ts',
         versions: [fhirConstants.VERSIONS['4_0_0']]
+      },
+      guidanceresponse: {
+        service: './src/services/guidanceresponse.service.ts',
+        versions: [fhirConstants.VERSIONS['4_0_0']],
+        operation: [
+          {
+            name: 'rems-etasu',
+            route: '/$rems-etasu',
+            method: 'POST',
+            reference:
+              'https://build.fhir.org/ig/HL7/fhir-medication-rems-ig/OperationDefinition-REMS-ETASU.html'
+          }
+        ]
       }
     }
   }

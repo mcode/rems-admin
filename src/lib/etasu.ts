@@ -37,7 +37,7 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
-const getCaseInfo = async (
+export const getCaseInfo = async (
   remsCaseSearchDict: FilterQuery<RemsCase>,
   medicationSearchDict: FilterQuery<Medication>
 ): Promise<Pick<
