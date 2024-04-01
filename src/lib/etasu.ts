@@ -114,6 +114,28 @@ router.get(
 );
 
 router.get(
+  '/met/patient/:patientFirstName/:patientLastName/:patientDOB',
+  async (req: Request, res: Response) => {
+    console.log(
+      'get etasu of patient: ' +
+        req.params.patientFirstName +
+        ' ' +
+        req.params.patientLastName +
+        ' ' +
+        req.params.patientDOB
+    );
+    const searchDict = {
+      patientFirstName: req.params.patientFirstName,
+      patientLastName: req.params.patientLastName,
+      patientDOB: req.params.patientDOB,
+    };
+
+    res.send(await remsCaseCollection.find(searchDict));
+  }
+);
+
+
+router.get(
   '/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
   async (req: Request, res: Response) => {
     console.log(
