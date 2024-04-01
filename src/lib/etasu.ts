@@ -127,13 +127,12 @@ router.get(
     const searchDict = {
       patientFirstName: req.params.patientFirstName,
       patientLastName: req.params.patientLastName,
-      patientDOB: req.params.patientDOB,
+      patientDOB: req.params.patientDOB
     };
 
     res.send(await remsCaseCollection.find(searchDict));
   }
 );
-
 
 router.get(
   '/met/patient/:patientFirstName/:patientLastName/:patientDOB/drug/:drugName',
