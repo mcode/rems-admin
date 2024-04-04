@@ -1,7 +1,7 @@
 import { FhirUtilities } from '../fhir/utilities';
 import { GuidanceResponseUtilities } from '../fhir/guidanceResponseUtilities';
 import GuidanceResponseModel from '../lib/schemas/resources/GuidanceResponse';
-import { Parameters, Medication, Patient } from 'fhir/r4';
+import { Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
 import { getCaseInfo } from '../lib/etasu';
 
 module.exports.searchById = async (args: any) => {
@@ -17,14 +17,22 @@ module.exports.create = async (args: any, req: any) => {
   return await FhirUtilities.store(resource, GuidanceResponseModel, base_version);
 };
 
-const getMedicationCode = (medication: Medication | undefined) => {
+const getMedicationCode = (medication: Medication | MedicationRequest | undefined) => {
   // grab the medication drug code from the Medication resource
   let drugCode = null;
-  medication?.code?.coding?.forEach(medCode => {
-    if (medCode?.system?.endsWith('rxnorm')) {
-      drugCode = medCode?.code;
-    }
-  });
+  if(medication?.resourceType == 'Medication') {
+    medication?.code?.coding?.forEach(medCode => {
+      if (medCode?.system?.endsWith('rxnorm')) {
+        drugCode = medCode?.code;
+      }
+    });
+  } else {
+    medication?.medicationCodeableConcept?.coding?.forEach(medCode => {
+      if (medCode.system?.endsWith('rxnorm')) {
+        drugCode = medCode.code;
+      }
+    });
+  }
   return drugCode;
 };
 
@@ -33,12 +41,12 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
 
   const parameters: Parameters = args?.resource;
   let patient: Patient | undefined;
-  let medication: Medication | undefined;
+  let medication: Medication | MedicationRequest | undefined;
 
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
       patient = param.resource;
-    } else if (param?.name === 'medication' && param?.resource?.resourceType === 'Medication') {
+    } else if (param?.name === 'medication' && (param?.resource?.resourceType === 'Medication' || param.resource?.resourceType === 'MedicationRequest')) {
       medication = param.resource;
     }
   });
