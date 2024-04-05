@@ -17,7 +17,9 @@ module.exports.create = async (args: any, req: any) => {
   return await FhirUtilities.store(resource, GuidanceResponseModel, base_version);
 };
 
-const getMedicationCode = (medication: Medication | MedicationRequest | undefined): string | undefined => {
+const getMedicationCode = (
+  medication: Medication | MedicationRequest | undefined
+): string | undefined => {
   // grab the medication drug code from the Medication resource
   let drugCode;
   if (medication?.resourceType == 'Medication') {
@@ -27,26 +29,24 @@ const getMedicationCode = (medication: Medication | MedicationRequest | undefine
       }
     });
   } else {
-    if(medication?.medicationCodeableConcept){
+    if (medication?.medicationCodeableConcept) {
       medication?.medicationCodeableConcept?.coding?.forEach(medCode => {
         if (medCode.system?.endsWith('rxnorm')) {
           drugCode = medCode.code;
         }
       });
-    } else if(medication?.medicationReference){
-      const ref = medication.medicationReference.reference
-      if(ref?.startsWith('#')){
+    } else if (medication?.medicationReference) {
+      const ref = medication.medicationReference.reference;
+      if (ref?.startsWith('#')) {
         const containedRef = ref.slice(1);
-        const match = medication.contained?.find((res) => {
+        const match = medication.contained?.find(res => {
           return res.id === containedRef;
         });
-        if(match?.resourceType === 'Medication'){
+        if (match?.resourceType === 'Medication') {
           return getMedicationCode(match);
         }
-        
       }
     }
-
   }
   return drugCode;
 };
