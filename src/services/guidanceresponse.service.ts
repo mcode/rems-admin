@@ -20,7 +20,7 @@ module.exports.create = async (args: any, req: any) => {
 const getMedicationCode = (medication: Medication | MedicationRequest | undefined) => {
   // grab the medication drug code from the Medication resource
   let drugCode = null;
-  if(medication?.resourceType == 'Medication') {
+  if (medication?.resourceType == 'Medication') {
     medication?.code?.coding?.forEach(medCode => {
       if (medCode?.system?.endsWith('rxnorm')) {
         drugCode = medCode?.code;
@@ -46,7 +46,11 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
       patient = param.resource;
-    } else if (param?.name === 'medication' && (param?.resource?.resourceType === 'Medication' || param.resource?.resourceType === 'MedicationRequest')) {
+    } else if (
+      param?.name === 'medication' &&
+      (param?.resource?.resourceType === 'Medication' ||
+        param.resource?.resourceType === 'MedicationRequest')
+    ) {
       medication = param.resource;
     }
   });
