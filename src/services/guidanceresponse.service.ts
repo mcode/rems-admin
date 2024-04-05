@@ -1,7 +1,7 @@
 import { FhirUtilities } from '../fhir/utilities';
 import { GuidanceResponseUtilities } from '../fhir/guidanceResponseUtilities';
 import GuidanceResponseModel from '../lib/schemas/resources/GuidanceResponse';
-import { Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
+import { Parameters, Medication, Patient, MedicationRequest, FhirResource } from 'fhir/r4';
 import { getCaseInfo } from '../lib/etasu';
 
 module.exports.searchById = async (args: any) => {
@@ -17,9 +17,9 @@ module.exports.create = async (args: any, req: any) => {
   return await FhirUtilities.store(resource, GuidanceResponseModel, base_version);
 };
 
-const getMedicationCode = (medication: Medication | MedicationRequest | undefined) => {
+const getMedicationCode = (medication: Medication | MedicationRequest | undefined): string | undefined => {
   // grab the medication drug code from the Medication resource
-  let drugCode = null;
+  let drugCode;
   if (medication?.resourceType == 'Medication') {
     medication?.code?.coding?.forEach(medCode => {
       if (medCode?.system?.endsWith('rxnorm')) {
@@ -27,11 +27,26 @@ const getMedicationCode = (medication: Medication | MedicationRequest | undefine
       }
     });
   } else {
-    medication?.medicationCodeableConcept?.coding?.forEach(medCode => {
-      if (medCode.system?.endsWith('rxnorm')) {
-        drugCode = medCode.code;
+    if(medication?.medicationCodeableConcept){
+      medication?.medicationCodeableConcept?.coding?.forEach(medCode => {
+        if (medCode.system?.endsWith('rxnorm')) {
+          drugCode = medCode.code;
+        }
+      });
+    } else if(medication?.medicationReference){
+      const ref = medication.medicationReference.reference
+      if(ref?.startsWith('#')){
+        const containedRef = ref.slice(1);
+        const match = medication.contained?.find((res) => {
+          return res.id === containedRef;
+        });
+        if(match?.resourceType === 'Medication'){
+          return getMedicationCode(match);
+        }
+        
       }
-    });
+    }
+
   }
   return drugCode;
 };
