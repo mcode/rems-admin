@@ -3,12 +3,12 @@ import 'dotenv/config';
 import * as env from 'env-var';
 
 // Set up whitelist
-const whitelist_env = env.get('WHITELIST').asArray() || false;
+const whitelistEnv = env.get('WHITELIST').asArray() || false;
 
-// If no whitelist is present, disable cors
-// If it's length is 1, set it to a string, so * works
+// If no whitelist is present, disable CORS
+// If its length is 1, set it to a string, so * works
 // If there are multiple, keep them as an array
-const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
+const whitelist = whitelistEnv && whitelistEnv.length === 1 ? whitelistEnv[0] : whitelistEnv;
 export default {
   server: {
     port: env.get('PORT').asInt(),
@@ -115,6 +115,19 @@ export default {
       valueset: {
         service: './src/services/valueset.service.ts',
         versions: [fhirConstants.VERSIONS['4_0_0']]
+      },
+      guidanceresponse: {
+        service: './src/services/guidanceresponse.service.ts',
+        versions: [fhirConstants.VERSIONS['4_0_0']],
+        operation: [
+          {
+            name: 'rems-etasu',
+            route: '/$rems-etasu',
+            method: 'POST',
+            reference:
+              'https://build.fhir.org/ig/HL7/fhir-medication-rems-ig/OperationDefinition-REMS-ETASU.html'
+          }
+        ]
       }
     }
   }

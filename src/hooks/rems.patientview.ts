@@ -2,15 +2,12 @@ import Card from '../cards/Card';
 import {
   PatientViewHook,
   SupportedHooks,
-  PatientViewPrefetch,
   HookPrefetch
 } from '../rems-cds-hooks/resources/HookTypes';
 import { medicationCollection, remsCaseCollection } from '../fhir/models';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { Bundle, FhirResource, MedicationRequest } from 'fhir/r4';
-import { Link } from '../cards/Card';
-import config from '../config';
-import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+
 import {
   codeMap,
   CARD_DETAILS,
@@ -18,7 +15,6 @@ import {
   createSmartLink,
   handleHook
 } from './hookResources';
-import axios from 'axios';
 
 interface TypedRequestBody extends Express.Request {
   body: PatientViewHook;
@@ -41,15 +37,9 @@ const source = {
   label: 'MCODE REMS Administrator Prototype',
   url: new URL('https://github.com/mcode/rems-admin')
 };
-function buildErrorCard(reason: string) {
-  const errorCard = new Card('Bad Request', reason, source, 'warning');
-  const cards = {
-    cards: [errorCard.card]
-  };
-  return cards;
-}
 
 const handler = (req: TypedRequestBody, res: any) => {
+  console.log('REMS patient-view hook');
   // process the MedicationRequests to add the Medication into contained resources
   function processMedicationRequests(medicationRequestsBundle: Bundle) {
     medicationRequestsBundle?.entry?.forEach(entry => {
@@ -162,7 +152,7 @@ const handler = (req: TypedRequestBody, res: any) => {
       }
 
       // loop through all of the ETASU requirements for this drug
-      const requirements = drug?.requirements;
+      const requirements = drug?.requirements || [];
       for (const requirement of requirements) {
         // find all of the matching patient forms
         if (requirement?.stakeholderType === 'patient') {
@@ -179,7 +169,7 @@ const handler = (req: TypedRequestBody, res: any) => {
             }
           }
 
-          // if not in the list of metReuirements, add it as well
+          // if not in the list of metRequirements, add it as well
           if (!found) {
             card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
             smartLinkCount++;

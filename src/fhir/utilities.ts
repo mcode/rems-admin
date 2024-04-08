@@ -121,7 +121,6 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-    // prepopulateDB
     const medications = [
       {
         name: 'Turalio',
@@ -136,7 +135,8 @@ export class FhirUtilities {
             resourceId: 'TuralioRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
+            questionnaire: null
           },
           {
             name: 'Prescriber Enrollment',
@@ -146,7 +146,8 @@ export class FhirUtilities {
             resourceId: 'TuralioPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
+            questionnaire: null
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -156,7 +157,8 @@ export class FhirUtilities {
             resourceId: 'TuralioPrescriberKnowledgeAssessment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
+            questionnaire: null
           },
           {
             name: 'Pharmacist Enrollment',
@@ -164,7 +166,9 @@ export class FhirUtilities {
             stakeholderType: 'pharmacist',
             createNewCase: false,
             resourceId: 'TuralioPharmacistEnrollment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext: null,
+            questionnaire: null
           },
           {
             name: 'Patient Status Update',
@@ -174,7 +178,8 @@ export class FhirUtilities {
             resourceId: 'TuralioRemsPatientStatus',
             requiredToDispense: false,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
+            questionnaire: null
           }
         ]
       },
@@ -191,7 +196,8 @@ export class FhirUtilities {
             resourceId: 'TIRFRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
+            questionnaire: null
           },
           {
             name: 'Prescriber Enrollment',
@@ -201,7 +207,8 @@ export class FhirUtilities {
             resourceId: 'TIRFPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
+            questionnaire: null
           },
           {
             name: 'Prescriber Knowledge Assessment',
@@ -211,7 +218,8 @@ export class FhirUtilities {
             resourceId: 'TIRFPrescriberKnowledgeAssessment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
+            questionnaire: null
           },
           {
             name: 'Pharmacist Enrollment',
@@ -219,7 +227,9 @@ export class FhirUtilities {
             stakeholderType: 'pharmacist',
             createNewCase: false,
             resourceId: 'TIRFPharmacistEnrollmentForm',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext: null,
+            questionnaire: null
           },
           {
             name: 'Pharmacist Knowledge Assessment',
@@ -227,7 +237,9 @@ export class FhirUtilities {
             stakeholderType: 'pharmacist',
             createNewCase: false,
             resourceId: 'TIRFPharmacistKnowledgeAssessment',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext: null,
+            questionnaire: null
           }
         ]
       },
@@ -244,7 +256,8 @@ export class FhirUtilities {
             resourceId: 'IPledgeRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
+            questionnaire: null
           },
           {
             name: 'Prescriber Enrollment',
@@ -254,7 +267,8 @@ export class FhirUtilities {
             resourceId: 'IPledgeRemsPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm'
+              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
+            questionnaire: null
           },
           {
             name: 'Pharmacist Enrollment',
@@ -262,9 +276,17 @@ export class FhirUtilities {
             stakeholderType: 'pharmacist',
             createNewCase: false,
             resourceId: 'IPledgeRemsPharmacistEnrollmentForm',
-            requiredToDispense: true
+            requiredToDispense: true,
+            appContext: null,
+            questionnaire: null
           }
         ]
+      },
+      {
+        name: 'Addyi',
+        codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        code: '1666386',
+        requirements: []
       }
     ];
 

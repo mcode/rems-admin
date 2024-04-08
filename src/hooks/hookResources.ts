@@ -1,20 +1,8 @@
-import {
-  MedicationRequest,
-  Coding,
-  FhirResource,
-  Identifier,
-  Task,
-  Questionnaire,
-  Patient
-} from 'fhir/r4';
+import { MedicationRequest, Coding, FhirResource, Task, Patient } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import {
-  HookPrefetch,
-  OrderSignPrefetch,
-  TypedRequestBody
-} from '../rems-cds-hooks/resources/HookTypes';
+import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { medicationCollection, remsCaseCollection } from '../fhir/models';
+import { Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
@@ -26,22 +14,14 @@ type HandleCallback = (
   patient: FhirResource | undefined
 ) => Promise<void>;
 
-interface Requirement {
-  name: string;
-  description: string;
-  stakeholderType: string;
-  createNewCase: boolean;
-  resourceId: string;
-  requiredToDispense: boolean;
-  appContext?: string;
-}
 export interface CardRule {
   links: Link[];
   summary?: string;
   stakeholderType?: string;
+  cardDetails?: string;
 }
 export const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
-// TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
+// TODO: this codemap should be replaced with a system similar to original CRD questionnaire package operation
 // the app doesn't necessarily have to use CQL for this.
 export const codeMap: { [key: string]: CardRule[] } = {
   '2183126': [
@@ -70,7 +50,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'Turalio REMS Patient Requirements'
+      summary: 'Turalio REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -97,7 +78,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'Turalio REMS Prescriber Requirements'
+      summary: 'Turalio REMS Prescriber Requirements',
+      cardDetails: CARD_DETAILS
     }
   ],
   '6064': [
@@ -133,7 +115,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'iPledge/Isotretinoin REMS Patient Requirements'
+      summary: 'iPledge/Isotretinoin REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -153,7 +136,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'iPledge/Isotretinoin REMS Provider Requirements'
+      summary: 'iPledge/Isotretinoin REMS Provider Requirements',
+      cardDetails: CARD_DETAILS
     }
   ],
   '1237051': [
@@ -182,7 +166,8 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'patient',
-      summary: 'TIRF REMS Patient Requirements'
+      summary: 'TIRF REMS Patient Requirements',
+      cardDetails: CARD_DETAILS
     },
     {
       links: [
@@ -202,7 +187,24 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'TIRF REMS Prescriber Requirements'
+      summary: 'TIRF REMS Prescriber Requirements',
+      cardDetails: CARD_DETAILS
+    }
+  ],
+  '1666386': [
+    {
+      links: [
+        {
+          label: 'Medication Guide',
+          type: 'absolute',
+          url: new URL(
+            'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Addyi_2019_10_09_Medication_Guide.pdf'
+          )
+        }
+      ],
+      stakeholderType: '',
+      summary: 'Addyi REMS Patient Information',
+      cardDetails: 'Please review safety documentation'
     }
   ]
 };
@@ -218,6 +220,10 @@ export const validCodes: Coding[] = [
   },
   {
     code: '6064', // iPledge
+    system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+  },
+  {
+    code: '1666386', // Addyi
     system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
   }
 ];
@@ -267,7 +273,7 @@ export function getFhirResource(token: string, req: TypedRequestBody) {
 }
 export function createSmartLink(
   requirementName: string,
-  appContext: string,
+  appContext: string | null,
   request: MedicationRequest | undefined
 ) {
   const newLink: Link = {
@@ -335,6 +341,8 @@ export async function handleCardOrder(
       })
       .exec();
 
+    // count the total requirement for each type
+
     // find a matching rems case for the patient and this drug to only return needed results
     const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
     const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
@@ -354,38 +362,41 @@ export async function handleCardOrder(
       for (const rule of codeRule) {
         const card = new Card(
           rule.summary || medicationCode.display || 'Rems',
-          CARD_DETAILS,
+          rule.cardDetails || CARD_DETAILS,
           source,
           'info'
         );
         rule.links.forEach(function (e) {
-          if (e.type == 'absolute') {
+          if (e.type === 'absolute') {
             // no construction needed
             card.addLink(e);
           }
         });
 
+        let unmetRequirementSmartLinkCount = 0;
         let smartLinkCount = 0;
 
         // process the smart links from the medicationCollection
         // TODO: smart links should be built with discovered questionnaires, not hard coded ones
         if (drug) {
           for (const requirement of drug.requirements) {
-            if (requirement.stakeholderType == rule.stakeholderType) {
+            if (requirement.stakeholderType === rule.stakeholderType) {
+              smartLinkCount++;
+
               // only add the link if the form has not already been processed / received
               if (etasu) {
                 let found = false;
                 for (const metRequirement of etasu.metRequirements) {
-                  if (metRequirement.requirementName == requirement.name) {
+                  if (metRequirement.requirementName === requirement.name) {
                     found = true;
                     if (!metRequirement.completed) {
                       card.addLink(
                         createSmartLink(requirement.name, requirement.appContext, contextRequest)
                       );
                       if (patient && patient.resourceType === 'Patient') {
-                        createQuestionnaireSuggestion(card, requirement, patient);
+                        createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                       }
-                      smartLinkCount++;
+                      unmetRequirementSmartLinkCount++;
                     }
                   }
                 }
@@ -394,9 +405,9 @@ export async function handleCardOrder(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
                   if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient);
+                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCount++;
+                  unmetRequirementSmartLinkCount++;
                 }
               } else {
                 // add all the required to dispense links if no etasu to check
@@ -405,9 +416,9 @@ export async function handleCardOrder(
                     createSmartLink(requirement.name, requirement.appContext, contextRequest)
                   );
                   if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient);
+                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
                   }
-                  smartLinkCount++;
+                  unmetRequirementSmartLinkCount++;
                 }
               }
             }
@@ -415,7 +426,8 @@ export async function handleCardOrder(
         }
 
         // only add the card if there are smart links to needed forms
-        if (smartLinkCount > 0) {
+        // allow information only cards to be returned as well
+        if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
           cardArray.push(card);
         }
       }
@@ -494,7 +506,8 @@ export function handleHook(
 export function createQuestionnaireSuggestion(
   card: Card,
   requirement: Requirement,
-  patient: Patient
+  patient: Patient,
+  request: MedicationRequest
 ) {
   if (requirement.appContext && requirement.appContext.includes('=')) {
     const qArr = requirement.appContext.split('='); // break up into parts
@@ -510,8 +523,8 @@ export function createQuestionnaireSuggestion(
     if (qUrl) {
       const action: Action = {
         type: 'create',
-        description: `Create task for "completion of ${requirement.name} Questionnaire`,
-        resource: createQuestionnaireCompletionTask(requirement.name, qUrl, patient)
+        description: `Create task for "completion of ${requirement.name} Questionnaire"`,
+        resource: createQuestionnaireCompletionTask(requirement, patient, qUrl, request)
       };
       const suggestion: Suggestion = {
         label: `Add "Completion of ${requirement.name} Questionnaire" to task list`,
@@ -522,9 +535,10 @@ export function createQuestionnaireSuggestion(
   }
 }
 export function createQuestionnaireCompletionTask(
-  questionnaireTitle: string,
+  requirement: Requirement,
+  patient: Patient,
   questionnaireUrl: string,
-  patient: Patient
+  request: MedicationRequest
 ) {
   const taskResource: Task = {
     resourceType: 'Task',
@@ -535,10 +549,15 @@ export function createQuestionnaireCompletionTask(
         {
           system: 'http://hl7.org/fhir/uv/sdc/CodeSystem/temp',
           code: 'complete-questionnaire'
+        },
+        {
+          system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+          code: 'launch-app-ehr',
+          display: 'Launch application using the SMART EHR launch'
         }
       ]
     },
-    description: `Complete ${questionnaireTitle} Questionnaire`,
+    description: `Complete ${requirement.name} Questionnaire`,
     for: {
       reference: `${patient.resourceType}/${patient.id}`
     },
@@ -549,6 +568,32 @@ export function createQuestionnaireCompletionTask(
           text: 'questionnaire'
         },
         valueCanonical: `${questionnaireUrl}`
+      },
+      {
+        type: {
+          coding: [
+            {
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-application',
+              display: 'SMART on FHIR application URL.'
+            }
+          ]
+        },
+        valueUrl: config.smart.endpoint
+      },
+      {
+        type: {
+          coding: [
+            {
+              system: 'http://hl7.org/fhir/smart-app-launch/CodeSystem/smart-codes',
+              code: 'smartonfhir-appcontext',
+              display: 'Application context related to this launch.'
+            }
+          ]
+        },
+        valueString: `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${
+          request?.insurance?.[0].reference
+        }`
       }
     ]
   };
