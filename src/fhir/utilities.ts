@@ -121,7 +121,6 @@ export class FhirUtilities {
   }
 
   static async populateDB() {
-    // prepopulateDB
     const medications = [
       {
         name: 'Turalio',

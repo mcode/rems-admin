@@ -23,10 +23,6 @@ import {
 import { FilterQuery } from 'mongoose';
 const router = Router();
 
-// const medicationCollection = db.collection('medication-requirements');
-// const metRequirementsCollection = db.collection('met-requirements');
-// const remsCaseCollection = db.collection('rems-case');
-
 // etasu endpoints
 router.get('/:drug', async (req: Request, res: Response) => {
   res.send(await medicationCollection.findOne({ name: req.params.drug }));
@@ -262,7 +258,7 @@ const createMetRequirementAndNewCase = async (
     return res;
   }
 
-  // iterate through all other reqs again to create corresponding false metReqs / assign to existing
+  // iterate through all other requirements again to create corresponding false metRequirements / assign to existing
   for (const requirement2 of drug.requirements) {
     // skip if the req found is the same as in the outer loop and has already been processed
     // && If the requirement is not the patient Status Form (when requiredToDispense == false)
