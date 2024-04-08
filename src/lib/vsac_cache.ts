@@ -32,33 +32,33 @@ class VsacCache {
 
   /**
    *
-   * @param library The library to cache valuesets for
-   * @param forceReload flag to force reaching valuesets already cached
-   * @returns Map of caching results url: {valueSet, error, cached}
+   * @param library The library to cache ValueSets for
+   * @param forceReload flag to force reaching ValueSets already cached
+   * @returns Map of caching results url: {ValueSet, error, cached}
    */
   async cacheLibrary(library: Library, forceReload = false) {
-    const valueSets = this.collectLibraryValuesets(library);
-    return await this.cacheValuesets(valueSets, forceReload);
+    const valueSets = this.collectLibraryValueSets(library);
+    return await this.cacheValueSets(valueSets, forceReload);
   }
 
   /**
    *
-   * @param obj Questionnaire|item object to cache valuesets for
-   * @param forceReload flag to force reaching valuesets already cached
+   * @param obj Questionnaire|item object to cache ValueSets for
+   * @param forceReload flag to force reaching ValueSets already cached
    * @returns Map of caching results url: {valueSet, error, cached}
    */
 
   async cacheQuestionnaireItems(obj: any, forceReload = false) {
-    const valueSets = this.collectQuestionnaireValuesets(obj);
-    return await this.cacheValuesets(valueSets, forceReload);
+    const valueSets = this.collectQuestionnaireValueSets(obj);
+    return await this.cacheValueSets(valueSets, forceReload);
   }
 
   /**
    *
-   * @param library The fhir Library to download valuesets from
-   * @returns a Set that includes all of the valueset urls found in the Library
+   * @param library The fhir Library to download ValueSets from
+   * @returns a Set that includes all of the ValueSet urls found in the Library
    */
-  collectLibraryValuesets(library: Library) {
+  collectLibraryValueSets(library: Library) {
     // ensure only unique values
     return new Set(fhirpath.evaluate(library, 'Library.dataRequirement.codeFilter.valueSet'));
   }
@@ -66,35 +66,35 @@ class VsacCache {
   /**
    *
    * @param obj the Questionnaire object or item to collect answerValueSet urls from
-   * @returns a Set that includes all of the valuesets in the passed object.  This returns values for sub items as well
+   * @returns a Set that includes all of the ValueSets in the passed object.  This returns values for sub items as well
    */
-  collectQuestionnaireValuesets(obj: any) {
+  collectQuestionnaireValueSets(obj: any) {
     const items = obj.item;
-    let valuesets = new Set<string>();
+    let valueSets = new Set<string>();
     items.forEach(async (item: any) => {
       if (item.answerValueSet) {
-        valuesets.add(item.answerValueSet);
+        valueSets.add(item.answerValueSet);
       }
       if (item.item) {
-        valuesets = new Set<string>([...valuesets, ...this.collectQuestionnaireValuesets(item)]);
+        valueSets = new Set<string>([...valueSets, ...this.collectQuestionnaireValueSets(item)]);
       }
     });
     // ensure only unique values
-    return valuesets;
+    return valueSets;
   }
 
   /**
    *
-   * @param valueSets The valusets to cache
-   * @param forceReload flag to force downloading and caching of the valuesets
-   * @returns a Map with the return values from caching the valuesets.
+   * @param valueSets The ValueSets to cache
+   * @param forceReload flag to force downloading and caching of the ValueSets
+   * @returns a Map with the return values from caching the ValueSets.
    */
-  async cacheValuesets(valueSets: Set<string> | [], forceReload = false) {
+  async cacheValueSets(valueSets: Set<string> | [], forceReload = false) {
     const values = Array.from(valueSets);
     const results: ValueSet[] = [];
     await Promise.all(
       values.map(async vs => {
-        const vsResource = await this.downloadAndCacheValueset(vs, forceReload);
+        const vsResource = await this.downloadAndCacheValueSet(vs, forceReload);
         if (vsResource) {
           results.push(vsResource);
         }
@@ -107,16 +107,16 @@ class VsacCache {
    *
    * @param idOrUrl the Url to download
    * @param forceReload  flag to force recaching already cached values
-   * @returns Map that contains results url: {cached, valueSet, error}
+   * @returns Map that contains results url: {cached, ValueSet, error}
    */
-  async downloadAndCacheValueset(idOrUrl: string, forceReload = false) {
+  async downloadAndCacheValueSet(idOrUrl: string, forceReload = false) {
     const isVsCached = await this.isCached(idOrUrl);
     if (forceReload || !isVsCached) {
-      const vs = await this.downloadValueset(idOrUrl);
+      const vs = await this.downloadValueSet(idOrUrl);
       if (vs.error) {
         console.log('Error Downloading ', idOrUrl, typeof vs.error);
       } else if (vs.valueSet) {
-        await this.storeValueSet(this.getValuesetId(idOrUrl), vs.valueSet);
+        await this.storeValueSet(this.getValueSetId(idOrUrl), vs.valueSet);
         vs.cached = true;
       }
       return vs.valueSet;
@@ -128,11 +128,11 @@ class VsacCache {
   /**
    *
    * @param idOrUrl the url to download
-   * @returns Map that contains results url: {valueset, error}
+   * @returns Map that contains results url: {ValueSet, error}
    */
-  async downloadValueset(idOrUrl: string) {
+  async downloadValueSet(idOrUrl: string) {
     const retValue: ValueSetMapEntry = {};
-    const vsUrl = this.gtValuesetURL(idOrUrl);
+    const vsUrl = this.gtValueSetURL(idOrUrl);
     const headers: any = {
       Accept: 'application/json+fhir'
     };
@@ -140,11 +140,12 @@ class VsacCache {
     // this will only add headers to vsac urls
     const isBaseUrlVsac = this.baseUrl.find(str => vsUrl.startsWith(str));
     if (isBaseUrlVsac) {
-      headers['Authorization'] = 'Basic ' + Buffer.from('apikey:' + this.apiKey).toString('base64');
+      headers['Authorization'] =
+        'Basic ' + Buffer.from('API key:' + this.apiKey).toString('base64');
       isVsac = true;
     }
-    // this will try to download valuesets that are not in vsac as well based on the
-    // connonical url passed in.
+    // this will try to download ValueSets that are not in vsac as well based on the
+    // canonical url passed in.
     let url = vsUrl;
     if (isBaseUrlVsac) {
       url = vsUrl + '/$expand';
@@ -164,7 +165,7 @@ class VsacCache {
         retValue.error = error;
       }
     } else {
-      retValue.error = 'Cannot download non vsac valuesets: ' + url;
+      retValue.error = 'Cannot download non VSAC ValueSets: ' + url;
     }
 
     return retValue;
@@ -176,15 +177,15 @@ class VsacCache {
    * @returns true or false
    */
   async isCached(idOrUrl: string): Promise<ValueSet | null | undefined> {
-    const id = this.getValuesetId(idOrUrl);
+    const id = this.getValueSetId(idOrUrl);
     // Query our collection for this observation
     return await ValueSetModel.findOne({ id: id.toString() });
   }
 
   /**
-   * Stores a valueset in the cache.  This currently only works for new inserts and will not update
+   * Stores a ValueSet in the cache.  This currently only works for new inserts and will not update
    * any resources currently cached.  This will be updated with a move to Mongo.
-   * @param vs the valueset to cache
+   * @param vs the ValueSet to cache
    */
   async storeValueSet(id: string, vs: ValueSet) {
     if (!vs.id) {
@@ -198,7 +199,7 @@ class VsacCache {
    * @param idOrUrl the url to cache
    * @returns identifier used to cache the vs
    */
-  getValuesetId(idOrUrl: string) {
+  getValueSetId(idOrUrl: string) {
     // is this a url or an id
     if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://')) {
       const url = new URL(idOrUrl);
@@ -213,7 +214,7 @@ class VsacCache {
    * @param idOrUrl the url to cache
    * @returns identifier used to cache the vs
    */
-  gtValuesetURL(idOrUrl: string) {
+  gtValueSetURL(idOrUrl: string) {
     // is this a url or an id
     if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://')) {
       return idOrUrl;
@@ -223,8 +224,8 @@ class VsacCache {
     return path;
   }
   /**
-   * Clear all of the cached valuesets
-   * This currently does not work since merging and updating to use tingo.  Drop collection in tingo is broken
+   * Clear all of the cached ValueSets
+   * This currently does not work since merging and updating to use TingoDB.  Drop collection in TingoDB is broken
    *
    */
   clearCache() {

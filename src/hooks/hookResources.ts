@@ -21,7 +21,7 @@ export interface CardRule {
   cardDetails?: string;
 }
 export const CARD_DETAILS = 'Documentation Required, please complete form via Smart App link.';
-// TODO: this codemap should be replaced with a system similar to original CRD's questionnaire package operation
+// TODO: this codemap should be replaced with a system similar to original CRD questionnaire package operation
 // the app doesn't necessarily have to use CQL for this.
 export const codeMap: { [key: string]: CardRule[] } = {
   '2183126': [

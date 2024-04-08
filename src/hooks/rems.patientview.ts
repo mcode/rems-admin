@@ -169,7 +169,7 @@ const handler = (req: TypedRequestBody, res: any) => {
             }
           }
 
-          // if not in the list of metReuirements, add it as well
+          // if not in the list of metRequirements, add it as well
           if (!found) {
             card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
             smartLinkCount++;

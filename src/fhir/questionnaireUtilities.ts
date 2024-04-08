@@ -98,7 +98,7 @@ export class QuestionnaireUtilities {
       }
     }
   }
-  // On load of new library, finds ValueSets in codefilters and
+  // On load of new library, finds ValueSets in code filters and
   // loads them as well
   static async processLibraryCodeFilters(library: Library) {
     const returnValue = this.vsacCache.cacheLibrary(library);

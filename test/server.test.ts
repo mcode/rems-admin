@@ -79,7 +79,7 @@ describe('REMSServer class', () => {
     serverListen.close();
   });
 
-  it('should be able to initilize a server', () => {
+  it('should be able to initialize a server', () => {
     const newServer = initialize(config);
     expect(newServer).to.be.instanceOf(REMSServer);
     expect(newServer).to.have.property('app');
