@@ -528,8 +528,8 @@ router.post('/met', async (req: Request, res: Response) => {
           stakeholder === 'prescriber'
             ? practitionerReference
             : stakeholder === 'pharmacist'
-              ? pharmacistReference
-              : patientReference;
+            ? pharmacistReference
+            : patientReference;
 
         // if the requirement is the one submitted continue
         if (requirement.resourceId === requirementId) {
