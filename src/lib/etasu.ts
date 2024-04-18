@@ -269,8 +269,8 @@ const createMetRequirementAndNewCase = async (
         reqStakeholder2 === 'prescriber'
           ? practitionerReference
           : reqStakeholder2 === 'pharmacist'
-            ? pharmacistReference
-            : patientReference;
+          ? pharmacistReference
+          : patientReference;
 
       const matchedMetReq2 = await metRequirementsCollection
         .findOne({
