@@ -269,8 +269,8 @@ const createMetRequirementAndNewCase = async (
         reqStakeholder2 === 'prescriber'
           ? practitionerReference
           : reqStakeholder2 === 'pharmacist'
-          ? pharmacistReference
-          : patientReference;
+            ? pharmacistReference
+            : patientReference;
 
       const matchedMetReq2 = await metRequirementsCollection
         .findOne({
@@ -528,8 +528,8 @@ router.post('/met', async (req: Request, res: Response) => {
           stakeholder === 'prescriber'
             ? practitionerReference
             : stakeholder === 'pharmacist'
-            ? pharmacistReference
-            : patientReference;
+              ? pharmacistReference
+              : patientReference;
 
         // if the requirement is the one submitted continue
         if (requirement.resourceId === requirementId) {

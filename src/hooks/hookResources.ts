@@ -280,9 +280,8 @@ export function createSmartLink(
     label: requirementName + ' Form',
     url: new URL(config.smart.endpoint),
     type: 'smart',
-    appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
-      request?.insurance?.[0].reference
-    }`
+    appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${request?.insurance?.[0]
+      .reference}`
   };
   return newLink;
 }
@@ -591,9 +590,8 @@ export function createQuestionnaireCompletionTask(
             }
           ]
         },
-        valueString: `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${
-          request?.insurance?.[0].reference
-        }`
+        valueString: `${requirement.appContext}&order=${JSON.stringify(request)}&coverage=${request
+          ?.insurance?.[0].reference}`
       }
     ]
   };

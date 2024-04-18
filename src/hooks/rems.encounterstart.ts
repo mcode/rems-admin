@@ -21,12 +21,12 @@ const definition: CdsService = {
 const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS encounter-start hook');
   const context = req.body.context;
-  const selection = context.selections?.[0];
-//   const contextRequest = context.draftOrders?.entry?.filter(entry => {
-//     if (entry.resource) {
-//       return selection === `${entry.resource.resourceType}/${entry.resource.id}`;
-//     }
-//   })[0].resource;
+  // const selection = context.selections?.[0];
+  //   const contextRequest = context.draftOrders?.entry?.filter(entry => {
+  //     if (entry.resource) {
+  //       return selection === `${entry.resource.resourceType}/${entry.resource.id}`;
+  //     }
+  //   })[0].resource;
   handleHook(req, res, hookPrefetch, context, handleCardOrder);
 };
 
