@@ -89,7 +89,7 @@ export const metRequirementsCollection = model<MetRequirements>(
 
 const remsCaseCollectionSchema = new Schema<RemsCase>({
   case_number: { type: String },
-  auth_number: {type: String},
+  auth_number: { type: String },
   status: { type: String },
   drugName: { type: String },
   patientFirstName: { type: String },

@@ -78,7 +78,7 @@ export class GuidanceResponseUtilities {
         outputParameters.parameter?.push(parameter);
       }
     });
-    outputParameters.parameter?.push({'name': 'auth_number', 'valueString': etasu?.auth_number});
+    outputParameters.parameter?.push({ name: 'auth_number', valueString: etasu?.auth_number });
     return outputParameters;
   }
 
