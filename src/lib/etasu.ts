@@ -45,6 +45,7 @@ export const getCaseInfo = async (
   RemsCase,
   | 'status'
   | 'drugName'
+  | 'auth_number'
   | 'drugCode'
   | 'patientFirstName'
   | 'patientLastName'
@@ -65,6 +66,7 @@ export const getCaseInfo = async (
         RemsCase,
         | 'status'
         | 'drugName'
+        | 'auth_number'
         | 'drugCode'
         | 'patientFirstName'
         | 'patientLastName'
@@ -73,6 +75,7 @@ export const getCaseInfo = async (
       > = {
         status: 'Approved',
         drugName: drug?.name,
+        auth_number: remsCaseSearchDict.auth_number || '',
         drugCode: drug?.code,
         patientFirstName: remsCaseSearchDict.patientFirstName || '',
         patientLastName: remsCaseSearchDict.patientLastName || '',
