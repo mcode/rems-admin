@@ -19,10 +19,6 @@ const definition: CdsService = {
   description: 'REMS Requirement Lookup',
   prefetch: hookPrefetch
 };
-const source = {
-  label: 'MCODE REMS Administrator Prototype',
-  url: new URL('https://github.com/mcode/rems-admin')
-};
 
 const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS patient-view hook');
