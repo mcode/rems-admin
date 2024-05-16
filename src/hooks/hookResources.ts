@@ -556,8 +556,7 @@ export async function handleCardEncounter(
   //TODO: should we add the other pdf information links to the card, or just have the smart links?
 
   const medResource = hookPrefetch?.medicationRequests;
-  const medicationRequestsBundle =
-    medResource?.resourceType === 'Bundle' ? medResource : undefined;
+  const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
 
   // create empty card array
   const cardArray: Card[] = [];
