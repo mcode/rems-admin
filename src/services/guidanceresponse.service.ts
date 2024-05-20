@@ -1,7 +1,7 @@
 import { FhirUtilities } from '../fhir/utilities';
 import { GuidanceResponseUtilities } from '../fhir/guidanceResponseUtilities';
 import GuidanceResponseModel from '../lib/schemas/resources/GuidanceResponse';
-import { Parameters, Medication, Patient, MedicationRequest, FhirResource } from 'fhir/r4';
+import { Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
 import { getCaseInfo } from '../lib/etasu';
 
 module.exports.searchById = async (args: any) => {
