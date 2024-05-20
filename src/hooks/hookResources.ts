@@ -599,7 +599,7 @@ export async function handleCardEncounter(
     }
 
     // find the matching MedicationRequest for the context
-    const request = medicationRequestsBundle?.entry?.filter(entry => {
+    const request = medicationRequestsBundle?.entry?.find(entry => {
       if (entry.resource) {
         if (entry.resource.resourceType === 'MedicationRequest') {
           const medReq: MedicationRequest = entry.resource;
@@ -607,7 +607,7 @@ export async function handleCardEncounter(
           return remsCase.drugCode === medicationCode?.code;
         }
       }
-    })[0].resource;
+    })?.resource;
 
     // if no valid request or not a MedicationRequest found skip this REMS case
     if (!request || (request && request.resourceType !== 'MedicationRequest')) {
