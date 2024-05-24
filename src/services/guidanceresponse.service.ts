@@ -74,16 +74,17 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     }
   });
 
-  let etasu: Pick< RemsCase,
-      | 'drugName'
-      | 'auth_number'
-      | 'status'
-      | 'drugCode'
-      | 'patientFirstName'
-      | 'patientLastName'
-      | 'patientDOB'
-      | 'metRequirements'
-    > | null;
+  let etasu: Pick<
+    RemsCase,
+    | 'drugName'
+    | 'auth_number'
+    | 'status'
+    | 'drugCode'
+    | 'patientFirstName'
+    | 'patientLastName'
+    | 'patientDOB'
+    | 'metRequirements'
+  > | null;
 
   if (authNumber) {
     const remsCaseSearchDict = {
@@ -93,7 +94,6 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     const medicationSearchDict = {};
 
     etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
-
   } else {
     const drugCode = getMedicationCode(medication);
 
