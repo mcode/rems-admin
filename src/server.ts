@@ -119,7 +119,7 @@ class REMSServer extends Server {
   /**
    * @method listen
    * @description Start listening on the configured port
-   * @param {number} port - Defualt port to listen on
+   * @param {number} port - Default port to listen on
    * @param {function} [callback] - Optional callback for listen
    */
   listen({ port }: any, callback: any) {
