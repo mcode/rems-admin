@@ -550,7 +550,7 @@ function processMedicationRequests(medicationRequestsBundle: Bundle) {
 export async function handleCardEncounter(
   res: any,
   hookPrefetch: HookPrefetch | undefined,
-  contextRequest: FhirResource | undefined,
+  _contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
 ) {
   //TODO: should we add the other pdf information links to the card, or just have the smart links?
