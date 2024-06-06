@@ -591,7 +591,6 @@ export async function handleCardEncounter(
     const summary = getSummary(rule, remsCase);
 
     // create the card
-    let smartLinkCount = 0;
     const card = new Card(summary, CARD_DETAILS, source, 'info');
 
     // process the MedicationRequests to add the Medication into contained resources
@@ -617,34 +616,36 @@ export async function handleCardEncounter(
 
     // loop through all of the ETASU requirements for this drug
     const requirements = drug?.requirements || [];
-    for (const requirement of requirements) {
-      // find all of the matching patient forms
-      if (requirement?.stakeholderType === 'patient') {
-        let found = false;
-        // match the requirement to the metRequirement of the REMS case
-        for (const metRequirement of remsCase.metRequirements) {
-          // only add the link if the form is still needed to be completed
-          if (metRequirement.requirementName === requirement.name) {
-            found = true;
-            if (!metRequirement.completed) {
-              card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-              smartLinkCount++;
-            }
+    const smartLinks = requirements
+      .map(requirement => {
+        // find all of the matching patient forms
+        if (requirement?.stakeholderType === 'patient') {
+          // match the requirement to the metRequirement of the REMS case
+          const metRequirement = remsCase.metRequirements.find(metRequirement => {
+            return metRequirement.requirementName === requirement.name;
+          });
+
+          const link = createSmartLink(requirement.name, requirement.appContext, request);
+
+          if (
+            // add the link if the form is still needed to be completed
+            (!!metRequirement && !metRequirement.completed) ||
+            // if not in the list of metRequirements, add it as well
+            !metRequirement
+          ) {
+            return link;
           }
+          return [];
         }
+        return [];
+      })
+      .flat();
 
-        // if not in the list of metRequirements, add it as well
-        if (!found) {
-          card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-          smartLinkCount++;
-        }
-      }
+    for (const link of smartLinks) {
+      card.addLink(link);
     }
 
-    // only add the card to the list if there is a link
-    if (smartLinkCount > 0) {
-      cardArray.push(card);
-    }
+    cardArray.push(card);
   }
 
   res.json({
