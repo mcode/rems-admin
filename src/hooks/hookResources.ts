@@ -11,7 +11,14 @@ import {
 import Card, { Link, Suggestion, Action } from '../cards/Card';
 import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { RemsCase, Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
+import {
+  RemsCase,
+  Requirement,
+  medicationCollection,
+  remsCaseCollection,
+  Medication as MongooseMedication,
+  MetRequirements as MongooseMetRequirements
+} from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
@@ -548,10 +555,10 @@ const createBundleEntryWhoseMedicationRequestContainsReferencedMedication =
     return mutatedMedicationRequestEntry;
   };
 
-function getContained(
+const getContained = (
   medicationRequestEntry: BundleEntry<MedicationRequest>,
   referencedMedication: Medication
-) {
+): FhirResource[] => {
   const existingContained = medicationRequestEntry.resource?.contained;
   if (existingContained) {
     const foundReferencedMedication = existingContained.find(
@@ -563,7 +570,7 @@ function getContained(
     return [...existingContained, referencedMedication];
   }
   return [referencedMedication];
-}
+};
 
 function processMedicationRequests(
   medicationRequestsBundle: Bundle<MedicationRequest | Medication | FhirResource> | undefined
@@ -602,6 +609,86 @@ const getSummary = (rule: CardRule | undefined, drugName: string | undefined) =>
   return rule?.summary || drugName || 'Rems';
 };
 
+const containsMatchingMedicationRequest =
+  (drugCode: string) =>
+  (entry: BundleEntry): boolean => {
+    if (entry.resource?.resourceType === 'MedicationRequest') {
+      const medReq: MedicationRequest = entry.resource;
+      const medicationCode = getDrugCodeFromMedicationRequest(medReq);
+      return drugCode === medicationCode?.code;
+    }
+    return false;
+  };
+
+const getCard =
+  (entries: BundleEntry[] | undefined) =>
+  async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
+    // find the drug in the medicationCollection that matches the REMS case to get the smart links
+    const drug = await medicationCollection
+      .findOne({
+        code: drugCode,
+        name: drugName
+      })
+      .exec();
+
+    // get the rule summary from the codemap
+    const codeRule = codeMap[drugCode];
+
+    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+    const summary = getSummary(rule, drugName);
+
+    // create the card
+    const card = new Card(summary, CARD_DETAILS, source, 'info');
+
+    // find the matching MedicationRequest for the context
+    const request = (entries || []).find(containsMatchingMedicationRequest(drugCode))?.resource;
+
+    // if no valid request or not a MedicationRequest found skip this REMS case
+    if (!request || (request && request.resourceType !== 'MedicationRequest')) {
+      return [];
+    }
+
+    // loop through all of the ETASU requirements for this drug
+    const smartLinks = getSmartLinks(drug, metRequirements, request);
+
+    card.addLinks(smartLinks);
+
+    return card;
+  };
+
+const getSmartLinks = (
+  drug: MongooseMedication | null,
+  metRequirements: Partial<MongooseMetRequirements>[],
+  request: MedicationRequest
+): Link[] => {
+  const requirements = drug?.requirements || [];
+  const smartLinks = requirements
+    .map(requirement => {
+      // find all of the matching patient forms
+      if (requirement?.stakeholderType === 'patient') {
+        // match the requirement to the metRequirement of the REMS case
+        const metRequirement = metRequirements.find(metRequirement => {
+          return metRequirement.requirementName === requirement.name;
+        });
+
+        const link = createSmartLink(requirement.name, requirement.appContext, request);
+
+        if (
+          // add the link if the form is still needed to be completed
+          (!!metRequirement && !metRequirement.completed) ||
+          // if not in the list of metRequirements, add it as well
+          !metRequirement
+        ) {
+          return link;
+        }
+        return [];
+      }
+      return [];
+    })
+    .flat();
+  return smartLinks;
+};
+
 // handles order-sign and order-select currently
 export async function handleCardEncounter(
   res: any,
@@ -616,9 +703,6 @@ export async function handleCardEncounter(
         processMedicationRequests(medResource)
       : undefined;
 
-  // create empty card array
-  const cardArray: Card[] = [];
-
   // find all matching rems cases for the patient
   const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
   const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
@@ -629,75 +713,9 @@ export async function handleCardEncounter(
   });
 
   // loop through all the rems cases in the list
+  const promises = remsCaseList.map(getCard(medicationRequestsBundle?.entry));
 
-  for (const remsCase of remsCaseList) {
-    // find the drug in the medicationCollection that matches the REMS case to get the smart links
-    const drug = await medicationCollection
-      .findOne({
-        code: remsCase.drugCode,
-        name: remsCase.drugName
-      })
-      .exec();
-
-    // get the rule summary from the codemap
-    const codeRule = codeMap[remsCase.drugCode];
-    console.log('codeRule', JSON.stringify(codeRule));
-
-    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
-    const summary = getSummary(rule, remsCase.drugName);
-
-    // create the card
-    const card = new Card(summary, CARD_DETAILS, source, 'info');
-
-    // find the matching MedicationRequest for the context
-    const request = medicationRequestsBundle?.entry?.find(entry => {
-      if (entry.resource) {
-        if (entry.resource.resourceType === 'MedicationRequest') {
-          const medReq: MedicationRequest = entry.resource;
-          const medicationCode = getDrugCodeFromMedicationRequest(medReq);
-          return remsCase.drugCode === medicationCode?.code;
-        }
-      }
-    })?.resource;
-
-    // if no valid request or not a MedicationRequest found skip this REMS case
-    if (!request || (request && request.resourceType !== 'MedicationRequest')) {
-      continue;
-    }
-
-    // loop through all of the ETASU requirements for this drug
-    const requirements = drug?.requirements || [];
-    const smartLinks = requirements
-      .map(requirement => {
-        // find all of the matching patient forms
-        if (requirement?.stakeholderType === 'patient') {
-          // match the requirement to the metRequirement of the REMS case
-          const metRequirement = remsCase.metRequirements.find(metRequirement => {
-            return metRequirement.requirementName === requirement.name;
-          });
-
-          const link = createSmartLink(requirement.name, requirement.appContext, request);
-
-          if (
-            // add the link if the form is still needed to be completed
-            (!!metRequirement && !metRequirement.completed) ||
-            // if not in the list of metRequirements, add it as well
-            !metRequirement
-          ) {
-            return link;
-          }
-          return [];
-        }
-        return [];
-      })
-      .flat();
-
-    for (const link of smartLinks) {
-      card.addLink(link);
-    }
-
-    cardArray.push(card);
-  }
+  const cardArray = (await Promise.all(promises)).flat();
 
   res.json({
     cards: cardArray
