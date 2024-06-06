@@ -1,4 +1,13 @@
-import { MedicationRequest, Coding, FhirResource, Task, Patient, Bundle } from 'fhir/r4';
+import {
+  MedicationRequest,
+  Coding,
+  FhirResource,
+  Task,
+  Patient,
+  Bundle,
+  Medication,
+  BundleEntry
+} from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
 import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
@@ -504,50 +513,93 @@ export function handleHook(
 }
 
 // process the MedicationRequests to add the Medication into contained resources
-function processMedicationRequests(medicationRequestsBundle: Bundle) {
-  medicationRequestsBundle?.entry?.forEach(entry => {
-    if (entry?.resource?.resourceType === 'MedicationRequest') {
-      if (entry?.resource?.medicationReference) {
-        const medicationReference = entry?.resource?.medicationReference;
-        medicationRequestsBundle?.entry?.forEach(e => {
-          if (e?.resource?.resourceType === 'Medication') {
-            if (
-              e?.resource?.resourceType + '/' + e?.resource?.id ===
-              medicationReference?.reference
-            ) {
-              if (entry) {
-                if (entry.resource) {
-                  const reference = e?.resource;
-                  const request = entry.resource as MedicationRequest;
+const refersToMedication = (entry: BundleEntry<FhirResource>): boolean =>
+  entry.resource?.resourceType === 'Medication';
 
-                  // add the reference as a contained resource to the request
-                  if (!request?.contained) {
-                    request.contained = [];
-                    request.contained.push(reference);
-                  } else {
-                    // only add to contained if not already in there
-                    let found = false;
-                    request.contained.forEach(c => {
-                      if (c.id === reference.id) {
-                        found = true;
-                      }
-                    });
-                    if (!found) {
-                      request.contained.push(reference);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
+const refersToMedicationRequest = (entry: BundleEntry<FhirResource>): boolean =>
+  entry.resource?.resourceType === 'MedicationRequest';
+
+const refersToMedicationWithMedicationReference = (e: BundleEntry<MedicationRequest>): boolean =>
+  !!e.resource?.medicationReference;
+
+const isBundleEntryMedicationReferenced =
+  (medicationRequestEntry: BundleEntry<MedicationRequest>) =>
+  (medicationEntry: BundleEntry<Medication>): boolean =>
+    medicationEntry?.resource?.resourceType + '/' + medicationEntry?.resource?.id ===
+    medicationRequestEntry.resource?.medicationReference?.reference;
+
+const createBundleEntryWhoseMedicationRequestContainsReferencedMedication =
+  (medicationEntries: BundleEntry<Medication>[]) =>
+  (medicationRequestEntry: BundleEntry<MedicationRequest>): BundleEntry<MedicationRequest> => {
+    if (!medicationRequestEntry.resource) {
+      return medicationRequestEntry;
     }
-  });
+    const referencedMedication: Medication = medicationEntries.find(
+      isBundleEntryMedicationReferenced(medicationRequestEntry)
+    )?.resource!;
+    const contained = getContained(medicationRequestEntry, referencedMedication);
+    const mutatedMedicationRequestEntry: BundleEntry<MedicationRequest> = {
+      ...medicationRequestEntry,
+      resource: {
+        ...medicationRequestEntry.resource,
+        contained
+      }
+    };
+    return mutatedMedicationRequestEntry;
+  };
+
+function getContained(
+  medicationRequestEntry: BundleEntry<MedicationRequest>,
+  referencedMedication: Medication
+) {
+  const existingContained = medicationRequestEntry.resource?.contained;
+  if (existingContained) {
+    const foundReferencedMedication = existingContained.find(
+      c => c.id === referencedMedication?.id
+    );
+    if (foundReferencedMedication || !referencedMedication) {
+      return existingContained;
+    }
+    return [...existingContained, referencedMedication];
+  }
+  return [referencedMedication];
 }
 
-const getSummary = (rule: CardRule | undefined, remsCase: RemsCase | undefined) => {
-  return rule?.summary || remsCase?.drugName || 'Rems';
+function processMedicationRequests(
+  medicationRequestsBundle: Bundle<MedicationRequest | Medication | FhirResource> | undefined
+): Bundle<MedicationRequest | Medication | FhirResource> | undefined {
+  if (!medicationRequestsBundle) {
+    return undefined;
+  }
+  const { entry = [], ...rest } = medicationRequestsBundle;
+  const medicationRequestEntries = entry.filter(
+    refersToMedicationRequest
+  ) as BundleEntry<MedicationRequest>[];
+  const medicationRequestEntriesWithMedicationReference = medicationRequestEntries.filter(
+    refersToMedicationWithMedicationReference
+  );
+  const medicationEntries = entry.filter(refersToMedication) as BundleEntry<Medication>[];
+  const medicationRequestEntriesMutatedWithMedicationReference =
+    medicationRequestEntriesWithMedicationReference.map(
+      createBundleEntryWhoseMedicationRequestContainsReferencedMedication(medicationEntries)
+    );
+  const otherEntries = entry.filter(e => !refersToMedication(e) && !refersToMedicationRequest(e));
+  const medicationRequestEntriesWithoutMedicationReference = medicationRequestEntries.filter(
+    e => !refersToMedicationWithMedicationReference(e)
+  );
+  return {
+    ...rest,
+    entry: [
+      ...otherEntries,
+      ...medicationEntries,
+      ...medicationRequestEntriesWithoutMedicationReference,
+      ...medicationRequestEntriesMutatedWithMedicationReference
+    ]
+  };
+}
+
+const getSummary = (rule: CardRule | undefined, drugName: string | undefined) => {
+  return rule?.summary || drugName || 'Rems';
 };
 
 // handles order-sign and order-select currently
@@ -558,7 +610,11 @@ export async function handleCardEncounter(
   patient: FhirResource | undefined
 ) {
   const medResource = hookPrefetch?.medicationRequests;
-  const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
+  const medicationRequestsBundle =
+    medResource?.resourceType === 'Bundle'
+      ? // process the MedicationRequests to add the Medication into contained resources
+        processMedicationRequests(medResource)
+      : undefined;
 
   // create empty card array
   const cardArray: Card[] = [];
@@ -588,15 +644,10 @@ export async function handleCardEncounter(
     console.log('codeRule', JSON.stringify(codeRule));
 
     const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
-    const summary = getSummary(rule, remsCase);
+    const summary = getSummary(rule, remsCase.drugName);
 
     // create the card
     const card = new Card(summary, CARD_DETAILS, source, 'info');
-
-    // process the MedicationRequests to add the Medication into contained resources
-    if (medicationRequestsBundle) {
-      processMedicationRequests(medicationRequestsBundle);
-    }
 
     // find the matching MedicationRequest for the context
     const request = medicationRequestsBundle?.entry?.find(entry => {
