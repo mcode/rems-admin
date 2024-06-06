@@ -2,7 +2,7 @@ import { MedicationRequest, Coding, FhirResource, Task, Patient, Bundle } from '
 import Card, { Link, Suggestion, Action } from '../cards/Card';
 import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
+import { RemsCase, Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
@@ -546,6 +546,10 @@ function processMedicationRequests(medicationRequestsBundle: Bundle) {
   });
 }
 
+const getSummary = (rule: CardRule | undefined, remsCase: RemsCase | undefined) => {
+  return rule?.summary || remsCase?.drugName || 'Rems';
+};
+
 // handles order-sign and order-select currently
 export async function handleCardEncounter(
   res: any,
@@ -553,8 +557,6 @@ export async function handleCardEncounter(
   _contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
 ) {
-  //TODO: should we add the other pdf information links to the card, or just have the smart links?
-
   const medResource = hookPrefetch?.medicationRequests;
   const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
 
@@ -571,6 +573,7 @@ export async function handleCardEncounter(
   });
 
   // loop through all the rems cases in the list
+
   for (const remsCase of remsCaseList) {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
     const drug = await medicationCollection
@@ -582,12 +585,10 @@ export async function handleCardEncounter(
 
     // get the rule summary from the codemap
     const codeRule = codeMap[remsCase.drugCode];
-    let summary = '';
-    for (const rule of codeRule) {
-      if (rule.stakeholderType === 'patient') {
-        summary = rule.summary || remsCase.drugName || 'Rems';
-      }
-    }
+    console.log('codeRule', JSON.stringify(codeRule));
+
+    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+    const summary = getSummary(rule, remsCase);
 
     // create the card
     let smartLinkCount = 0;
