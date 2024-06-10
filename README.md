@@ -1,15 +1,92 @@
-# rems-admin
+# Description
 
-## Running only the REMS server project locally
+The [REMS](https://www.fda.gov/drugs/drug-safety-and-availability/risk-evaluation-and-mitigation-strategies-rems) Admin application is an app that acts as a REMS Administrator in the REMS workflow. It receives [CDS Hooks](https://cds-hooks.org/) calls of the type order-sign, order-select, patient-view and encounter-start and returns CARDS containing links to relevant information and SMART Links to launch SMART on FHIR Apps. These links launch applications for completing forms needed to register the Patient, Provider, and Pharmacy in the REMS program as well as other necessary forms. The application also contains a built-in FHIR Server. This FHIR Server contains the Questionnaires, Libraries, CQL, and all other FHIR Resources needed to launch the [REMS SMART on FHIR App](https://github.com/mcode/rems-smart-on-fhir) Questionnaires. There is also a FHIR operation used for querying the REMS ETASU status.
 
-1.  Clone the REMS repositories from GitHub:
-    ```bash
-    git clone https://github.com/mcode/rems-admin.git rems-admin
-    ```
-2.  Run dockerRunner.sh script
-    ```bash
-    npm run start
-    ```
+# Getting Started with REMS Administrator
+
+To get started, first clone the repository using a method that is most convenient for you.  If using git, run the following command:
+
+`git clone https://github.com/mcode/rems-admin.git`
+
+The following technologies must be installed on your computer to continue:
+* [NPM](https://www.npmjs.com/)
+* [Node](https://nodejs.org/en)
+
+## Initialization
+
+After cloning the repository, the submodules must be initialized. Run the following command:
+
+### `git submodule update --init`
+
+Next, install the required dependencies by running the following:
+
+### `npm install`
+
+## Running the Mongo DB instance
+
+The REMS Administrator relies on MongoDB for it's backing database.
+
+1. On the first run use the following command to create a Docker MongoDB instance:
+
+   ```bash
+       docker run --name rems_local_pims_remsadmin_mongo --expose 27017 -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME='rems-admin-pims-root' -e MONGO_INITDB_ROOT_PASSWORD='rems-admin-pims-password' -v rems_local_pims_remsadmin_mongo:/data/db -v "$(pwd)"/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js mongo
+   ```
+
+   To stop the running container, simply use Ctrl + C.
+
+2. On subsequent runs use the following command to start the existing mongo container:
+   ```bash
+       docker start rems_local_pims_remsadmin_mongo
+   ```
+   To stop the running container, simply run the below command
+   ```bash
+       docker stop rems_local_pims_remsadmin_mongo
+   ```
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:8090/cds-services](http://localhost:8090/cds-services) to view the CDS Services discovery information in the browser.
+
+You will also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://create-react-app.dev/docs/running-tests/) for more information.
+
+## Usage
+
+The REMS Admin interacts with the [Request Generator](https://github.com/mcode/request-generator), [REMS SMART on FHIR app](https://github.com/mcode/rems-smart-on-fhir), and an [EHR](https://github.com/mcode/test-ehr). These apps are provided as part of the REMS ecosystem, but any individual part may be swapped out for something custom. The REMS Admin responsds to CDS Hooks request as well as FHIR operations for the questionnaire package ($questionnaire-package) and REMS ETASU check ($rems-etasu).
+
+Typically, a CDS Hook will be sent from the EHR to the REMS Admin, which will respond with cards that contain information about next steps. These cards may contain a link to a SMART app. Clicking on these links in the Request Generator or REMS SMART on FHIR App acting as the EHR will launch the SMART app automatically. These links will contain information on the requirements that must be met for the REMS program. This includes forms for registration and acknowledgement of the risks involved.
+
+The FHIR server built into the REMS Admin can be queried for the questionnaire package at the Questionnaire/$questionnaire-package endpoint. This will return a FHIR Bundle with the FHIR Questionnaire and all other FHIR Resources including CQL Libraries embedded within FHIR Libraries. The FHIR Server also contains a REMS ETASU check at the GuidanceResponse/$rems-etasu endpoint. This will return a FHIR Parameter containing a GuidanceResponse with the status of the ETATSU and nested GuidanceResponse for each requirement.
+
+## Routes
+
+* `/cds-services` - The base CDS Hooks Discovery endpoint that serves a list of supported hooks/services in JSON.
+* `/cds-services/rems-order-sign` - The CDS Hooks endpoint for order-sign
+* `/cds-services/rems-order-select` - The CDS Hooks endpoint for order-select
+* `/cds-services/rems-patient-view` - The CDS Hooks endpoint for patient-view
+* `/cds-services/rems-encounter-start` - The CDS Hooks endpoint for encounter-start
+* `/4_0_0 - The base of the FHIR Server
+* `/4_0_0/GuidanceResponse/$rems-etasu` - The endpoint for FHIR Operation used for checking the ETASU status
+  * Input requires a parameter containing the following:
+    * `patient` - Patient FHIR Resource, must include `medication` with `patient`
+    * `medication` - Medication or MedicationRequest FHIR Resource, must include `patient` with `medication`
+    * `authNumber` - String containing the REMS Authorization Number, may be sent without `patient` or `medication`
+  * Returns a GuidanceResponse within a Parameter with the status
+    * Contains Nested GuidanceResponse resources for each ETASU requirement with their status
+* `/4_0_0/Questionnaire/\<form-name\>/$questionnaire-package` - The endpoint for the FHIR Operation used for retrieving the Questionnaire package for a given form
+  * Example: /4_0_0/Questionnaire/TIRFRemsPatientEnrollment/$questionnaire-package
+  * This includes the Questionnaire and any other necessary FHIR resources needed for loading the quesetionnaire form with the REMS SMART on FHIR app
+
+## Environment Variables
 
 ### How To Override Defaults
 
@@ -34,62 +111,3 @@ Following are a list of modifiable paths:
 | USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.             |
 | VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets.  Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/)                                                 |
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.               |
-
-## Running the Mongo DB instance
-
-1. On the first run use the following command to create a Docker MongoDB instance:
-
-   ```bash
-       docker run --name rems_local_pims_remsadmin_mongo --expose 27017 -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME='rems-admin-pims-root' -e MONGO_INITDB_ROOT_PASSWORD='rems-admin-pims-password' -v rems_local_pims_remsadmin_mongo:/data/db -v "$(pwd)"/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js mongo
-   ```
-
-   To stop the running container, simply use Ctrl + C.
-
-2. On subsequent runs use the following command to start the existing mongo container:
-   ```bash
-       docker start rems_local_pims_remsadmin_mongo
-   ```
-   To stop the running container, simply run the below command
-   ```bash
-       docker stop rems_local_pims_remsadmin_mongo
-   ```
-
-# REMS Administrator
-
-NOTE: The REMS Administrator is a work in progress.
-
-## Running the REMS Administrator
-
-#### Initialization
-
-After cloning the repository, the submodules must be initialized. To do this you can run:
-
-```
-git submodule update --init
-```
-
-#### Setup
-
-```
-npm install
-```
-
-#### Run Tests
-
-```
-npm test
-```
-
-#### Run Application
-
-```
-npm start
-```
-
-Application will be running on port 8090.
-
-To reach the CDS Services discovery information:
-
-```
-http://localhost:8090/cds-services
-```
