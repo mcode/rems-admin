@@ -25,23 +25,9 @@ Next, install the required dependencies by running the following:
 ## Running the Mongo DB instance
 
 The REMS Administrator relies on MongoDB for it's backing database.
+Follow the mongodb setup instructions in the [REMS End to End Setup Guide](https://github.com/mcode/rems-setup/blob/main/EndToEndSetupGuide.md#mongodb).
 
-1. On the first run use the following command to create a Docker MongoDB instance:
-
-   ```bash
-       docker run --name rems_local_pims_remsadmin_mongo --expose 27017 -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME='rems-admin-pims-root' -e MONGO_INITDB_ROOT_PASSWORD='rems-admin-pims-password' -v rems_local_pims_remsadmin_mongo:/data/db -v "$(pwd)"/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js mongo
-   ```
-
-   To stop the running container, simply use Ctrl + C.
-
-2. On subsequent runs use the following command to start the existing mongo container:
-   ```bash
-       docker start rems_local_pims_remsadmin_mongo
-   ```
-   To stop the running container, simply run the below command
-   ```bash
-       docker stop rems_local_pims_remsadmin_mongo
-   ```
+If you would rather run with docker, follow the setup found in the [REMS Simple Setup Guide](https://github.com/mcode/rems-setup/blob/main/SimpleSetupGuide.md) (this will also setup the other REMS applications in docker as well).
 
 ## Available Scripts
 
@@ -103,7 +89,7 @@ Following are a list of modifiable paths:
 | HTTPS_CERT_PATH | `server.cert`                              | Path to a certificate for encryption, allowing HTTPS. Unnecessary if using HTTP.                      |
 | HTTPS_KEY_PATH  | `server.key`                               | Path to a key for encryption, allowing HTTPS. Unnecessary if using HTTP.                              |
 | LOGGING_LEVEL   | `debug`                                    | Amount to output in the log, can be changed to verbose, info, warn, or error.                         |
-| MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions below.   |                 
+| MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions above.   |                 
 | MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions below.  |
 | PORT            | `8090`                                     | Port that this server should run on, change if there are conflicts with port usage.                   |
 | RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                      |
