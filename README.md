@@ -61,7 +61,7 @@ See the section about [running tests](https://create-react-app.dev/docs/running-
 
 ## Usage
 
-The REMS Admin interacts with the [Request Generator](https://github.com/mcode/request-generator), [REMS SMART on FHIR app](https://github.com/mcode/rems-smart-on-fhir), and an [EHR](https://github.com/mcode/test-ehr). These apps are provided as part of the REMS ecosystem, but any individual part may be swapped out for something custom. The REMS Admin responsds to CDS Hooks request as well as FHIR operations for the questionnaire package ($questionnaire-package) and REMS ETASU check ($rems-etasu).
+The REMS Admin interacts with the [Request Generator](https://github.com/mcode/request-generator), [REMS SMART on FHIR app](https://github.com/mcode/rems-smart-on-fhir), and an [EHR](https://github.com/mcode/test-ehr). These apps are provided as part of the REMS ecosystem, but any individual part may be swapped out for something custom. The REMS Admin responds to CDS Hooks requests as well as FHIR operations for the questionnaire package ($questionnaire-package) and REMS ETASU check ($rems-etasu).
 
 Typically, a CDS Hook will be sent from the EHR to the REMS Admin, which will respond with cards that contain information about next steps. These cards may contain a link to a SMART app. Clicking on these links in the Request Generator or REMS SMART on FHIR App acting as the EHR will launch the SMART app automatically. These links will contain information on the requirements that must be met for the REMS program. This includes forms for registration and acknowledgement of the risks involved.
 
