@@ -697,7 +697,7 @@ const getSmartLinks = (
   return smartLinks;
 };
 
-// handles order-sign and order-select currently
+// handles patient-view and encounter-start currently
 export const handleCardEncounter = async (
   res: TypedResponseBody,
   hookPrefetch: HookPrefetch | undefined,
