@@ -620,6 +620,12 @@ const getSummary = (drugCode: string, drugName: string): string => {
   return summary;
 };
 
+const getAbsoluteLinks = (drugCode: string): Link[] => {
+  const codeRule = codeMap[drugCode];
+  const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+  return rule?.links || [];
+};
+
 const containsMatchingMedicationRequest =
   (drugCode: string) =>
   (entry: BundleEntry): boolean => {
@@ -658,8 +664,11 @@ const getCard =
 
     // loop through all of the ETASU requirements for this drug
     const smartLinks = getSmartLinks(drug, metRequirements, request);
+    card.addLinks(Array.from(smartLinks));
 
-    card.addLinks(smartLinks);
+    // grab absolute links relevant to the patient
+    const absoluteLinks = getAbsoluteLinks(drugCode);
+    card.addLinks(Array.from(absoluteLinks));
 
     return card;
   };
@@ -670,6 +679,7 @@ const getSmartLinks = (
   request: MedicationRequest
 ): Link[] => {
   const requirements = drug?.requirements || [];
+
   const smartLinks = requirements
     .map(requirement => {
       // find all of the matching patient forms
