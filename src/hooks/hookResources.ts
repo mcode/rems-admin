@@ -9,7 +9,11 @@ import {
   BundleEntry
 } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
+import {
+  HookPrefetch,
+  TypedRequestBody,
+  TypedResponseBody
+} from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
 import {
   RemsCase,
@@ -23,8 +27,9 @@ import {
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+
 type HandleCallback = (
-  res: any,
+  res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
@@ -312,7 +317,7 @@ export function buildErrorCard(reason: string) {
 
 // handles order-sign and order-select currently
 export async function handleCardOrder(
-  res: any,
+  res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
@@ -462,7 +467,7 @@ export async function handleCardOrder(
 // make sure code here is applicable to all supported hooks.
 export async function handleCard(
   req: TypedRequestBody,
-  res: any,
+  res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -494,7 +499,7 @@ export async function handleCard(
 // handles all hooks, any supported hook should pass through this function
 export function handleHook(
   req: TypedRequestBody,
-  res: any,
+  res: TypedResponseBody,
   hookPrefetch: ServicePrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -572,9 +577,9 @@ const getContained = (
   return [referencedMedication];
 };
 
-function processMedicationRequests(
+const processMedicationRequests = (
   medicationRequestsBundle: Bundle<MedicationRequest | Medication | FhirResource> | undefined
-): Bundle<MedicationRequest | Medication | FhirResource> | undefined {
+): Bundle<MedicationRequest | Medication | FhirResource> | undefined => {
   if (!medicationRequestsBundle) {
     return undefined;
   }
@@ -603,10 +608,13 @@ function processMedicationRequests(
       ...medicationRequestEntriesMutatedWithMedicationReference
     ]
   };
-}
+};
 
-const getSummary = (rule: CardRule | undefined, drugName: string | undefined) => {
-  return rule?.summary || drugName || 'Rems';
+const getSummary = (drugCode: string, drugName: string): string => {
+  const codeRule = codeMap[drugCode];
+  const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+  const summary = rule?.summary || drugName || 'Rems';
+  return summary;
 };
 
 const containsMatchingMedicationRequest =
@@ -632,10 +640,7 @@ const getCard =
       .exec();
 
     // get the rule summary from the codemap
-    const codeRule = codeMap[drugCode];
-
-    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
-    const summary = getSummary(rule, drugName);
+    const summary = getSummary(drugCode, drugName);
 
     // create the card
     const card = new Card(summary, CARD_DETAILS, source, 'info');
@@ -690,12 +695,12 @@ const getSmartLinks = (
 };
 
 // handles order-sign and order-select currently
-export async function handleCardEncounter(
-  res: any,
+export const handleCardEncounter = async (
+  res: TypedResponseBody,
   hookPrefetch: HookPrefetch | undefined,
   _contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
-) {
+): Promise<void> => {
   const medResource = hookPrefetch?.medicationRequests;
   const medicationRequestsBundle =
     medResource?.resourceType === 'Bundle'
@@ -703,7 +708,7 @@ export async function handleCardEncounter(
         processMedicationRequests(medResource)
       : undefined;
 
-  // find all matching rems cases for the patient
+  // find all matching REMS cases for the patient
   const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
   const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
   const remsCaseList = await remsCaseCollection.find({
@@ -712,15 +717,13 @@ export async function handleCardEncounter(
     patientDOB: patientBirth
   });
 
-  // loop through all the rems cases in the list
+  // loop through all the REMS cases in the list
   const promises = remsCaseList.map(getCard(medicationRequestsBundle?.entry));
 
-  const cardArray = (await Promise.all(promises)).flat();
+  const cards = (await Promise.all(promises)).flat();
 
-  res.json({
-    cards: cardArray
-  });
-}
+  res.json({ cards });
+};
 
 export function createQuestionnaireSuggestion(
   card: Card,
