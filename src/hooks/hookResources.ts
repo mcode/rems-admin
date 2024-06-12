@@ -546,9 +546,9 @@ const createBundleEntryWhoseMedicationRequestContainsReferencedMedication =
     if (!medicationRequestEntry.resource) {
       return medicationRequestEntry;
     }
-    const referencedMedication: Medication = medicationEntries.find(
+    const referencedMedication = medicationEntries.find(
       isBundleEntryMedicationReferenced(medicationRequestEntry)
-    )?.resource!;
+    )?.resource;
     const contained = getContained(medicationRequestEntry, referencedMedication);
     const mutatedMedicationRequestEntry: BundleEntry<MedicationRequest> = {
       ...medicationRequestEntry,
@@ -562,7 +562,7 @@ const createBundleEntryWhoseMedicationRequestContainsReferencedMedication =
 
 const getContained = (
   medicationRequestEntry: BundleEntry<MedicationRequest>,
-  referencedMedication: Medication
+  referencedMedication: Medication | undefined
 ): FhirResource[] => {
   const existingContained = medicationRequestEntry.resource?.contained;
   if (existingContained) {
@@ -573,6 +573,9 @@ const getContained = (
       return existingContained;
     }
     return [...existingContained, referencedMedication];
+  }
+  if (!referencedMedication) {
+    return [];
   }
   return [referencedMedication];
 };
