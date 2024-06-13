@@ -394,7 +394,6 @@ export async function handleCardOrder(
     patientDOB: patientBirth,
     drugCode: code
   });
-  const metRequirements = remsCase?.metRequirements;
 
   const codeRule = (code && codeMap[code]) || [];
 
@@ -412,7 +411,6 @@ export async function handleCardOrder(
       card.addLinks(absoluteLinks);
 
       let unmetRequirementSmartLinkCount = 0;
-      let smartLinkCount = 0;
 
       const requirements = (drug?.requirements || []).filter(
         requirement => requirement.stakeholderType === rule.stakeholderType
@@ -421,11 +419,9 @@ export async function handleCardOrder(
       // process the smart links from the medicationCollection
       // TODO: smart links should be built with discovered questionnaires, not hard coded ones
       for (const requirement of requirements) {
-        smartLinkCount++;
-
         // only add the link if the form has not already been processed / received
-        if (metRequirements) {
-          const metRequirement = metRequirements.find(
+        if (remsCase) {
+          const metRequirement = remsCase.metRequirements.find(
             metRequirement => metRequirement.requirementName === requirement.name
           );
           const found = Boolean(metRequirement);
@@ -454,6 +450,8 @@ export async function handleCardOrder(
           }
         }
       }
+
+      const smartLinkCount = requirements.length;
 
       // only add the card if there are smart links to needed forms
       // allow information only cards to be returned as well
