@@ -359,13 +359,28 @@ const getErrorCard = (
   return null;
 };
 
+const getRemsCase = async (
+  patient: FhirResource | undefined,
+  code: string | undefined
+): Promise<RemsCase | null> => {
+  const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
+  const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
+  const remsCase = await remsCaseCollection.findOne({
+    patientFirstName: patientName?.given?.[0],
+    patientLastName: patientName?.family,
+    patientDOB: patientBirth,
+    drugCode: code
+  });
+  return remsCase;
+};
+
 // handles order-sign and order-select currently
-export async function handleCardOrder(
+export const handleCardOrder = async (
   res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
-) {
+): Promise<void> => {
   const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
   if (errorCard) {
     res.json(errorCard);
@@ -384,79 +399,82 @@ export async function handleCardOrder(
     .exec();
 
   // find a matching rems case for the patient and this drug to only return needed results
-  const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
-  const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
-  const remsCase = await remsCaseCollection.findOne({
-    patientFirstName: patientName?.given?.[0],
-    patientLastName: patientName?.family,
-    patientDOB: patientBirth,
-    drugCode: code
-  });
+  const remsCase = await getRemsCase(patient, code);
 
   const codeRule = (code && codeMap[code]) || [];
 
   const cards: Card[] = codeRule
-    .map(rule => {
-      const card = new Card(
-        rule.summary || display || 'Rems',
-        rule.cardDetails || CARD_DETAILS,
-        source,
-        'info'
-      );
-
-      // no construction needed
-      const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
-      card.addLinks(absoluteLinks);
-
-      const requirements = (drug?.requirements || []).filter(
-        requirement => requirement.stakeholderType === rule.stakeholderType
-      );
-
-      // process the smart links from the medicationCollection
-      // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-      const links: Link[] = [];
-      const suggestions: Suggestion[] = [];
-
-      for (const requirement of requirements) {
-        const metRequirement =
-          remsCase &&
-          remsCase.metRequirements.find(
-            metRequirement => metRequirement.requirementName === requirement.name
-          );
-
-        const formNotProcessed = metRequirement && !metRequirement.completed;
-        const notFound = remsCase && !metRequirement;
-        const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
-
-        if (formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense) {
-          const smartLink = createSmartLink(requirement.name, requirement.appContext, request);
-          links.push(smartLink);
-
-          if (patient && patient.resourceType === 'Patient') {
-            const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
-            if (suggestion) {
-              suggestions.push(suggestion);
-            }
-          }
-        }
-      }
-
-      const unmetRequirementSmartLinkCount = links.length;
-      const smartLinkCount = requirements.length;
-
-      // only add the card if there are smart links to needed forms
-      // allow information only cards to be returned as well
-      if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
-        card.addLinks(links);
-        card.addSuggestions(suggestions);
-        return card;
-      }
-      return [];
-    })
+    .map(getCardFromRules(display, drug, remsCase, request, patient))
     .flat();
 
   res.json({ cards });
-}
+};
+
+const getCardFromRules =
+  (
+    display: string | undefined,
+    drug: MongooseMedication | null,
+    remsCase: RemsCase | null,
+    request: MedicationRequest,
+    patient: FhirResource | undefined
+  ) =>
+  (rule: CardRule): Card | never[] => {
+    const card = new Card(
+      rule.summary || display || 'Rems',
+      rule.cardDetails || CARD_DETAILS,
+      source,
+      'info'
+    );
+
+    // no construction needed
+    const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
+    card.addLinks(absoluteLinks);
+
+    const requirements = (drug?.requirements || []).filter(
+      requirement => requirement.stakeholderType === rule.stakeholderType
+    );
+
+    // process the smart links from the medicationCollection
+    // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+    const links: Link[] = [];
+    const suggestions: Suggestion[] = [];
+
+    for (const requirement of requirements) {
+      const metRequirement =
+        remsCase &&
+        remsCase.metRequirements.find(
+          metRequirement => metRequirement.requirementName === requirement.name
+        );
+
+      const formNotProcessed = metRequirement && !metRequirement.completed;
+      const notFound = remsCase && !metRequirement;
+      const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
+
+      if (formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense) {
+        const smartLink = createSmartLink(requirement.name, requirement.appContext, request);
+        links.push(smartLink);
+
+        if (patient && patient.resourceType === 'Patient') {
+          const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
+          if (suggestion) {
+            suggestions.push(suggestion);
+          }
+        }
+      }
+    }
+
+    const unmetRequirementSmartLinkCount = links.length;
+    const smartLinkCount = requirements.length;
+
+    // only add the card if there are smart links to needed forms
+    // allow information only cards to be returned as well
+    if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
+      card.addLinks(links);
+      card.addSuggestions(suggestions);
+      return card;
+    }
+    return [];
+  };
 
 // handles preliminary card creation.  ALL hooks should go through this function.
 // make sure code here is applicable to all supported hooks.
@@ -632,7 +650,7 @@ const containsMatchingMedicationRequest =
     return false;
   };
 
-const getCard =
+const getCardFromCases =
   (entries: BundleEntry[] | undefined) =>
   async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
@@ -726,7 +744,7 @@ export const handleCardEncounter = async (
   });
 
   // loop through all the REMS cases in the list
-  const promises = remsCaseList.map(getCard(medicationRequestsBundle?.entry));
+  const promises = remsCaseList.map(getCardFromCases(medicationRequestsBundle?.entry));
 
   const cards = (await Promise.all(promises)).flat();
 
