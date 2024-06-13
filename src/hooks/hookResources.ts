@@ -383,8 +383,6 @@ export async function handleCardOrder(
     })
     .exec();
 
-  // count the total requirement for each type
-
   // find a matching rems case for the patient and this drug to only return needed results
   const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
   const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
@@ -410,14 +408,15 @@ export async function handleCardOrder(
       const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
       card.addLinks(absoluteLinks);
 
-      let unmetRequirementSmartLinkCount = 0;
-
       const requirements = (drug?.requirements || []).filter(
         requirement => requirement.stakeholderType === rule.stakeholderType
       );
 
       // process the smart links from the medicationCollection
       // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+      const links: Link[] = [];
+      const suggestions: Suggestion[] = [];
+
       for (const requirement of requirements) {
         const metRequirement =
           remsCase &&
@@ -425,27 +424,31 @@ export async function handleCardOrder(
             metRequirement => metRequirement.requirementName === requirement.name
           );
 
-        if (
-          // only add the link if the form has not already been processed / received
-          (metRequirement && !metRequirement.completed) ||
-          // not found
-          !metRequirement ||
-          // add all the required to dispense links if no etasu to check
-          (!remsCase && requirement.requiredToDispense)
-        ) {
-          card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
+        const formNotProcessed = metRequirement && !metRequirement.completed;
+        const notFound = remsCase && !metRequirement;
+        const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
+
+        if (formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense) {
+          const smartLink = createSmartLink(requirement.name, requirement.appContext, request);
+          links.push(smartLink);
+
           if (patient && patient.resourceType === 'Patient') {
-            createQuestionnaireSuggestion(card, requirement, patient, request);
+            const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
+            if (suggestion) {
+              suggestions.push(suggestion);
+            }
           }
-          unmetRequirementSmartLinkCount++;
         }
       }
 
+      const unmetRequirementSmartLinkCount = links.length;
       const smartLinkCount = requirements.length;
 
       // only add the card if there are smart links to needed forms
       // allow information only cards to be returned as well
       if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
+        card.addLinks(links);
+        card.addSuggestions(suggestions);
         return card;
       }
       return [];
@@ -730,12 +733,11 @@ export const handleCardEncounter = async (
   res.json({ cards });
 };
 
-export function createQuestionnaireSuggestion(
-  card: Card,
+export const getQuestionnaireSuggestion = (
   requirement: Requirement,
   patient: Patient,
   request: MedicationRequest
-) {
+): Suggestion | undefined => {
   if (requirement.appContext && requirement.appContext.includes('=')) {
     const qArr = requirement.appContext.split('='); // break up into parts
     let qUrl = null;
@@ -757,10 +759,11 @@ export function createQuestionnaireSuggestion(
         label: `Add "Completion of ${requirement.name} Questionnaire" to task list`,
         actions: [action]
       };
-      card.addSuggestion(suggestion);
+      return suggestion;
     }
   }
-}
+  return undefined;
+};
 export function createQuestionnaireCompletionTask(
   requirement: Requirement,
   patient: Patient,
