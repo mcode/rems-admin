@@ -320,26 +320,20 @@ export function buildErrorCard(reason: string) {
   return cards;
 }
 
-// handles order-sign and order-select currently
-export async function handleCardOrder(
-  res: TypedResponseBody,
+const getErrorCard = (
   hydratedPrefetch: HookPrefetch | undefined,
-  contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined
-) {
-  const prefetchRequest = hydratedPrefetch?.request;
-  console.log('    MedicationRequest: ' + prefetchRequest?.id);
-  // verify there is a contextRequest
+  contextRequest: FhirResource | undefined
+): { cards: Card[] } | null => {
   if (!contextRequest) {
-    res.json(buildErrorCard('DraftOrders does not contain a request'));
-    return;
+    return buildErrorCard('DraftOrders does not contain a request');
   }
 
-  // verify a MedicationRequest was sent
   if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
-    res.json(buildErrorCard('DraftOrders does not contain a MedicationRequest'));
-    return;
+    return buildErrorCard('DraftOrders does not contain a MedicationRequest');
   }
+
+  const prefetchRequest = hydratedPrefetch?.request;
+
   if (
     prefetchRequest?.id &&
     contextRequest &&
@@ -347,125 +341,130 @@ export async function handleCardOrder(
     prefetchRequest.id.replace('MedicationRequest/', '') !==
       contextRequest.id.replace('MedicationRequest/', '')
   ) {
-    res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
+    return buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID');
+  }
+
+  const medicationCode = getDrugCodeFromMedicationRequest(contextRequest)!;
+  if (!medicationCode?.code) {
+    return buildErrorCard('MedicationRequest does not contain a code');
+  }
+
+  const shouldReturnCard = validCodes.some(e => {
+    return e.code === medicationCode.code && e.system === medicationCode.system;
+  });
+  if (!shouldReturnCard) {
+    return buildErrorCard('Unsupported code');
+  }
+
+  return null;
+};
+
+// handles order-sign and order-select currently
+export async function handleCardOrder(
+  res: TypedResponseBody,
+  hydratedPrefetch: HookPrefetch | undefined,
+  contextRequest: FhirResource | undefined,
+  patient: FhirResource | undefined
+) {
+  const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
+  if (errorCard) {
+    res.json(errorCard);
     return;
   }
 
-  const medicationCode =
-    contextRequest &&
-    contextRequest.resourceType === 'MedicationRequest' &&
-    getDrugCodeFromMedicationRequest(contextRequest);
-  if (!medicationCode) {
-    return;
-  }
-  if (medicationCode && medicationCode?.code) {
-    // find the drug in the medicationCollection to get the smart links
-    const drug = await medicationCollection
-      .findOne({
-        code: medicationCode.code,
-        codeSystem: medicationCode.system
-      })
-      .exec();
+  // find the drug in the medicationCollection to get the smart links
+  const coding = !errorCard && getDrugCodeFromMedicationRequest(contextRequest)!;
+  const { code, system, display } = coding;
+  const request = coding && (contextRequest as MedicationRequest);
+  const drug = await medicationCollection
+    .findOne({
+      code: code,
+      codeSystem: system
+    })
+    .exec();
 
-    // count the total requirement for each type
+  // count the total requirement for each type
 
-    // find a matching rems case for the patient and this drug to only return needed results
-    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
-    const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
-    const etasu = await remsCaseCollection.findOne({
-      patientFirstName: patientName?.given?.[0],
-      patientLastName: patientName?.family,
-      patientDOB: patientBirth,
-      drugCode: medicationCode?.code
-    });
+  // find a matching rems case for the patient and this drug to only return needed results
+  const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
+  const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
+  const remsCase = await remsCaseCollection.findOne({
+    patientFirstName: patientName?.given?.[0],
+    patientLastName: patientName?.family,
+    patientDOB: patientBirth,
+    drugCode: code
+  });
+  const metRequirements = remsCase?.metRequirements;
 
-    const returnCard = validCodes.some(e => {
-      return e.code === medicationCode.code && e.system === medicationCode.system;
-    });
-    if (returnCard) {
-      const cardArray: Card[] = [];
-      const codeRule = codeMap[medicationCode.code];
-      for (const rule of codeRule) {
-        const card = new Card(
-          rule.summary || medicationCode.display || 'Rems',
-          rule.cardDetails || CARD_DETAILS,
-          source,
-          'info'
-        );
-        rule.links.forEach(function (e) {
-          if (e.type === 'absolute') {
-            // no construction needed
-            card.addLink(e);
-          }
-        });
+  const codeRule = (code && codeMap[code]) || [];
 
-        let unmetRequirementSmartLinkCount = 0;
-        let smartLinkCount = 0;
+  const cards: Card[] = codeRule
+    .map(rule => {
+      const card = new Card(
+        rule.summary || display || 'Rems',
+        rule.cardDetails || CARD_DETAILS,
+        source,
+        'info'
+      );
 
-        // process the smart links from the medicationCollection
-        // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-        if (drug) {
-          for (const requirement of drug.requirements) {
-            if (requirement.stakeholderType === rule.stakeholderType) {
-              smartLinkCount++;
+      // no construction needed
+      const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
+      card.addLinks(absoluteLinks);
 
-              // only add the link if the form has not already been processed / received
-              if (etasu) {
-                let found = false;
-                for (const metRequirement of etasu.metRequirements) {
-                  if (metRequirement.requirementName === requirement.name) {
-                    found = true;
-                    if (!metRequirement.completed) {
-                      card.addLink(
-                        createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                      );
-                      if (patient && patient.resourceType === 'Patient') {
-                        createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                      }
-                      unmetRequirementSmartLinkCount++;
-                    }
-                  }
-                }
-                if (!found) {
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                  }
-                  unmetRequirementSmartLinkCount++;
-                }
-              } else {
-                // add all the required to dispense links if no etasu to check
-                if (requirement.requiredToDispense) {
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                  }
-                  unmetRequirementSmartLinkCount++;
-                }
-              }
+      let unmetRequirementSmartLinkCount = 0;
+      let smartLinkCount = 0;
+
+      const requirements = (drug?.requirements || []).filter(
+        requirement => requirement.stakeholderType === rule.stakeholderType
+      );
+
+      // process the smart links from the medicationCollection
+      // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+      for (const requirement of requirements) {
+        smartLinkCount++;
+
+        // only add the link if the form has not already been processed / received
+        if (metRequirements) {
+          const metRequirement = metRequirements.find(
+            metRequirement => metRequirement.requirementName === requirement.name
+          );
+          const found = Boolean(metRequirement);
+          if (metRequirement && !metRequirement.completed) {
+            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
+            if (patient && patient.resourceType === 'Patient') {
+              createQuestionnaireSuggestion(card, requirement, patient, request);
             }
+            unmetRequirementSmartLinkCount++;
           }
-        }
-
-        // only add the card if there are smart links to needed forms
-        // allow information only cards to be returned as well
-        if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
-          cardArray.push(card);
+          if (!found) {
+            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
+            if (patient && patient.resourceType === 'Patient') {
+              createQuestionnaireSuggestion(card, requirement, patient, request);
+            }
+            unmetRequirementSmartLinkCount++;
+          }
+        } else {
+          // add all the required to dispense links if no etasu to check
+          if (requirement.requiredToDispense) {
+            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
+            if (patient && patient.resourceType === 'Patient') {
+              createQuestionnaireSuggestion(card, requirement, patient, request);
+            }
+            unmetRequirementSmartLinkCount++;
+          }
         }
       }
-      res.json({
-        cards: cardArray
-      });
-    } else {
-      res.json(buildErrorCard('Unsupported code'));
-    }
-  } else {
-    res.json(buildErrorCard('MedicationRequest does not contain a code'));
-  }
+
+      // only add the card if there are smart links to needed forms
+      // allow information only cards to be returned as well
+      if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
+        return card;
+      }
+      return [];
+    })
+    .flat();
+
+  res.json({ cards });
 }
 
 // handles preliminary card creation.  ALL hooks should go through this function.
