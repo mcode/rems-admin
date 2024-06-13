@@ -257,25 +257,30 @@ const source = {
  * Retrieve the coding for the medication from the medicationCodeableConcept if available.
  * Read coding from contained Medication matching the medicationReference otherwise.
  */
-export function getDrugCodeFromMedicationRequest(medicationRequest: MedicationRequest) {
-  if (medicationRequest) {
-    if (medicationRequest?.medicationCodeableConcept) {
-      console.log('Get Medication code from CodeableConcept');
-      return medicationRequest?.medicationCodeableConcept?.coding?.[0];
-    } else if (medicationRequest?.medicationReference) {
-      const reference = medicationRequest?.medicationReference;
-      let coding = null;
-      medicationRequest?.contained?.every(e => {
-        if (e.resourceType + '/' + e.id === reference.reference) {
-          if (e.resourceType === 'Medication') {
-            console.log('Get Medication code from contained resource');
-            coding = e.code?.coding?.[0];
-          }
-        }
-      });
-      return coding;
-    }
+export function getDrugCodeFromMedicationRequest(
+  resource: FhirResource | undefined
+): Coding | null {
+  const medicationRequest =
+    resource?.resourceType === 'MedicationRequest' && (resource as MedicationRequest);
+
+  if (!medicationRequest) {
+    return null;
   }
+
+  if (medicationRequest.medicationCodeableConcept) {
+    return medicationRequest.medicationCodeableConcept?.coding?.[0] || null;
+  }
+
+  if (medicationRequest.medicationReference) {
+    const reference = medicationRequest.medicationReference;
+    const medication = medicationRequest.contained?.find(
+      resource =>
+        resource.resourceType + '/' + resource.id === reference.reference &&
+        resource.resourceType === 'Medication'
+    ) as Medication;
+    return medication?.code?.coding?.[0] || null;
+  }
+
   return null;
 }
 export function getFhirResource(token: string, req: TypedRequestBody) {
