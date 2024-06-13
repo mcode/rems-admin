@@ -419,35 +419,25 @@ export async function handleCardOrder(
       // process the smart links from the medicationCollection
       // TODO: smart links should be built with discovered questionnaires, not hard coded ones
       for (const requirement of requirements) {
-        // only add the link if the form has not already been processed / received
-        if (remsCase) {
-          const metRequirement = remsCase.metRequirements.find(
+        const metRequirement =
+          remsCase &&
+          remsCase.metRequirements.find(
             metRequirement => metRequirement.requirementName === requirement.name
           );
-          const found = Boolean(metRequirement);
-          if (metRequirement && !metRequirement.completed) {
-            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-            if (patient && patient.resourceType === 'Patient') {
-              createQuestionnaireSuggestion(card, requirement, patient, request);
-            }
-            unmetRequirementSmartLinkCount++;
-          }
-          if (!found) {
-            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-            if (patient && patient.resourceType === 'Patient') {
-              createQuestionnaireSuggestion(card, requirement, patient, request);
-            }
-            unmetRequirementSmartLinkCount++;
-          }
-        } else {
+
+        if (
+          // only add the link if the form has not already been processed / received
+          (metRequirement && !metRequirement.completed) ||
+          // not found
+          !metRequirement ||
           // add all the required to dispense links if no etasu to check
-          if (requirement.requiredToDispense) {
-            card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-            if (patient && patient.resourceType === 'Patient') {
-              createQuestionnaireSuggestion(card, requirement, patient, request);
-            }
-            unmetRequirementSmartLinkCount++;
+          (!remsCase && requirement.requiredToDispense)
+        ) {
+          card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
+          if (patient && patient.resourceType === 'Patient') {
+            createQuestionnaireSuggestion(card, requirement, patient, request);
           }
+          unmetRequirementSmartLinkCount++;
         }
       }
 
