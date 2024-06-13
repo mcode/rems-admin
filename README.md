@@ -90,7 +90,7 @@ Following are a list of modifiable paths:
 | HTTPS_KEY_PATH  | `server.key`                               | Path to a key for encryption, allowing HTTPS. Unnecessary if using HTTP.                              |
 | LOGGING_LEVEL   | `debug`                                    | Amount to output in the log, can be changed to verbose, info, warn, or error.                         |
 | MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions above.   |                 
-| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions below.  |
+| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions above.  |
 | PORT            | `8090`                                     | Port that this server should run on, change if there are conflicts with port usage.                   |
 | RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                      |
 | SMART_ENDPOINT  | `http://localhost:4040/launch`             | Launch URL of associated SMART app, should be changed if not using the REMS Smart App.                |
