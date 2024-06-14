@@ -404,21 +404,23 @@ export const handleCardOrder = async (
   const codeRule = (code && codeMap[code]) || [];
 
   const cards: Card[] = codeRule
-    .map(getCardFromRules(display, drug, remsCase, request, patient))
+    .map(getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient))
     .flat();
 
   res.json({ cards });
 };
 
-const getCardFromRules =
+const getCardOrEmptyArrayFromRules =
   (
     display: string | undefined,
     drug: MongooseMedication | null,
     remsCase: RemsCase | null,
     request: MedicationRequest,
-    patient: FhirResource | undefined
+    resource: FhirResource | undefined
   ) =>
   (rule: CardRule): Card | never[] => {
+    const patient = resource?.resourceType === 'Patient' ? resource : undefined;
+
     const card = new Card(
       rule.summary || display || 'Rems',
       rule.cardDetails || CARD_DETAILS,
@@ -430,51 +432,63 @@ const getCardFromRules =
     const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
     card.addLinks(absoluteLinks);
 
-    const requirements = (drug?.requirements || []).filter(
-      requirement => requirement.stakeholderType === rule.stakeholderType
-    );
+    const requirements =
+      drug?.requirements.filter(
+        requirement => requirement.stakeholderType === rule.stakeholderType
+      ) || [];
 
     // process the smart links from the medicationCollection
     // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-    const links: Link[] = [];
-    const suggestions: Suggestion[] = [];
-
-    for (const requirement of requirements) {
+    const predicate = (requirement: Requirement) => {
       const metRequirement =
         remsCase &&
         remsCase.metRequirements.find(
           metRequirement => metRequirement.requirementName === requirement.name
         );
-
       const formNotProcessed = metRequirement && !metRequirement.completed;
       const notFound = remsCase && !metRequirement;
       const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
 
-      if (formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense) {
-        const smartLink = createSmartLink(requirement.name, requirement.appContext, request);
-        links.push(smartLink);
+      return formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense;
+    };
 
-        if (patient && patient.resourceType === 'Patient') {
-          const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
-          if (suggestion) {
-            suggestions.push(suggestion);
-          }
-        }
-      }
-    }
+    const smartLinks: Link[] = getSmartLinks(requirements, request, predicate);
+    card.addLinks(smartLinks);
 
-    const unmetRequirementSmartLinkCount = links.length;
+    const suggestions: Suggestion[] = getSuggestions(requirements, request, patient, predicate);
+    card.addSuggestions(suggestions);
+
+    const unmetRequirementSmartLinkCount = smartLinks.length;
     const smartLinkCount = requirements.length;
 
     // only add the card if there are smart links to needed forms
     // allow information only cards to be returned as well
     if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
-      card.addLinks(links);
-      card.addSuggestions(suggestions);
       return card;
     }
+
     return [];
   };
+
+const getSmartLinks = (
+  requirements: Requirement[],
+  request: MedicationRequest,
+  predicate: (requirement: Requirement) => boolean
+): Link[] => {
+  return requirements.map(getLinkOrEmptyArray(request, predicate)).flat() || [];
+};
+
+const getSuggestions = (
+  requirements: Requirement[],
+  request: MedicationRequest,
+  patient: Patient | undefined,
+  predicate: (requirement: Requirement) => boolean
+): Suggestion[] => {
+  return (
+    (patient && requirements.map(getSuggestionOrEmptyArray(patient, request, predicate)).flat()) ||
+    []
+  );
+};
 
 // handles preliminary card creation.  ALL hooks should go through this function.
 // make sure code here is applicable to all supported hooks.
@@ -633,12 +647,6 @@ const getSummary = (drugCode: string, drugName: string): string => {
   return summary;
 };
 
-const getAbsoluteLinks = (drugCode: string): Link[] => {
-  const codeRule = codeMap[drugCode];
-  const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
-  return rule?.links || [];
-};
-
 const containsMatchingMedicationRequest =
   (drugCode: string) =>
   (entry: BundleEntry): boolean => {
@@ -650,7 +658,7 @@ const containsMatchingMedicationRequest =
     return false;
   };
 
-const getCardFromCases =
+const getCardOrEmptyArrayFromCases =
   (entries: BundleEntry[] | undefined) =>
   async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
@@ -675,50 +683,61 @@ const getCardFromCases =
       return [];
     }
 
-    // loop through all of the ETASU requirements for this drug
-    const smartLinks = getSmartLinks(drug, metRequirements, request);
-    card.addLinks(Array.from(smartLinks));
-
     // grab absolute links relevant to the patient
-    const absoluteLinks = getAbsoluteLinks(drugCode);
-    card.addLinks(Array.from(absoluteLinks));
+    const codeRule = codeMap[drugCode];
+    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+    const absoluteLinks = rule?.links || [];
+    card.addLinks(absoluteLinks);
+
+    // find all of the matching patient forms
+    const requirements =
+      drug?.requirements.filter(requirement => requirement.stakeholderType === 'patient') || [];
+
+    // loop through all of the ETASU requirements for this drug
+    const predicate = (requirement: Requirement) => {
+      // match the requirement to the metRequirement of the REMS case
+      const metRequirement = metRequirements.find(metRequirement => {
+        return metRequirement.requirementName === requirement.name;
+      });
+      const formNotProcessed = metRequirement && !metRequirement.completed;
+      const notFound = !metRequirement;
+
+      return formNotProcessed || notFound;
+    };
+
+    const smartLinks = getSmartLinks(requirements, request, predicate);
+    card.addLinks(smartLinks);
 
     return card;
   };
 
-const getSmartLinks = (
-  drug: MongooseMedication | null,
-  metRequirements: Partial<MongooseMetRequirements>[],
-  request: MedicationRequest
-): Link[] => {
-  const requirements = drug?.requirements || [];
+const getLinkOrEmptyArray =
+  (request: MedicationRequest, predicate: (requirement: Requirement) => boolean) =>
+  (requirement: Requirement): Link | [] => {
+    const link = createSmartLink(requirement.name, requirement.appContext, request);
 
-  const smartLinks = requirements
-    .map(requirement => {
-      // find all of the matching patient forms
-      if (requirement?.stakeholderType === 'patient') {
-        // match the requirement to the metRequirement of the REMS case
-        const metRequirement = metRequirements.find(metRequirement => {
-          return metRequirement.requirementName === requirement.name;
-        });
+    if (predicate(requirement)) {
+      return link;
+    }
 
-        const link = createSmartLink(requirement.name, requirement.appContext, request);
+    return [];
+  };
 
-        if (
-          // add the link if the form is still needed to be completed
-          (!!metRequirement && !metRequirement.completed) ||
-          // if not in the list of metRequirements, add it as well
-          !metRequirement
-        ) {
-          return link;
-        }
-        return [];
-      }
-      return [];
-    })
-    .flat();
-  return smartLinks;
-};
+const getSuggestionOrEmptyArray =
+  (
+    patient: Patient,
+    request: MedicationRequest,
+    predicate: (requirement: Requirement) => boolean
+  ) =>
+  (requirement: Requirement): Suggestion | [] => {
+    const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
+
+    if (suggestion && predicate(requirement)) {
+      return suggestion;
+    }
+
+    return [];
+  };
 
 // handles patient-view and encounter-start currently
 export const handleCardEncounter = async (
@@ -744,7 +763,7 @@ export const handleCardEncounter = async (
   });
 
   // loop through all the REMS cases in the list
-  const promises = remsCaseList.map(getCardFromCases(medicationRequestsBundle?.entry));
+  const promises = remsCaseList.map(getCardOrEmptyArrayFromCases(medicationRequestsBundle?.entry));
 
   const cards = (await Promise.all(promises)).flat();
 
