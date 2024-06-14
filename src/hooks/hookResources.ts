@@ -20,8 +20,7 @@ import {
   Requirement,
   medicationCollection,
   remsCaseCollection,
-  Medication as MongooseMedication,
-  MetRequirements as MongooseMetRequirements
+  Medication as MongooseMedication
 } from '../fhir/models';
 
 import axios from 'axios';
@@ -344,7 +343,7 @@ const getErrorCard = (
     return buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID');
   }
 
-  const medicationCode = getDrugCodeFromMedicationRequest(contextRequest)!;
+  const medicationCode = getDrugCodeFromMedicationRequest(contextRequest) as Coding;
   if (!medicationCode?.code) {
     return buildErrorCard('MedicationRequest does not contain a code');
   }
@@ -375,7 +374,7 @@ export const handleCardOrder = async (
   }
 
   // find the drug in the medicationCollection to get the smart links
-  const coding = !errorCard && getDrugCodeFromMedicationRequest(contextRequest)!;
+  const coding = !errorCard && (getDrugCodeFromMedicationRequest(contextRequest) as Coding);
   const { code, system, display } = coding;
   const request = coding && (contextRequest as MedicationRequest);
   const drug = await medicationCollection
