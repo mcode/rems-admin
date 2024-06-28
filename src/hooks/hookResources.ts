@@ -1,14 +1,34 @@
-import { MedicationRequest, Coding, FhirResource, Task, Patient, Bundle } from 'fhir/r4';
+import {
+  MedicationRequest,
+  Coding,
+  FhirResource,
+  Task,
+  Patient,
+  Bundle,
+  Medication,
+  BundleEntry
+} from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
+import {
+  HookPrefetch,
+  TypedRequestBody,
+  TypedResponseBody
+} from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
-import { Requirement, medicationCollection, remsCaseCollection } from '../fhir/models';
+import {
+  RemsCase,
+  Requirement,
+  medicationCollection,
+  remsCaseCollection,
+  Medication as MongooseMedication
+} from '../fhir/models';
 
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+
 type HandleCallback = (
-  res: any,
+  res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
@@ -236,25 +256,30 @@ const source = {
  * Retrieve the coding for the medication from the medicationCodeableConcept if available.
  * Read coding from contained Medication matching the medicationReference otherwise.
  */
-export function getDrugCodeFromMedicationRequest(medicationRequest: MedicationRequest) {
-  if (medicationRequest) {
-    if (medicationRequest?.medicationCodeableConcept) {
-      console.log('Get Medication code from CodeableConcept');
-      return medicationRequest?.medicationCodeableConcept?.coding?.[0];
-    } else if (medicationRequest?.medicationReference) {
-      const reference = medicationRequest?.medicationReference;
-      let coding = null;
-      medicationRequest?.contained?.every(e => {
-        if (e.resourceType + '/' + e.id === reference.reference) {
-          if (e.resourceType === 'Medication') {
-            console.log('Get Medication code from contained resource');
-            coding = e.code?.coding?.[0];
-          }
-        }
-      });
-      return coding;
-    }
+export function getDrugCodeFromMedicationRequest(
+  resource: FhirResource | undefined
+): Coding | null {
+  const medicationRequest =
+    resource?.resourceType === 'MedicationRequest' && (resource as MedicationRequest);
+
+  if (!medicationRequest) {
+    return null;
   }
+
+  if (medicationRequest.medicationCodeableConcept) {
+    return medicationRequest.medicationCodeableConcept?.coding?.[0] || null;
+  }
+
+  if (medicationRequest.medicationReference) {
+    const reference = medicationRequest.medicationReference;
+    const medication = medicationRequest.contained?.find(
+      resource =>
+        resource.resourceType + '/' + resource.id === reference.reference &&
+        resource.resourceType === 'Medication'
+    ) as Medication;
+    return medication?.code?.coding?.[0] || null;
+  }
+
   return null;
 }
 export function getFhirResource(token: string, req: TypedRequestBody) {
@@ -294,26 +319,20 @@ export function buildErrorCard(reason: string) {
   return cards;
 }
 
-// handles order-sign and order-select currently
-export async function handleCardOrder(
-  res: any,
+const getErrorCard = (
   hydratedPrefetch: HookPrefetch | undefined,
-  contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined
-) {
-  const prefetchRequest = hydratedPrefetch?.request;
-  console.log('    MedicationRequest: ' + prefetchRequest?.id);
-  // verify there is a contextRequest
+  contextRequest: FhirResource | undefined
+): { cards: Card[] } | null => {
   if (!contextRequest) {
-    res.json(buildErrorCard('DraftOrders does not contain a request'));
-    return;
+    return buildErrorCard('DraftOrders does not contain a request');
   }
 
-  // verify a MedicationRequest was sent
   if (contextRequest && contextRequest.resourceType !== 'MedicationRequest') {
-    res.json(buildErrorCard('DraftOrders does not contain a MedicationRequest'));
-    return;
+    return buildErrorCard('DraftOrders does not contain a MedicationRequest');
   }
+
+  const prefetchRequest = hydratedPrefetch?.request;
+
   if (
     prefetchRequest?.id &&
     contextRequest &&
@@ -321,132 +340,152 @@ export async function handleCardOrder(
     prefetchRequest.id.replace('MedicationRequest/', '') !==
       contextRequest.id.replace('MedicationRequest/', '')
   ) {
-    res.json(buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID'));
+    return buildErrorCard('Context draftOrder does not match prefetch MedicationRequest ID');
+  }
+
+  const medicationCode = getDrugCodeFromMedicationRequest(contextRequest) as Coding;
+  if (!medicationCode?.code) {
+    return buildErrorCard('MedicationRequest does not contain a code');
+  }
+
+  const shouldReturnCard = validCodes.some(e => {
+    return e.code === medicationCode.code && e.system === medicationCode.system;
+  });
+  if (!shouldReturnCard) {
+    return buildErrorCard('Unsupported code');
+  }
+
+  return null;
+};
+
+// handles order-sign and order-select currently
+export const handleCardOrder = async (
+  res: TypedResponseBody,
+  hydratedPrefetch: HookPrefetch | undefined,
+  contextRequest: FhirResource | undefined,
+  resource: FhirResource | undefined
+): Promise<void> => {
+  const patient = resource?.resourceType === 'Patient' ? resource : undefined;
+
+  const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
+  if (errorCard) {
+    res.json(errorCard);
     return;
   }
 
-  const medicationCode =
-    contextRequest &&
-    contextRequest.resourceType === 'MedicationRequest' &&
-    getDrugCodeFromMedicationRequest(contextRequest);
-  if (!medicationCode) {
-    return;
-  }
-  if (medicationCode && medicationCode?.code) {
-    // find the drug in the medicationCollection to get the smart links
-    const drug = await medicationCollection
-      .findOne({
-        code: medicationCode.code,
-        codeSystem: medicationCode.system
-      })
-      .exec();
+  // find the drug in the medicationCollection to get the smart links
+  const coding = !errorCard && (getDrugCodeFromMedicationRequest(contextRequest) as Coding);
+  const { code, system, display } = coding;
+  const request = coding && (contextRequest as MedicationRequest);
+  const drug = await medicationCollection
+    .findOne({
+      code: code,
+      codeSystem: system
+    })
+    .exec();
 
-    // count the total requirement for each type
+  // find a matching REMS case for the patient and this drug to only return needed results
+  const patientName = patient?.name?.[0];
+  const patientBirth = patient?.birthDate;
+  const remsCase = await remsCaseCollection.findOne({
+    patientFirstName: patientName?.given?.[0],
+    patientLastName: patientName?.family,
+    patientDOB: patientBirth,
+    drugCode: code
+  });
 
-    // find a matching rems case for the patient and this drug to only return needed results
-    const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
-    const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
-    const etasu = await remsCaseCollection.findOne({
-      patientFirstName: patientName?.given?.[0],
-      patientLastName: patientName?.family,
-      patientDOB: patientBirth,
-      drugCode: medicationCode?.code
-    });
+  const codeRule = (code && codeMap[code]) || [];
 
-    const returnCard = validCodes.some(e => {
-      return e.code === medicationCode.code && e.system === medicationCode.system;
-    });
-    if (returnCard) {
-      const cardArray: Card[] = [];
-      const codeRule = codeMap[medicationCode.code];
-      for (const rule of codeRule) {
-        const card = new Card(
-          rule.summary || medicationCode.display || 'Rems',
-          rule.cardDetails || CARD_DETAILS,
-          source,
-          'info'
+  const cards: Card[] = codeRule
+    .map(getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient))
+    .flat();
+
+  res.json({ cards });
+};
+
+const getCardOrEmptyArrayFromRules =
+  (
+    display: string | undefined,
+    drug: MongooseMedication | null,
+    remsCase: RemsCase | null,
+    request: MedicationRequest,
+    patient: Patient | undefined
+  ) =>
+  (rule: CardRule): Card | never[] => {
+    const card = new Card(
+      rule.summary || display || 'Rems',
+      rule.cardDetails || CARD_DETAILS,
+      source,
+      'info'
+    );
+
+    // no construction needed
+    const absoluteLinks = rule.links.filter(e => e.type === 'absolute');
+    card.addLinks(absoluteLinks);
+
+    const requirements =
+      drug?.requirements.filter(
+        requirement => requirement.stakeholderType === rule.stakeholderType
+      ) || [];
+
+    // process the smart links from the medicationCollection
+    // TODO: smart links should be built with discovered questionnaires, not hard coded ones
+    const predicate = (requirement: Requirement) => {
+      const metRequirement =
+        remsCase &&
+        remsCase.metRequirements.find(
+          metRequirement => metRequirement.requirementName === requirement.name
         );
-        rule.links.forEach(function (e) {
-          if (e.type === 'absolute') {
-            // no construction needed
-            card.addLink(e);
-          }
-        });
+      const formNotProcessed = metRequirement && !metRequirement.completed;
+      const notFound = remsCase && !metRequirement;
+      const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
 
-        let unmetRequirementSmartLinkCount = 0;
-        let smartLinkCount = 0;
+      return formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense;
+    };
 
-        // process the smart links from the medicationCollection
-        // TODO: smart links should be built with discovered questionnaires, not hard coded ones
-        if (drug) {
-          for (const requirement of drug.requirements) {
-            if (requirement.stakeholderType === rule.stakeholderType) {
-              smartLinkCount++;
+    const smartLinks: Link[] = getSmartLinks(requirements, request, predicate);
+    card.addLinks(smartLinks);
 
-              // only add the link if the form has not already been processed / received
-              if (etasu) {
-                let found = false;
-                for (const metRequirement of etasu.metRequirements) {
-                  if (metRequirement.requirementName === requirement.name) {
-                    found = true;
-                    if (!metRequirement.completed) {
-                      card.addLink(
-                        createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                      );
-                      if (patient && patient.resourceType === 'Patient') {
-                        createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                      }
-                      unmetRequirementSmartLinkCount++;
-                    }
-                  }
-                }
-                if (!found) {
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                  }
-                  unmetRequirementSmartLinkCount++;
-                }
-              } else {
-                // add all the required to dispense links if no etasu to check
-                if (requirement.requiredToDispense) {
-                  card.addLink(
-                    createSmartLink(requirement.name, requirement.appContext, contextRequest)
-                  );
-                  if (patient && patient.resourceType === 'Patient') {
-                    createQuestionnaireSuggestion(card, requirement, patient, contextRequest);
-                  }
-                  unmetRequirementSmartLinkCount++;
-                }
-              }
-            }
-          }
-        }
+    const suggestions: Suggestion[] = getSuggestions(requirements, request, patient, predicate);
+    card.addSuggestions(suggestions);
 
-        // only add the card if there are smart links to needed forms
-        // allow information only cards to be returned as well
-        if (unmetRequirementSmartLinkCount > 0 || smartLinkCount === 0) {
-          cardArray.push(card);
-        }
-      }
-      res.json({
-        cards: cardArray
-      });
-    } else {
-      res.json(buildErrorCard('Unsupported code'));
+    const unmetRequirementSmartLinkCount = smartLinks.length;
+    const smartLinkCount = requirements.length;
+    const existsSmartLinksToNeededForms = unmetRequirementSmartLinkCount > 0;
+    const isInformationOnlyCard = smartLinkCount === 0;
+
+    if (existsSmartLinksToNeededForms || isInformationOnlyCard) {
+      return card;
     }
-  } else {
-    res.json(buildErrorCard('MedicationRequest does not contain a code'));
-  }
-}
+
+    return [];
+  };
+
+const getSmartLinks = (
+  requirements: Requirement[],
+  request: MedicationRequest,
+  predicate: (requirement: Requirement) => boolean
+): Link[] => {
+  return requirements.map(getLinkOrEmptyArray(request, predicate)).flat() || [];
+};
+
+const getSuggestions = (
+  requirements: Requirement[],
+  request: MedicationRequest,
+  patient: Patient | undefined,
+  predicate: (requirement: Requirement) => boolean
+): Suggestion[] => {
+  return (
+    (patient && requirements.map(getSuggestionOrEmptyArray(patient, request, predicate)).flat()) ||
+    []
+  );
+};
 
 // handles preliminary card creation.  ALL hooks should go through this function.
 // make sure code here is applicable to all supported hooks.
 export async function handleCard(
   req: TypedRequestBody,
-  res: any,
+  res: TypedResponseBody,
   hydratedPrefetch: HookPrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -478,7 +517,7 @@ export async function handleCard(
 // handles all hooks, any supported hook should pass through this function
 export function handleHook(
   req: TypedRequestBody,
-  res: any,
+  res: TypedResponseBody,
   hookPrefetch: ServicePrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -504,159 +543,230 @@ export function handleHook(
 }
 
 // process the MedicationRequests to add the Medication into contained resources
-function processMedicationRequests(medicationRequestsBundle: Bundle) {
-  medicationRequestsBundle?.entry?.forEach(entry => {
-    if (entry?.resource?.resourceType === 'MedicationRequest') {
-      if (entry?.resource?.medicationReference) {
-        const medicationReference = entry?.resource?.medicationReference;
-        medicationRequestsBundle?.entry?.forEach(e => {
-          if (e?.resource?.resourceType === 'Medication') {
-            if (
-              e?.resource?.resourceType + '/' + e?.resource?.id ===
-              medicationReference?.reference
-            ) {
-              if (entry) {
-                if (entry.resource) {
-                  const reference = e?.resource;
-                  const request = entry.resource as MedicationRequest;
+const refersToMedication = (entry: BundleEntry<FhirResource>): boolean =>
+  entry.resource?.resourceType === 'Medication';
 
-                  // add the reference as a contained resource to the request
-                  if (!request?.contained) {
-                    request.contained = [];
-                    request.contained.push(reference);
-                  } else {
-                    // only add to contained if not already in there
-                    let found = false;
-                    request.contained.forEach(c => {
-                      if (c.id === reference.id) {
-                        found = true;
-                      }
-                    });
-                    if (!found) {
-                      request.contained.push(reference);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        });
-      }
+const refersToMedicationRequest = (entry: BundleEntry<FhirResource>): boolean =>
+  entry.resource?.resourceType === 'MedicationRequest';
+
+const refersToMedicationWithMedicationReference = (e: BundleEntry<MedicationRequest>): boolean =>
+  !!e.resource?.medicationReference;
+
+const isBundleEntryMedicationReferenced =
+  (medicationRequestEntry: BundleEntry<MedicationRequest>) =>
+  (medicationEntry: BundleEntry<Medication>): boolean =>
+    medicationEntry?.resource?.resourceType + '/' + medicationEntry?.resource?.id ===
+    medicationRequestEntry.resource?.medicationReference?.reference;
+
+const createBundleEntryWhoseMedicationRequestContainsReferencedMedication =
+  (medicationEntries: BundleEntry<Medication>[]) =>
+  (medicationRequestEntry: BundleEntry<MedicationRequest>): BundleEntry<MedicationRequest> => {
+    if (!medicationRequestEntry.resource) {
+      return medicationRequestEntry;
     }
-  });
-}
+    const referencedMedication = medicationEntries.find(
+      isBundleEntryMedicationReferenced(medicationRequestEntry)
+    )?.resource;
+    const contained = getContained(medicationRequestEntry, referencedMedication);
+    const mutatedMedicationRequestEntry: BundleEntry<MedicationRequest> = {
+      ...medicationRequestEntry,
+      resource: {
+        ...medicationRequestEntry.resource,
+        contained
+      }
+    };
+    return mutatedMedicationRequestEntry;
+  };
 
-// handles order-sign and order-select currently
-export async function handleCardEncounter(
-  res: any,
+const getContained = (
+  medicationRequestEntry: BundleEntry<MedicationRequest>,
+  referencedMedication: Medication | undefined
+): FhirResource[] => {
+  const existingContained = medicationRequestEntry.resource?.contained;
+  if (existingContained) {
+    const foundReferencedMedication = existingContained.find(
+      c => c.id === referencedMedication?.id
+    );
+    if (foundReferencedMedication || !referencedMedication) {
+      return existingContained;
+    }
+    return [...existingContained, referencedMedication];
+  }
+  if (!referencedMedication) {
+    return [];
+  }
+  return [referencedMedication];
+};
+
+const processMedicationRequests = (
+  medicationRequestsBundle: Bundle<MedicationRequest | Medication | FhirResource> | undefined
+): Bundle<MedicationRequest | Medication | FhirResource> | undefined => {
+  if (!medicationRequestsBundle) {
+    return undefined;
+  }
+  const { entry = [], ...rest } = medicationRequestsBundle;
+  const medicationRequestEntries = entry.filter(
+    refersToMedicationRequest
+  ) as BundleEntry<MedicationRequest>[];
+  const medicationRequestEntriesWithMedicationReference = medicationRequestEntries.filter(
+    refersToMedicationWithMedicationReference
+  );
+  const medicationEntries = entry.filter(refersToMedication) as BundleEntry<Medication>[];
+  const medicationRequestEntriesMutatedWithMedicationReference =
+    medicationRequestEntriesWithMedicationReference.map(
+      createBundleEntryWhoseMedicationRequestContainsReferencedMedication(medicationEntries)
+    );
+  const otherEntries = entry.filter(e => !refersToMedication(e) && !refersToMedicationRequest(e));
+  const medicationRequestEntriesWithoutMedicationReference = medicationRequestEntries.filter(
+    e => !refersToMedicationWithMedicationReference(e)
+  );
+  return {
+    ...rest,
+    entry: [
+      ...otherEntries,
+      ...medicationEntries,
+      ...medicationRequestEntriesWithoutMedicationReference,
+      ...medicationRequestEntriesMutatedWithMedicationReference
+    ]
+  };
+};
+
+const getSummary = (drugCode: string, drugName: string): string => {
+  const codeRule = codeMap[drugCode];
+  const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+  const summary = rule?.summary || drugName || 'Rems';
+  return summary;
+};
+
+const containsMatchingMedicationRequest =
+  (drugCode: string) =>
+  (entry: BundleEntry): boolean => {
+    if (entry.resource?.resourceType === 'MedicationRequest') {
+      const medReq: MedicationRequest = entry.resource;
+      const medicationCode = getDrugCodeFromMedicationRequest(medReq);
+      return drugCode === medicationCode?.code;
+    }
+    return false;
+  };
+
+const getCardOrEmptyArrayFromCases =
+  (entries: BundleEntry[] | undefined) =>
+  async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
+    // find the drug in the medicationCollection that matches the REMS case to get the smart links
+    const drug = await medicationCollection
+      .findOne({
+        code: drugCode,
+        name: drugName
+      })
+      .exec();
+
+    // get the rule summary from the codemap
+    const summary = getSummary(drugCode, drugName);
+
+    // create the card
+    const card = new Card(summary, CARD_DETAILS, source, 'info');
+
+    // find the matching MedicationRequest for the context
+    const request = (entries || []).find(containsMatchingMedicationRequest(drugCode))?.resource;
+
+    // if no valid request or not a MedicationRequest found skip this REMS case
+    if (!request || (request && request.resourceType !== 'MedicationRequest')) {
+      return [];
+    }
+
+    // grab absolute links relevant to the patient
+    const codeRule = codeMap[drugCode];
+    const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+    const absoluteLinks = rule?.links || [];
+    card.addLinks(absoluteLinks);
+
+    // find all of the matching patient forms
+    const requirements =
+      drug?.requirements.filter(requirement => requirement.stakeholderType === 'patient') || [];
+
+    // loop through all of the ETASU requirements for this drug
+    const predicate = (requirement: Requirement) => {
+      // match the requirement to the metRequirement of the REMS case
+      const metRequirement = metRequirements.find(metRequirement => {
+        return metRequirement.requirementName === requirement.name;
+      });
+      const formNotProcessed = metRequirement && !metRequirement.completed;
+      const notFound = !metRequirement;
+
+      return formNotProcessed || notFound;
+    };
+
+    const smartLinks = getSmartLinks(requirements, request, predicate);
+    card.addLinks(smartLinks);
+
+    return card;
+  };
+
+const getLinkOrEmptyArray =
+  (request: MedicationRequest, predicate: (requirement: Requirement) => boolean) =>
+  (requirement: Requirement): Link | [] => {
+    const link = createSmartLink(requirement.name, requirement.appContext, request);
+
+    if (predicate(requirement)) {
+      return link;
+    }
+
+    return [];
+  };
+
+const getSuggestionOrEmptyArray =
+  (
+    patient: Patient,
+    request: MedicationRequest,
+    predicate: (requirement: Requirement) => boolean
+  ) =>
+  (requirement: Requirement): Suggestion | [] => {
+    const suggestion = getQuestionnaireSuggestion(requirement, patient, request);
+
+    if (suggestion && predicate(requirement)) {
+      return suggestion;
+    }
+
+    return [];
+  };
+
+// handles patient-view and encounter-start currently
+export const handleCardEncounter = async (
+  res: TypedResponseBody,
   hookPrefetch: HookPrefetch | undefined,
-  contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined
-) {
-  //TODO: should we add the other pdf information links to the card, or just have the smart links?
-
+  _contextRequest: FhirResource | undefined,
+  resource: FhirResource | undefined
+): Promise<void> => {
+  const patient = resource?.resourceType === 'Patient' ? resource : undefined;
   const medResource = hookPrefetch?.medicationRequests;
-  const medicationRequestsBundle = medResource?.resourceType === 'Bundle' ? medResource : undefined;
+  const medicationRequestsBundle =
+    medResource?.resourceType === 'Bundle'
+      ? // process the MedicationRequests to add the Medication into contained resources
+        processMedicationRequests(medResource)
+      : undefined;
 
-  // create empty card array
-  const cardArray: Card[] = [];
-
-  // find all matching rems cases for the patient
-  const patientName = patient?.resourceType === 'Patient' ? patient?.name?.[0] : undefined;
-  const patientBirth = patient?.resourceType === 'Patient' ? patient?.birthDate : undefined;
+  // find all matching REMS cases for the patient
+  const patientName = patient?.name?.[0];
+  const patientBirth = patient?.birthDate;
   const remsCaseList = await remsCaseCollection.find({
     patientFirstName: patientName?.given?.[0],
     patientLastName: patientName?.family,
     patientDOB: patientBirth
   });
 
-  // loop through all the rems cases in the list
-  for (const remsCase of remsCaseList) {
-    // find the drug in the medicationCollection that matches the REMS case to get the smart links
-    const drug = await medicationCollection
-      .findOne({
-        code: remsCase.drugCode,
-        name: remsCase.drugName
-      })
-      .exec();
+  // loop through all the REMS cases in the list
+  const promises = remsCaseList.map(getCardOrEmptyArrayFromCases(medicationRequestsBundle?.entry));
 
-    // get the rule summary from the codemap
-    const codeRule = codeMap[remsCase.drugCode];
-    let summary = '';
-    for (const rule of codeRule) {
-      if (rule.stakeholderType === 'patient') {
-        summary = rule.summary || remsCase.drugName || 'Rems';
-      }
-    }
+  const cards = (await Promise.all(promises)).flat();
 
-    // create the card
-    let smartLinkCount = 0;
-    const card = new Card(summary, CARD_DETAILS, source, 'info');
+  res.json({ cards });
+};
 
-    // process the MedicationRequests to add the Medication into contained resources
-    if (medicationRequestsBundle) {
-      processMedicationRequests(medicationRequestsBundle);
-    }
-
-    // find the matching MedicationRequest for the context
-    const request = medicationRequestsBundle?.entry?.find(entry => {
-      if (entry.resource) {
-        if (entry.resource.resourceType === 'MedicationRequest') {
-          const medReq: MedicationRequest = entry.resource;
-          const medicationCode = getDrugCodeFromMedicationRequest(medReq);
-          return remsCase.drugCode === medicationCode?.code;
-        }
-      }
-    })?.resource;
-
-    // if no valid request or not a MedicationRequest found skip this REMS case
-    if (!request || (request && request.resourceType !== 'MedicationRequest')) {
-      continue;
-    }
-
-    // loop through all of the ETASU requirements for this drug
-    const requirements = drug?.requirements || [];
-    for (const requirement of requirements) {
-      // find all of the matching patient forms
-      if (requirement?.stakeholderType === 'patient') {
-        let found = false;
-        // match the requirement to the metRequirement of the REMS case
-        for (const metRequirement of remsCase.metRequirements) {
-          // only add the link if the form is still needed to be completed
-          if (metRequirement.requirementName === requirement.name) {
-            found = true;
-            if (!metRequirement.completed) {
-              card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-              smartLinkCount++;
-            }
-          }
-        }
-
-        // if not in the list of metRequirements, add it as well
-        if (!found) {
-          card.addLink(createSmartLink(requirement.name, requirement.appContext, request));
-          smartLinkCount++;
-        }
-      }
-    }
-
-    // only add the card to the list if there is a link
-    if (smartLinkCount > 0) {
-      cardArray.push(card);
-    }
-  }
-
-  res.json({
-    cards: cardArray
-  });
-}
-
-export function createQuestionnaireSuggestion(
-  card: Card,
+export const getQuestionnaireSuggestion = (
   requirement: Requirement,
   patient: Patient,
   request: MedicationRequest
-) {
+): Suggestion | undefined => {
   if (requirement.appContext && requirement.appContext.includes('=')) {
     const qArr = requirement.appContext.split('='); // break up into parts
     let qUrl = null;
@@ -678,10 +788,12 @@ export function createQuestionnaireSuggestion(
         label: `Add "Completion of ${requirement.name} Questionnaire" to task list`,
         actions: [action]
       };
-      card.addSuggestion(suggestion);
+      return suggestion;
     }
   }
-}
+  return undefined;
+};
+
 export function createQuestionnaireCompletionTask(
   requirement: Requirement,
   patient: Patient,

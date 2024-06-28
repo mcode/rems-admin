@@ -1,4 +1,8 @@
-import { EncounterStartHook, SupportedHooks } from '../rems-cds-hooks/resources/HookTypes';
+import {
+  EncounterStartHook,
+  SupportedHooks,
+  TypedResponseBody
+} from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { handleCardEncounter, handleHook } from './hookResources';
 
@@ -20,7 +24,7 @@ const definition: CdsService = {
   prefetch: hookPrefetch
 };
 
-const handler = (req: TypedRequestBody, res: any) => {
+const handler = (req: TypedRequestBody, res: TypedResponseBody) => {
   console.log('REMS encounter-start hook');
   const contextRequest = undefined;
   handleHook(req, res, hookPrefetch, contextRequest, handleCardEncounter);
