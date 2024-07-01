@@ -3,6 +3,7 @@ import { GuidanceResponseUtilities } from '../fhir/guidanceResponseUtilities';
 import GuidanceResponseModel from '../lib/schemas/resources/GuidanceResponse';
 import { Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
 import { getCaseInfo } from '../lib/etasu';
+import { RemsCase } from '../fhir/models';
 
 module.exports.searchById = async (args: any) => {
   const { id } = args;
@@ -57,6 +58,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   const parameters: Parameters = args?.resource;
   let patient: Patient | undefined;
   let medication: Medication | MedicationRequest | undefined;
+  let authNumber: string | undefined;
 
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
@@ -67,24 +69,48 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
         param.resource?.resourceType === 'MedicationRequest')
     ) {
       medication = param.resource;
+    } else if (param?.name === 'authNumber') {
+      authNumber = param.valueString;
     }
   });
 
-  const drugCode = getMedicationCode(medication);
+  let etasu: Pick<
+    RemsCase,
+    | 'drugName'
+    | 'auth_number'
+    | 'status'
+    | 'drugCode'
+    | 'patientFirstName'
+    | 'patientLastName'
+    | 'patientDOB'
+    | 'metRequirements'
+  > | null;
 
-  // grab the patient demographics from the Patient resource in the parameters
-  const remsCaseSearchDict = {
-    patientFirstName: patient?.name?.[0]?.given,
-    patientLastName: patient?.name?.[0]?.family,
-    patientDOB: patient?.birthDate,
-    drugCode: drugCode
-  };
+  if (authNumber) {
+    const remsCaseSearchDict = {
+      auth_number: authNumber
+    };
 
-  const medicationSearchDict = {
-    code: drugCode
-  };
+    const medicationSearchDict = {};
 
-  const etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
+    etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
+  } else {
+    const drugCode = getMedicationCode(medication);
+
+    // grab the patient demographics from the Patient resource in the parameters
+    const remsCaseSearchDict = {
+      patientFirstName: patient?.name?.[0]?.given,
+      patientLastName: patient?.name?.[0]?.family,
+      patientDOB: patient?.birthDate,
+      drugCode: drugCode
+    };
+
+    const medicationSearchDict = {
+      code: drugCode
+    };
+
+    etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
+  }
 
   return GuidanceResponseUtilities.createEtasuGuidanceResponse(etasu, patient);
 };
