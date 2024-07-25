@@ -4,13 +4,14 @@ The [REMS](https://www.fda.gov/drugs/drug-safety-and-availability/risk-evaluatio
 
 # Getting Started with REMS Administrator
 
-To get started, first clone the repository using a method that is most convenient for you.  If using git, run the following command:
+To get started, first clone the repository using a method that is most convenient for you. If using git, run the following command:
 
 `git clone https://github.com/mcode/rems-admin.git`
 
 The following technologies must be installed on your computer to continue:
-* [NPM](https://www.npmjs.com/)
-* [Node](https://nodejs.org/en)
+
+- [NPM](https://www.npmjs.com/)
+- [Node](https://nodejs.org/en)
 
 ## Initialization
 
@@ -51,26 +52,26 @@ The REMS Admin interacts with the [Request Generator](https://github.com/mcode/r
 
 Typically, a CDS Hook will be sent from the EHR to the REMS Admin, which will respond with cards that contain information about next steps. These cards may contain a link to a SMART app. Clicking on these links in the Request Generator or REMS SMART on FHIR App acting as the EHR will launch the SMART app automatically. These links will contain information on the requirements that must be met for the REMS program. This includes forms for registration and acknowledgement of the risks involved.
 
-The FHIR server built into the REMS Admin can be queried for the questionnaire package at the Questionnaire/$questionnaire-package endpoint. This will return a FHIR Bundle with the FHIR Questionnaire and all other FHIR Resources including CQL Libraries embedded within FHIR Libraries. The FHIR Server also contains a REMS ETASU check at the GuidanceResponse/$rems-etasu endpoint. This will return a FHIR Parameter containing a GuidanceResponse with the status of the ETATSU and nested GuidanceResponse for each requirement.
+The FHIR server built into the REMS Admin can be queried for the questionnaire package at the Questionnaire/$questionnaire-package endpoint. This will return a FHIR Bundle with the FHIR Questionnaire and all other FHIR Resources including CQL Libraries embedded within FHIR Libraries. The FHIR Server also contains a REMS ETASU check at the GuidanceResponse/$rems-etasu endpoint. This will return a FHIR Parameter containing a GuidanceResponse with the status of the ETASU and nested GuidanceResponse for each requirement.
 
 ## Routes
 
-* `/cds-services` - The base CDS Hooks Discovery endpoint that serves a list of supported hooks/services in JSON.
-* `/cds-services/rems-order-sign` - The CDS Hooks endpoint for order-sign
-* `/cds-services/rems-order-select` - The CDS Hooks endpoint for order-select
-* `/cds-services/rems-patient-view` - The CDS Hooks endpoint for patient-view
-* `/cds-services/rems-encounter-start` - The CDS Hooks endpoint for encounter-start
-* `/4_0_0 - The base of the FHIR Server
-* `/4_0_0/GuidanceResponse/$rems-etasu` - The endpoint for FHIR Operation used for checking the ETASU status
-  * Input requires a parameter containing the following:
-    * `patient` - Patient FHIR Resource, must include `medication` with `patient`
-    * `medication` - Medication or MedicationRequest FHIR Resource, must include `patient` with `medication`
-    * `authNumber` - String containing the REMS Authorization Number, may be sent without `patient` or `medication`
-  * Returns a GuidanceResponse within a Parameter with the status
-    * Contains Nested GuidanceResponse resources for each ETASU requirement with their status
-* `/4_0_0/Questionnaire/\<form-name\>/$questionnaire-package` - The endpoint for the FHIR Operation used for retrieving the Questionnaire package for a given form
-  * Example: /4_0_0/Questionnaire/TIRFRemsPatientEnrollment/$questionnaire-package
-  * This includes the Questionnaire and any other necessary FHIR resources needed for loading the quesetionnaire form with the REMS SMART on FHIR app
+- `/cds-services` - The base CDS Hooks Discovery endpoint that serves a list of supported hooks/services in JSON.
+- `/cds-services/rems-order-sign` - The CDS Hooks endpoint for order-sign
+- `/cds-services/rems-order-select` - The CDS Hooks endpoint for order-select
+- `/cds-services/rems-patient-view` - The CDS Hooks endpoint for patient-view
+- `/cds-services/rems-encounter-start` - The CDS Hooks endpoint for encounter-start
+- `/4_0_0 - The base of the FHIR Server
+- `/4_0_0/GuidanceResponse/$rems-etasu` - The endpoint for FHIR Operation used for checking the ETASU status
+  - Input requires a parameter containing the following:
+    - `patient` - Patient FHIR Resource, must include `medication` with `patient`
+    - `medication` - Medication or MedicationRequest FHIR Resource, must include `patient` with `medication`
+    - `authNumber` - String containing the REMS Authorization Number, may be sent without `patient` or `medication`
+  - Returns a GuidanceResponse within a Parameter with the status
+    - Contains Nested GuidanceResponse resources for each ETASU requirement with their status
+- `/4_0_0/Questionnaire/\<form-name\>/$questionnaire-package` - The endpoint for the FHIR Operation used for retrieving the Questionnaire package for a given form
+  - Example: /4_0_0/Questionnaire/TIRFRemsPatientEnrollment/$questionnaire-package
+  - This includes the Questionnaire and any other necessary FHIR resources needed for loading the questionnaire form with the REMS SMART on FHIR app
 
 ## Environment Variables
 
@@ -83,17 +84,17 @@ a) `REACT_APP_LAUNCH_URL=http://example.com PORT=6000 npm start` or b) by specif
 
 Following are a list of modifiable paths:
 
-| URI Name        | Default                                    | Description                                                                                           |
-| --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------|
-| AUTH_SERVER_URI | `http://localhost:8090`                    | The base url of the auth server, currently set to the base url of this app.                           |
-| HTTPS_CERT_PATH | `server.cert`                              | Path to a certificate for encryption, allowing HTTPS. Unnecessary if using HTTP.                      |
-| HTTPS_KEY_PATH  | `server.key`                               | Path to a key for encryption, allowing HTTPS. Unnecessary if using HTTP.                              |
-| LOGGING_LEVEL   | `debug`                                    | Amount to output in the log, can be changed to verbose, info, warn, or error.                         |
-| MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions above.   |                 
-| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions above.  |
-| PORT            | `8090`                                     | Port that this server should run on, change if there are conflicts with port usage.                   |
-| RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                      |
-| SMART_ENDPOINT  | `http://localhost:4040/launch`             | Launch URL of associated SMART app, should be changed if not using the REMS Smart App.                |
-| USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.             |
-| VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets.  Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/)                                                 |
-| WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.               |
+| URI Name        | Default                                    | Description                                                                                                                 |
+| --------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| AUTH_SERVER_URI | `http://localhost:8090`                    | The base url of the auth server, currently set to the base url of this app.                                                 |
+| HTTPS_CERT_PATH | `server.cert`                              | Path to a certificate for encryption, allowing HTTPS. Unnecessary if using HTTP.                                            |
+| HTTPS_KEY_PATH  | `server.key`                               | Path to a key for encryption, allowing HTTPS. Unnecessary if using HTTP.                                                    |
+| LOGGING_LEVEL   | `debug`                                    | Amount to output in the log, can be changed to verbose, info, warn, or error.                                               |
+| MONGO_DB_NAME   | `remsadmin`                                | Name of the database table being used. Should be changed if not using the Mongo instructions above.                         |
+| MONGO_URL       | `mongodb://rems-user:pass@127.0.0.1:27017` | URL for the connection to the database, should be changed if not using the Mongo instructions above.                        |
+| PORT            | `8090`                                     | Port that this server should run on, change if there are conflicts with port usage.                                         |
+| RESOURCE_SERVER | `http://localhost:8090`                    | Base URL of this server, should match with port.                                                                            |
+| SMART_ENDPOINT  | `http://localhost:4040/launch`             | Launch URL of associated SMART app, should be changed if not using the REMS Smart App.                                      |
+| USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.                                   |
+| VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets. Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/) |
+| WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.                                     |
