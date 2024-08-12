@@ -4,4 +4,6 @@ COPY --chown=node:node . .
 RUN npm install
 EXPOSE 8090
 EXPOSE 8091
+EXPOSE 8095
+EXPOSE 8096
 CMD ./dockerRunnerDev.sh
