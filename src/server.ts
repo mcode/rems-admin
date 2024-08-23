@@ -9,9 +9,11 @@ import patientViewService from './hooks/rems.patientview';
 import encounterStartService from './hooks/rems.encounterstart';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
+import Ncpdp from './lib/rxfill';
 import env from 'env-var';
 import https from 'https';
 import fs from 'fs';
+import bodyParserXml from 'body-parser-xml';
 
 const logger = container.get('application');
 
@@ -26,6 +28,7 @@ const initialize = (config: any) => {
     .setProfileRoutes()
     .registerCdsHooks(config.server)
     .configureEtasuEndpoints()
+    .configureNCPDPEndpoints()
     .setErrorRoutes();
 };
 
@@ -113,6 +116,22 @@ class REMSServer extends Server {
 
   configureEtasuEndpoints() {
     this.app.use('/etasu', Etasu);
+    return this;
+  }
+
+  configureNCPDPEndpoints() {
+    bodyParserXml(bodyParser);
+    this.app.use(
+      bodyParser.xml({
+        limit: '1MB',
+        xmlParseOptions: {
+          normalize: true,
+          normalizeTags: true,
+          explicitArray: false
+        }
+      })
+    );
+    this.app.use('/', Ncpdp);
     return this;
   }
 
