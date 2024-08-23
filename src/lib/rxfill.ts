@@ -1,8 +1,8 @@
-import { Router, Response, Request } from 'express';
+import { Router, Request } from 'express';
 import { remsCaseCollection } from '../fhir/models';
 const router = Router();
 
-router.post('/ncpdp', async (req: Request, res: Response) => {
+router.post('/ncpdp', async (req: Request) => {
   try {
     const requestBody = req.body;
     if (requestBody.message?.body?.rxfill) {
