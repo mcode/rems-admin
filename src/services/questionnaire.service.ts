@@ -26,22 +26,3 @@ module.exports.questionnairePackage = async (args: any, context: any, logger: an
     throw result;
   }
 };
-
-// module.exports.questionnairePackage = (args: any, context: any, logger: any) => {
-//   logger.info('Running Questionnaire Package /:id/$questionnaire-package');
-//   return new Promise((resolve, reject) => {
-//     const { id } = args;
-//     const doc = QuestionnaireModel.findOne({ id: id.toString() }, { _id: 0 }).exec();
-//     doc.then(async result => {
-//       if (result) {
-//         const unprocessedQ: Questionnaire = result.toObject();
-//         const parameters = await QuestionnaireUtilities.createPackageFromQuestionnaire(
-//           unprocessedQ
-//         );
-//         resolve(parameters);
-//       } else {
-//         reject(result);
-//       }
-//     });
-//   });
-// };

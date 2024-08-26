@@ -2,6 +2,7 @@
   "resourceType": "Questionnaire",
   "id": "practitioner-info-base",
   "name": "Base Practitioner Module",
+  "url": "http://hl7.org/fhir/Questionnaire/practitioner-info-base",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

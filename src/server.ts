@@ -6,6 +6,7 @@ import { CdsService } from './rems-cds-hooks/resources/CdsService';
 import remsService from './hooks/rems.ordersign';
 import orderSelectService from './hooks/rems.orderselect';
 import patientViewService from './hooks/rems.patientview';
+import encounterStartService from './hooks/rems.encounterstart';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
 import env from 'env-var';
@@ -100,6 +101,7 @@ class REMSServer extends Server {
     this.registerService(remsService);
     this.registerService(orderSelectService);
     this.registerService(patientViewService);
+    this.registerService(encounterStartService);
     this.app.get(discoveryEndpoint, (req: any, res: { json: (arg0: { services: any }) => any }) =>
       res.json({ services: this.services })
     );
@@ -117,7 +119,7 @@ class REMSServer extends Server {
   /**
    * @method listen
    * @description Start listening on the configured port
-   * @param {number} port - Defualt port to listen on
+   * @param {number} port - Default port to listen on
    * @param {function} [callback] - Optional callback for listen
    */
   listen({ port }: any, callback: any) {

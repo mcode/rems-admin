@@ -1,6 +1,8 @@
 {
   "resourceType": "Questionnaire",
   "id": "vital-signs",
+  "url": "http://hl7.org/fhir/Questionnaire/vital-signs",
+
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",

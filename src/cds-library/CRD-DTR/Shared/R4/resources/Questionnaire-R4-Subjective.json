@@ -2,20 +2,22 @@
   "resourceType": "Questionnaire",
   "id": "subjective",
   "name": "Subjective Module",
+  "url": "http://hl7.org/fhir/Questionnaire/subjective",
+
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
       "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
     ]
-  },  
+  },
   "extension": [
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
       "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicClinicalInfo-prepopulation"
     }
-  ],  
+  ],
   "status": "draft",
-  "item":[
+  "item": [
     {
       "linkId": "SUB",
       "text": "Subjective",
@@ -76,7 +78,7 @@
               "linkId": "MED.1.4",
               "text": "Frequency",
               "type": "open-choice",
-              "answerValueSet":"http://hl7.org/fhir/ValueSet/timing-abbreviation"
+              "answerValueSet": "http://hl7.org/fhir/ValueSet/timing-abbreviation"
             },
             {
               "linkId": "MED.1.5",
@@ -105,7 +107,7 @@
           "text": "Allergy",
           "type": "open-choice",
           "repeats": true,
-          "anwerOption": []
+          "answerOption": []
         }
       ]
     }

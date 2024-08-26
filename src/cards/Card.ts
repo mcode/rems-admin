@@ -5,12 +5,12 @@ interface Source {
   url: URL;
   icon?: URL;
 }
-interface Action {
+export interface Action {
   type: string;
   description: string;
   resource?: Resource | string;
 }
-interface Suggestion {
+export interface Suggestion {
   label: string;
   uuid?: string;
   actions: Action[];

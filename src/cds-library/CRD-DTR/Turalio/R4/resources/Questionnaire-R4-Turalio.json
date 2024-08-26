@@ -4,9 +4,7 @@
   "name": "TuralioRemsPatientEnrollment",
   "title": "Turalio Rems Patient Enrollment",
   "status": "draft",
-  "subjectType": [
-    "Patient"
-  ],
+  "subjectType": ["Patient"],
   "date": "2020-05-20",
   "publisher": "Da Vinci DTR",
   "extension": [
@@ -25,12 +23,12 @@
           "linkId": "1.1",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-info-base"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-info-base"
             },
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
-              "valueBoolean": true
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible",
+              "valueCode": "default-open"
             }
           ],
           "type": "display"
@@ -230,7 +228,7 @@
                 "code": "White",
                 "display": "White"
               }
-            }            
+            }
           ]
         },
         {
@@ -325,12 +323,12 @@
           "linkId": "2.1",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/practitioner-info-base"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/practitioner-info-base"
             },
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
-              "valueBoolean": true
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-collapsible",
+              "valueCode": "default-open"
             }
           ],
           "type": "display"
@@ -466,14 +464,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "AST or SGOT"
-              }],
+              "initial": [
+                {
+                  "valueString": "AST or SGOT"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -524,14 +524,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "ALT or SGPT"
-              }],
+              "initial": [
+                {
+                  "valueString": "ALT or SGPT"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -582,14 +584,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "GGT"
-              }],
+              "initial": [
+                {
+                  "valueString": "GGT"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -640,14 +644,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "Total Bilirubin"
-              }],
+              "initial": [
+                {
+                  "valueString": "Total Bilirubin"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -698,14 +704,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "Direct Bilirubin"
-              }],
+              "initial": [
+                {
+                  "valueString": "Direct Bilirubin"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -756,14 +764,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "Alkaline Phosphatase"
-              }],
+              "initial": [
+                {
+                  "valueString": "Alkaline Phosphatase"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -814,14 +824,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "Albumin"
-              }],
+              "initial": [
+                {
+                  "valueString": "Albumin"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -872,14 +884,16 @@
               }
             }
           ],
-          "item" : [
+          "item": [
             {
               "linkId": "3.1.1",
               "text": "Laboratory Test",
               "type": "string",
-              "initial": [{
-                "valueString": "PT/INR"
-              }],
+              "initial": [
+                {
+                  "valueString": "PT/INR"
+                }
+              ],
               "readOnly": true
             },
             {
@@ -1137,8 +1151,8 @@
           "linkId": "6.2",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/provider-signature"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/provider-signature"
             }
           ],
           "type": "display"
@@ -1160,8 +1174,8 @@
           "linkId": "7.2",
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
-              "valueCanonical": "questionnaire/patient-signature"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire",
+              "valueCanonical": "http://hl7.org/fhir/Questionnaire/patient-signature"
             }
           ],
           "type": "display"

@@ -1,15 +1,16 @@
 {
   "resourceType": "Questionnaire",
   "id": "physical-exam",
-  "name": "Physican Exam Module",
+  "name": "Physical Exam Module",
+  "url": "http://hl7.org/fhir/Questionnaire/physical-exam",
   "meta": {
     "profile": [
       "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
       "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
     ]
-  },  
+  },
   "status": "draft",
-  "item":[
+  "item": [
     {
       "linkId": "OBJ.PE",
       "code": [
@@ -31,7 +32,7 @@
               "system": "http://loinc.org"
             }
           ],
-          "type": "string",              
+          "type": "string",
           "text": "General Appearance"
         },
         {
@@ -43,7 +44,7 @@
               "system": "http://loinc.org"
             }
           ],
-          "type": "string",              
+          "type": "string",
           "text": "Head and Face"
         },
         {
@@ -103,7 +104,7 @@
               "system": "http://loinc.org"
             }
           ],
-          "type": "string",              
+          "type": "string",
           "text": "Cardiovascular System"
         },
         {
@@ -171,12 +172,12 @@
           "code": [
             {
               "code": "71401-4",
-              "display": "Extremeties",
+              "display": "Extremities",
               "system": "http://loinc.org"
             }
           ],
           "type": "string",
-          "text": "Extremeties"
+          "text": "Extremities"
         },
         {
           "linkId": "PE.14",
@@ -248,5 +249,5 @@
         }
       ]
     }
- ]
+  ]
 }
