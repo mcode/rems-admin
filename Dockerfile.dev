@@ -1,7 +1,7 @@
 FROM node:18-alpine 
 WORKDIR /rems-admin
 
-ARG PORT
+ARG PORT=8090
 ENV PORT=${PORT}
 
 COPY --chown=node:node . .
