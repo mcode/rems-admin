@@ -9,7 +9,7 @@ import patientViewService from './hooks/rems.patientview';
 import encounterStartService from './hooks/rems.encounterstart';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
-import Ncpdp from './lib/rxfill';
+import Ncpdp from './ncpdp/script';
 import env from 'env-var';
 import https from 'https';
 import fs from 'fs';
