@@ -9,11 +9,7 @@ import {
   BundleEntry
 } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
-import {
-  HookPrefetch,
-  TypedRequestBody,
-  TypedResponseBody
-} from '../rems-cds-hooks/resources/HookTypes';
+import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
 import config from '../config';
 import {
   RemsCase,
@@ -28,7 +24,7 @@ import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
 
 type HandleCallback = (
-  res: TypedResponseBody,
+  res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   patient: FhirResource | undefined
@@ -360,7 +356,7 @@ const getErrorCard = (
 
 // handles order-sign and order-select currently
 export const handleCardOrder = async (
-  res: TypedResponseBody,
+  res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
   resource: FhirResource | undefined
@@ -485,7 +481,7 @@ const getSuggestions = (
 // make sure code here is applicable to all supported hooks.
 export async function handleCard(
   req: TypedRequestBody,
-  res: TypedResponseBody,
+  res: any,
   hydratedPrefetch: HookPrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -517,7 +513,7 @@ export async function handleCard(
 // handles all hooks, any supported hook should pass through this function
 export function handleHook(
   req: TypedRequestBody,
-  res: TypedResponseBody,
+  res: any,
   hookPrefetch: ServicePrefetch,
   contextRequest: FhirResource | undefined,
   callback: HandleCallback
@@ -732,7 +728,7 @@ const getSuggestionOrEmptyArray =
 
 // handles patient-view and encounter-start currently
 export const handleCardEncounter = async (
-  res: TypedResponseBody,
+  res: any,
   hookPrefetch: HookPrefetch | undefined,
   _contextRequest: FhirResource | undefined,
   resource: FhirResource | undefined

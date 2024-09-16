@@ -1,8 +1,4 @@
-import {
-  PatientViewHook,
-  SupportedHooks,
-  TypedResponseBody
-} from '../rems-cds-hooks/resources/HookTypes';
+import { PatientViewHook, SupportedHooks } from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { handleCardEncounter, handleHook } from './hookResources';
 
@@ -24,7 +20,7 @@ const definition: CdsService = {
   prefetch: hookPrefetch
 };
 
-const handler = (req: TypedRequestBody, res: TypedResponseBody) => {
+const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS patient-view hook');
   const contextRequest = undefined;
   handleHook(req, res, hookPrefetch, contextRequest, handleCardEncounter);

@@ -1,8 +1,4 @@
-import {
-  SupportedHooks,
-  TypedResponseBody,
-  OrderSelectHook
-} from '../rems-cds-hooks/resources/HookTypes';
+import { SupportedHooks, OrderSelectHook } from '../rems-cds-hooks/resources/HookTypes';
 import { ServicePrefetch, CdsService } from '../rems-cds-hooks/resources/CdsService';
 import { handleCardOrder, handleHook } from './hookResources';
 
@@ -22,7 +18,7 @@ const definition: CdsService = {
   prefetch: hookPrefetch
 };
 
-const handler = (req: TypedRequestBody, res: TypedResponseBody) => {
+const handler = (req: TypedRequestBody, res: any) => {
   console.log('REMS order-select hook');
   const context = req.body.context;
   const selection = context.selections?.[0];
