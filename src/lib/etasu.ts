@@ -226,11 +226,13 @@ const createMetRequirementAndNewCase = async (
 
   // create new rems request and add the created metReq to it
   let remsRequestCompletedStatus = 'Approved';
+  const dispenseStatusDefault = 'Pending';
   const remsRequest: Pick<
     RemsCase,
     | 'case_number'
     | 'auth_number'
     | 'status'
+    | 'dispenseStatus'
     | 'drugName'
     | 'drugCode'
     | 'patientFirstName'
@@ -241,6 +243,7 @@ const createMetRequirementAndNewCase = async (
     case_number: case_number,
     auth_number: '',
     status: remsRequestCompletedStatus,
+    dispenseStatus: dispenseStatusDefault,
     drugName: drug?.name,
     drugCode: drug?.code,
     patientFirstName: patientFirstName,
