@@ -98,3 +98,4 @@ Following are a list of modifiable paths:
 | USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.                                   |
 | VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets. Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/) |
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.                                     |
+| SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |
