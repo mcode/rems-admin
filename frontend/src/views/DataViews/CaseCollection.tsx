@@ -1,10 +1,8 @@
 import axios from 'axios'
 import { useEffect, useState, SetStateAction } from 'react'
 import {
-    Box,
     Button,
     Card,
-    CardActions,
     CardContent,
     Paper,
     Table,
@@ -12,11 +10,11 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
-    Typography
+    TableRow
   } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Refresh } from '@mui/icons-material';
 
 export type RemsCase = {
     case_number?: string;
@@ -35,8 +33,7 @@ export type RemsCase = {
           requirementName: string;
           stakeholderId: string;
           completed: boolean;
-        }[]
-      | null;
+        }[];
     _id: string;
   };
 const CaseCollection = () => {
@@ -49,7 +46,7 @@ const CaseCollection = () => {
     }, [])
 
     const getAllRemsCase = async () => {
-        const url = 'http://localhost:8090/all/remscase';
+        const url = 'http://localhost:8090/api/all/remscase';
         await axios
         .get(url)
         .then(function (response: { data: SetStateAction<RemsCase[]>; }) {
@@ -63,14 +60,11 @@ const CaseCollection = () => {
     }
 
     const deleteSingleRow = async (event: any, row: RemsCase) => {
-        console.log('row to delete is -- > ', row);
-        const url = 'http://localhost:8090/remsCase/deleteOne';
+        const url = 'http://localhost:8090/api/remsCase/deleteOne';
         await axios
         .post(url, {data: { params: row}})
         .then(function (response: { data: any; status: number; }) {
-            console.log('response data -- > ', response.data);
             if (response.status === 200) {
-                console.log('Response.data -- > ', response.data);
                 getAllRemsCase();
             }
         })
@@ -80,15 +74,46 @@ const CaseCollection = () => {
         })
     }
 
+    const formattedReqs = (row: RemsCase) => {
+        let reqNames: String[] = []
+        row.metRequirements.forEach((req: any) => {
+            const completed = req.completed ? 'Completed': 'Not completed';
+            reqNames.push(`${req.requirementName}: ${completed}`);
+        })
+        return reqNames.join(', ');
+    }
+
     if (allData.length < 1 && !isLoading) {
         return (
             <Card style={{ padding: '15px' }}>
+                <div className="right-btn">
+                    <Button
+                        variant="contained"
+                        startIcon={<Refresh />}
+                        onClick={() => {
+                            getAllRemsCase();
+                        }}
+                        >
+                        Refresh
+                    </Button>
+                </div>
                 <h1>No data</h1>
             </Card>
         )
     } else {
         return (
             <Card sx={{ bgColor: '#F5F5F7' }}>
+                <div className="right-btn">
+                    <Button
+                        variant="contained"
+                        startIcon={<Refresh />}
+                        onClick={() => {
+                            getAllRemsCase();
+                        }}
+                        >
+                        Refresh
+                    </Button>
+                </div>
                 <Card>
                     <Card>
                         <CardContent>
@@ -105,13 +130,13 @@ const CaseCollection = () => {
                                     <TableCell align="right">Status</TableCell>
                                     <TableCell align="right">Dispense Status</TableCell>
                                     <TableCell align="left">Authorization Number</TableCell>
-                                    {/* <TableCell align="right">Met Requirements</TableCell> */}
+                                    <TableCell align="right">Met Requirements</TableCell>
                                     <TableCell align="right">Delete</TableCell>
                                 </TableRow>
                                 </TableHead>
                                 <TableBody>
                                 {allData.map(row => {
-                                    // console.log('row -- > ', row);
+                                    const metReq = formattedReqs(row);
                                     return (
                                         <TableRow key={row.case_number}>
                                             <TableCell align="right">{row.case_number}</TableCell>
@@ -122,13 +147,13 @@ const CaseCollection = () => {
                                             <TableCell align="right">{row.patientDOB}</TableCell>
                                             <TableCell align="right">{row.status}</TableCell>
                                             <TableCell align="right">{row.dispenseStatus}</TableCell>
-                                            <TableCell align="left">{row.auth_number}</TableCell>
+                                            <TableCell align="right">{row.auth_number}</TableCell>
+                                            <TableCell align="right">{metReq}</TableCell>
                                             <TableCell align="right">
                                                 <IconButton aria-label="delete" onClick={(event: any) => deleteSingleRow(event, row)}>
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </TableCell>
-                                            {/* <TableCell align="right">{row.metRequirements}</TableCell> */}
                                         </TableRow>
                                     )})}
                                 </TableBody>

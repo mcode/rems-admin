@@ -40,6 +40,12 @@
 .white-btn {
   color: white !important;
   border-color: white !important;
+  margin-right: 5px !important;
+}
+.right-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 16px 10px 0;
 }
 
 .App h1 {

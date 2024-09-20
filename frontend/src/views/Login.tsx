@@ -1,14 +1,43 @@
-import { useState } from 'react'
+import { SetStateAction } from 'react'
+import axios from 'axios'
 import { Avatar, Box, Button, Container, CssBaseline, TextField, Typography } from '@mui/material';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import config from '../../config.json';
 
-const Login = () => {
-    const [token, setToken] = useState<string | null>(null);
+const Login = (props) => {
 
-
-    const handleSubmit = () => {
-        console.log('handle submit');
+    const handleSubmit = (event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const user = data.get('username')?.toString();
+        const pass = data.get('password')?.toString();
+        if (user && pass) {
+          const params = new URLSearchParams();
+          params.append('username', user);
+          params.append('password', pass);
+          params.append('grant_type', 'password');
+          params.append('client_id', config.client);
+          axios
+            .post(`${config.auth}/realms/${config.realm}/protocol/openid-connect/token`, params, {
+              withCredentials: true
+            })
+            .then((result: { data: { scope: string; access_token: SetStateAction<string | null>; }; }) => {
+              // do something with the token
+              const scope = result.data.scope;
+              if (scope) {
+                props.tokenCallback(result.data.access_token);
+              } else {
+                console.error('Unauthorized User');
+              }
+            })
+            .catch(err => {
+              if (err.response.status === 401) {
+                console.error('Unknown user');
+              } else {
+                console.error(err);
+              }
+            });
+        }
     }
 
     return (
@@ -22,15 +51,9 @@ const Login = () => {
                 alignItems: 'center'
             }}
             >
-            {token ? (
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.success' }}>
-                <LockOpenOutlinedIcon />
-                </Avatar>
-            ) : (
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ m: 1 }}>
                 <LockOutlinedIcon />
-                </Avatar>
-            )}
+            </Avatar>
             <Typography component="h1" variant="h5">
                 Sign in
             </Typography>
