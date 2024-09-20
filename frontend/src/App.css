@@ -73,3 +73,9 @@
   display: grid;
   grid-template-areas: ' main right';
 }
+
+.err-msg {
+  color: red;
+  font-style: italic;
+  text-align: center;
+}

@@ -12,6 +12,7 @@ import axios from 'axios'
 function App() {
   const [token, setToken] = useState(null);
 
+  // to do - add popup for a 'are you sure'
   const resetDB = async () => {
     await axios
     .post('http://localhost:8090/etasu/reset')

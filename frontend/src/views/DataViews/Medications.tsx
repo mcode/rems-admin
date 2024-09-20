@@ -38,7 +38,6 @@ const Medications = () => {
 
     useEffect(() => {
         getAllMedications();
-        // getAllMetReqs();
     }, [])
 
     const getAllMedications = async () => {
