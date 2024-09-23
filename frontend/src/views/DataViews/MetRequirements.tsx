@@ -29,10 +29,16 @@ export type MetRequirements = {
     _id: string;
   };
 
-const MetRequirements = () => {
+const MetRequirements = (props: { refresh: boolean; }) => {
 
     const [allData, setAllData] = useState<MetRequirements[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (props.refresh) {
+            getAllMetReqs()
+        }
+    }, [props.refresh])
 
     useEffect(() => {
         getAllMetReqs();

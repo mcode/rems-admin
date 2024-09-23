@@ -1,5 +1,5 @@
 import { SyntheticEvent, useState } from 'react'
-import { Box, Tab, Tabs, Button } from '@mui/material';
+import { Box, Tab, Tabs } from '@mui/material';
 import { Container } from '@mui/system';
 import CaseCollection from './CaseCollection';
 import Medications from './Medications';
@@ -11,7 +11,7 @@ function a11yProps(index: number) {
       'aria-controls': `simple-tabpanel-${index}`
     };
   }
-const Data = () => {
+const Data = (props: { refresh: boolean; }) => {
     const [tabIndex, setValue] = useState(0);
 
     const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -43,17 +43,17 @@ const Data = () => {
                     <Box sx={{ padding: 2 }}>
                         {tabIndex === 0 && (
                         <Box>
-                            <CaseCollection />
+                            <CaseCollection refresh={props.refresh} />
                         </Box>
                         )}
                         {tabIndex === 1 && (
                         <Box>
-                            <Medications />
+                            <Medications refresh={props.refresh} />
                         </Box>
                         )}
                         {tabIndex === 2 && (
                         <Box>
-                            <MetRequirements />
+                            <MetRequirements refresh={props.refresh} />
                         </Box>
                         )}
                     </Box>

@@ -36,10 +36,16 @@ export type RemsCase = {
         }[];
     _id: string;
   };
-const CaseCollection = () => {
+const CaseCollection = (props: { refresh: boolean; }) => {
 
     const [allData, setAllData] = useState<RemsCase[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (props.refresh) {
+            getAllRemsCase()
+        }
+    }, [props.refresh])
 
     useEffect(() => {
         getAllRemsCase();

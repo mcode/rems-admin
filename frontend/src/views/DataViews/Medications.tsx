@@ -31,10 +31,16 @@ export type Medication = {
     _id: string;
   };
 
-const Medications = () => {
+const Medications = (props: { refresh: boolean; }) => {
 
     const [allData, setAllData] = useState<Medication[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (props.refresh) {
+            getAllMedications()
+        }
+    }, [props.refresh])
 
     useEffect(() => {
         getAllMedications();
