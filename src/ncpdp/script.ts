@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { remsCaseCollection } from '../fhir/models';
 const router = Router();
 
