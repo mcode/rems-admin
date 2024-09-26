@@ -87,7 +87,7 @@ const Login = props => {
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Sign In
           </Button>
-          {showMessage ? <p className="err-msg">Error signing in. Please try again.</p> : ''};
+          {showMessage ? <p className="err-msg">Error signing in. Please try again.</p> : ''}
         </Box>
       </Box>
     </Container>
