@@ -92,6 +92,7 @@ const Medications = (props: { refresh: boolean }) => {
             <Button
               variant="contained"
               startIcon={<Refresh />}
+              sx={{backgroundColor: '#2F6A47'}}
               onClick={() => {
                 getAllMedications();
               }}

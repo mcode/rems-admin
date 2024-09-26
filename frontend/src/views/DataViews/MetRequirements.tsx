@@ -85,6 +85,7 @@ const MetRequirements = (props: { refresh: boolean }) => {
         <div className="right-btn">
           <Button
             variant="contained"
+            sx={{backgroundColor: '#2F6A47'}}
             startIcon={<Refresh />}
             onClick={() => {
               getAllMetReqs();
@@ -103,6 +104,7 @@ const MetRequirements = (props: { refresh: boolean }) => {
           <div className="right-btn">
             <Button
               variant="contained"
+              sx={{backgroundColor: '#2F6A47'}}
               startIcon={<Refresh />}
               onClick={() => {
                 getAllMetReqs();

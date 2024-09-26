@@ -84,7 +84,7 @@ const Login = props => {
             id="password"
             autoComplete="current-password"
           />
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, backgroundColor: '#2F6A47'}}>
             Sign In
           </Button>
           {showMessage ? <p className="err-msg">Error signing in. Please try again.</p> : ''}
