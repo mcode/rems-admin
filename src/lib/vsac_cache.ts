@@ -60,7 +60,11 @@ class VsacCache {
    */
   collectLibraryValueSets(library: Library) {
     // ensure only unique values
-    return new Set(fhirpath.evaluate(library, 'Library.dataRequirement.codeFilter.valueSet'));
+    const result = fhirpath.evaluate(
+      library,
+      'Library.dataRequirement.codeFilter.valueSet'
+    ) as any[];
+    return new Set(result);
   }
 
   /**
