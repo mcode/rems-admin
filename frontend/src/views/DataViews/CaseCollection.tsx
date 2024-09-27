@@ -15,6 +15,9 @@ import {
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Refresh } from '@mui/icons-material';
+import CircleIcon from '@mui/icons-material/Circle';
+import Tooltip from '@mui/material/Tooltip';
+import FormPopup from '../FormPopup';
 
 export type RemsCase = {
   case_number?: string;
@@ -39,6 +42,8 @@ export type RemsCase = {
 const CaseCollection = (props: { refresh: boolean }) => {
   const [allData, setAllData] = useState<RemsCase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [rowData, setRowData] = useState({});
 
   useEffect(() => {
     if (props.refresh) {
@@ -79,13 +84,35 @@ const CaseCollection = (props: { refresh: boolean }) => {
       });
   };
 
+  const openForms = (event: any, row: RemsCase) => {
+    setRowData(row);
+    setOpen(true);
+  }
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
   const formattedReqs = (row: RemsCase) => {
-    let reqNames: String[] = [];
+    let allCompleted = true;
+    let color = '#f0ad4e';
+    let tooltip = 'Forms not completed';
     row.metRequirements.forEach((req: any) => {
-      const completed = req.completed ? 'Completed' : 'Not completed';
-      reqNames.push(`${req.requirementName}: ${completed}`);
+      if (!req.completed) {
+        allCompleted = false;
+      }
     });
-    return reqNames.join(', ');
+    if (allCompleted) {
+      color = 'green';
+      tooltip = 'Forms completed';
+    }
+    return (
+      <Tooltip title={tooltip}>
+        <IconButton onClick={(event: any) => openForms(event, row)}>
+            <CircleIcon sx={{color: color}} />
+        </IconButton>
+      </Tooltip>
+    )
   };
 
   if (allData.length < 1 && !isLoading) {
@@ -154,7 +181,7 @@ const CaseCollection = (props: { refresh: boolean }) => {
                           <TableCell align="right">{row.status}</TableCell>
                           <TableCell align="right">{row.dispenseStatus}</TableCell>
                           <TableCell align="right">{row.auth_number}</TableCell>
-                          <TableCell align="right">{metReq}</TableCell>
+                          <TableCell align="center">{metReq}</TableCell>
                           <TableCell align="right">
                             <IconButton
                               aria-label="delete"
@@ -172,6 +199,7 @@ const CaseCollection = (props: { refresh: boolean }) => {
             </CardContent>
           </Card>
         </Card>
+        <FormPopup open={open} handleClose={handleClose} data={rowData} />
       </Card>
     );
   }
