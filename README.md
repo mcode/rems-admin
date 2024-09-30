@@ -30,6 +30,24 @@ Follow the mongodb setup instructions in the [REMS End to End Setup Guide](https
 
 If you would rather run with docker, follow the setup found in the [REMS Simple Setup Guide](https://github.com/mcode/rems-setup/blob/main/SimpleSetupGuide.md) (this will also setup the other REMS applications in docker as well).
 
+## Starting the frontend
+
+Cd into the frontend repository
+
+### `cd frontend/`
+
+Next, install the required dependencies by running the following:
+
+### `npm install`
+
+Next, start the frontend with the following:
+
+### `npm start`
+
+Go to the UI running on http://localhost:5173/ (or whichever port it was run on)
+
+Still need to update docker to start the UI automatically. 
+
 ## Available Scripts
 
 In the project directory, you can run:
