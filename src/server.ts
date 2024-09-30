@@ -10,6 +10,7 @@ import encounterStartService from './hooks/rems.encounterstart';
 import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
 import Ncpdp from './ncpdp/script';
+import Api from './lib/api_routes';
 import env from 'env-var';
 import https from 'https';
 import fs from 'fs';
@@ -29,6 +30,7 @@ const initialize = (config: any) => {
     .registerCdsHooks(config.server)
     .configureEtasuEndpoints()
     .configureNCPDPEndpoints()
+    .configureUIEndpoints()
     .setErrorRoutes();
 };
 
@@ -132,6 +134,11 @@ class REMSServer extends Server {
       })
     );
     this.app.use('/', Ncpdp);
+    return this;
+  }
+
+  configureUIEndpoints() {
+    this.app.use('/api/', Api);
     return this;
   }
 

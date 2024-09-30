@@ -30,6 +30,24 @@ Follow the mongodb setup instructions in the [REMS End to End Setup Guide](https
 
 If you would rather run with docker, follow the setup found in the [REMS Simple Setup Guide](https://github.com/mcode/rems-setup/blob/main/SimpleSetupGuide.md) (this will also setup the other REMS applications in docker as well).
 
+## Starting the frontend
+
+Cd into the frontend repository
+
+### `cd frontend/`
+
+Next, install the required dependencies by running the following:
+
+### `npm install`
+
+Next, start the frontend with the following:
+
+### `npm start`
+
+Go to the UI running on http://localhost:5173/ (or whichever port it was run on)
+
+Still need to update docker to start the UI automatically. 
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -98,3 +116,4 @@ Following are a list of modifiable paths:
 | USE_HTTPS       | `false`                                    | Change to true to enable HTTPS. Ensure that HTTPS_CERT_PATH and HTTPS_KEY_PATH are valid.                                   |
 | VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets. Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/) |
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.                                     |
+| SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |

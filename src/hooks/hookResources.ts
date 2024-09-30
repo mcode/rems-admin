@@ -244,7 +244,7 @@ export const validCodes: Coding[] = [
   }
 ];
 const source = {
-  label: 'MCODE REMS Administrator Prototype',
+  label: config.server.name,
   url: new URL('https://github.com/mcode/rems-admin')
 };
 
