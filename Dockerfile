@@ -20,5 +20,5 @@ EXPOSE 8095
 EXPOSE 9090
 EXPOSE 9095
 
-HEALTHCHECK --interval=30s --start-period=15s --timeout=10m --retries=10 CMD (wget --no-verbose --tries=1 --spider http://localhost:${PORT} && wget --no-verbose --tries=1 --spider http://localhost:${FRONTEND_PORT}) || exit 1
+HEALTHCHECK --interval=45s --start-period=60s --timeout=10m --retries=10 CMD (wget --no-verbose --tries=1 --spider http://localhost:${PORT} && wget --no-verbose --tries=1 --spider http://localhost:${FRONTEND_PORT}) || exit 1
 CMD ./dockerRunnerProd.sh
