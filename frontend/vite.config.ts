@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 import dotenv from 'dotenv';
 
-dotenv.config({path : '../.env'}); // load env vars from .env
+dotenv.config({ path: '../.env' }); // load env vars from .env
 export default defineConfig({
   // depending on your application, base can also be "/"
   base: '',
