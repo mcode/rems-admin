@@ -13,6 +13,7 @@ import ValueSetModel from '../lib/schemas/resources/ValueSet';
 import { Model } from 'mongoose';
 import { medicationCollection, metRequirementsCollection } from './models';
 import { glob } from 'glob';
+import config from '../config'
 
 class ResourceExistsException extends Error {}
 
@@ -135,7 +136,7 @@ export class FhirUtilities {
             resourceId: 'TuralioRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -146,7 +147,7 @@ export class FhirUtilities {
             resourceId: 'TuralioPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
             questionnaire: null
           },
           {
@@ -157,7 +158,7 @@ export class FhirUtilities {
             resourceId: 'TuralioPrescriberKnowledgeAssessment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
             questionnaire: null
           },
           {
@@ -178,7 +179,7 @@ export class FhirUtilities {
             resourceId: 'TuralioRemsPatientStatus',
             requiredToDispense: false,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TuralioRemsPatientStatus',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TuralioRemsPatientStatus',
             questionnaire: null
           }
         ]
@@ -196,7 +197,7 @@ export class FhirUtilities {
             resourceId: 'TIRFRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -207,7 +208,7 @@ export class FhirUtilities {
             resourceId: 'TIRFPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
             questionnaire: null
           },
           {
@@ -218,7 +219,7 @@ export class FhirUtilities {
             resourceId: 'TIRFPrescriberKnowledgeAssessment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
             questionnaire: null
           },
           {
@@ -256,7 +257,7 @@ export class FhirUtilities {
             resourceId: 'IPledgeRemsPatientEnrollment',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -267,7 +268,7 @@ export class FhirUtilities {
             resourceId: 'IPledgeRemsPrescriberEnrollmentForm',
             requiredToDispense: true,
             appContext:
-              'questionnaire=http://localhost:8090/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
+              'questionnaire=' + config.fhirServerConfig.resourceServer + '/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
             questionnaire: null
           },
           {

@@ -46,7 +46,7 @@ const Medications = (props: { refresh: boolean }) => {
   }, []);
 
   const getAllMedications = async () => {
-    const url = 'http://localhost:8090/api/all/medications';
+    const url = process.env.RESOURCE_SERVER + '/api/all/medications';
     await axios
       .get(url)
       .then(function (response: { data: SetStateAction<Medication[]> }) {

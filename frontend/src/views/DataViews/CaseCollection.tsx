@@ -56,7 +56,7 @@ const CaseCollection = (props: { refresh: boolean }) => {
   }, []);
 
   const getAllRemsCase = async () => {
-    const url = 'http://localhost:8090/api/all/remscase';
+    const url = process.env.RESOURCE_SERVER + '/api/all/remscase';
     await axios
       .get(url)
       .then(function (response: { data: SetStateAction<RemsCase[]> }) {
@@ -70,7 +70,7 @@ const CaseCollection = (props: { refresh: boolean }) => {
   };
 
   const deleteSingleRow = async (event: any, row: RemsCase) => {
-    const url = 'http://localhost:8090/api/remsCase/deleteOne';
+    const url = process.env.RESOURCE_SERVER + '/api/remsCase/deleteOne';
     await axios
       .post(url, { data: { params: row } })
       .then(function (response: { data: any; status: number }) {
