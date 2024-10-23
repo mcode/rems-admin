@@ -138,7 +138,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
+              '4_0_0/Questionnaire/TuralioRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -151,7 +151,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
+              '4_0_0/Questionnaire/TuralioPrescriberEnrollmentForm',
             questionnaire: null
           },
           {
@@ -164,7 +164,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
+              '4_0_0/Questionnaire/TuralioPrescriberKnowledgeAssessment',
             questionnaire: null
           },
           {
@@ -187,7 +187,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TuralioRemsPatientStatus',
+              '4_0_0/Questionnaire/TuralioRemsPatientStatus',
             questionnaire: null
           }
         ]
@@ -207,7 +207,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
+              '4_0_0/Questionnaire/TIRFRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -220,7 +220,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
+              '4_0_0/Questionnaire/TIRFPrescriberEnrollmentForm',
             questionnaire: null
           },
           {
@@ -233,7 +233,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
+              '4_0_0/Questionnaire/TIRFPrescriberKnowledgeAssessment',
             questionnaire: null
           },
           {
@@ -273,7 +273,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
+              '4_0_0/Questionnaire/IPledgeRemsPatientEnrollment',
             questionnaire: null
           },
           {
@@ -286,7 +286,7 @@ export class FhirUtilities {
             appContext:
               'questionnaire=' +
               config.fhirServerConfig.auth.resourceServer +
-              '/4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
+              '4_0_0/Questionnaire/IPledgeRemsPrescriberEnrollmentForm',
             questionnaire: null
           },
           {
