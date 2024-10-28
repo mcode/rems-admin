@@ -2,7 +2,6 @@ import { SetStateAction, useState } from 'react';
 import axios from 'axios';
 import { Avatar, Box, Button, Container, CssBaseline, TextField, Typography } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import config from '../../config.json';
 
 const Login = props => {
   const [showMessage, setShowMessage] = useState(false);
@@ -20,9 +19,9 @@ const Login = props => {
       params.append('username', user);
       params.append('password', pass);
       params.append('grant_type', 'password');
-      params.append('client_id', config.client);
+      params.append('client_id', process.env.VITE_CLIENT!);
       axios
-        .post(`${config.auth}/realms/${config.realm}/protocol/openid-connect/token`, params, {
+        .post(`${process.env.VITE_AUTH}/realms/${process.env.VITE_REALM}/protocol/openid-connect/token`, params, {
           withCredentials: true
         })
         .then(

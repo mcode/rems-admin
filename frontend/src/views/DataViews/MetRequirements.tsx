@@ -44,7 +44,7 @@ const MetRequirements = (props: { refresh: boolean }) => {
   }, []);
 
   const getAllMetReqs = async () => {
-    const url = 'http://localhost:8090/api/all/metreqs';
+    const url = process.env.RESOURCE_SERVER + '/api/all/metreqs';
     await axios
       .get(url)
       .then(function (response: { data: any }) {
@@ -58,7 +58,7 @@ const MetRequirements = (props: { refresh: boolean }) => {
   };
 
   const deleteSingleRow = async (event: any, row: MetRequirements) => {
-    const url = 'http://localhost:8090/api/metreqs/deleteOne';
+    const url = process.env.RESOURCE_SERVER + '/api/metreqs/deleteOne';
     await axios
       .post(url, { data: { params: row } })
       .then(function (response: { data: any; status: number }) {
@@ -73,7 +73,7 @@ const MetRequirements = (props: { refresh: boolean }) => {
   };
 
   const formattedQuestionnaire = (row: MetRequirements) => {
-    return row?.completedQuestionnaire?.questionnaire.split('http://localhost:8090/4_0_0/')[1];
+    return row?.completedQuestionnaire?.questionnaire.split(process.env.RESOURCE_SERVER + '/4_0_0/')[1];
   };
   const formattedCompleted = (row: MetRequirements) => {
     return row?.completed === true ? 'Yes' : 'No';
