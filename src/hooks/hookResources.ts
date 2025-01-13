@@ -297,13 +297,18 @@ export function createSmartLink(
   appContext: string | null,
   request: MedicationRequest | undefined
 ) {
+  let order;
+  if (config.general.fullResourceInAppContext) {
+    order = JSON.stringify(request);
+  } else {
+    order = request?.resourceType + '/' + request?.id;
+  }
+
   const newLink: Link = {
     label: requirementName + ' Form',
     url: new URL(config.smart.endpoint),
     type: 'smart',
-    appContext: `${appContext}&order=${JSON.stringify(request)}&coverage=${
-      request?.insurance?.[0].reference
-    }`
+    appContext: `${appContext}&order=${order}&coverage=${request?.insurance?.[0].reference}`
   };
   return newLink;
 }

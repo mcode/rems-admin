@@ -23,7 +23,8 @@ export default {
   },
   general: {
     resourcePath: 'src/cds-library/CRD-DTR',
-    VsacApiKey: env.get('VSAC_API_KEY').required().asString()
+    VsacApiKey: env.get('VSAC_API_KEY').required().asString(),
+    fullResourceInAppContext: env.get('FULL_RESOURCE_IN_APP_CONTEXT').required().asBool()
   },
   database: {
     selected: 'mongo',
