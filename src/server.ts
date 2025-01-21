@@ -1,4 +1,4 @@
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import bodyParser from 'body-parser';
 import container from './lib/winston';
 import morgan from 'morgan';
@@ -18,10 +18,11 @@ import bodyParserXml from 'body-parser-xml';
 
 const logger = container.get('application');
 
+
 const initialize = (config: any) => {
   //const logLevel = _.get(config, 'logging.level');
   return new REMSServer(config.fhirServerConfig)
-    .configureMiddleware()
+    .configureMiddleware(config.fhirServerConfig.server.corsOptions)
     .configureSession()
     .configureHelmet()
     .configurePassport()
@@ -60,15 +61,15 @@ class REMSServer extends Server {
    * @method configureMiddleware
    * @description Enable all the standard middleware
    */
-  configureMiddleware() {
+  configureMiddleware(corsOptions: CorsOptions) {
     super.configureMiddleware();
     this.app.set('showStackError', true);
     this.app.set('jsonp callback', true);
     this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
     this.app.use(bodyParser.json({ limit: '50mb' }));
 
-    this.app.use(cors());
-    this.app.options('*', cors());
+    this.app.use(cors(corsOptions));
+    this.app.options('*', cors(corsOptions));
 
     return this;
   }

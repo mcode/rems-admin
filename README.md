@@ -44,7 +44,7 @@ Next, start the frontend with the following:
 
 ### `npm start`
 
-Go to the UI running on http://localhost:5173/ (or whichever port it was run on)
+Go to the UI running on http://localhost:9090/ (or whichever port it was run on)
 
 Still need to update docker to start the UI automatically. 
 
@@ -117,3 +117,5 @@ Following are a list of modifiable paths:
 | VSAC_API_KEY    | `changeMe`                                 | Replace with VSAC API key for pulling down ValueSets. Request an API Key from the [VSAC website](https://vsac.nlm.nih.gov/) |
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.                                     |
 | SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |
+| FULL_RESOURCE_IN_APP_CONTEXT     | 'false'       | If true, the entire order resource will be included in the appContext, otherwise only a reference will be.                                                                     |
+| FRONTEND_PORT            | `9080`                                             | Port that the frontend  server should run on, change if there are conflicts with port usage.                   |

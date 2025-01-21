@@ -29,7 +29,7 @@ function App() {
   const resetDB = async () => {
     setOpen(false);
     await axios
-      .post('http://localhost:8090/etasu/reset')
+      .post(process.env.RESOURCE_SERVER + '/etasu/reset')
       .then(function (response: any) {
         console.log(response);
         setForceRefresh(true);

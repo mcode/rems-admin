@@ -23,7 +23,8 @@ export default {
   },
   general: {
     resourcePath: 'src/cds-library/CRD-DTR',
-    VsacApiKey: env.get('VSAC_API_KEY').required().asString()
+    VsacApiKey: env.get('VSAC_API_KEY').required().asString(),
+    fullResourceInAppContext: env.get('FULL_RESOURCE_IN_APP_CONTEXT').required().asBool()
   },
   database: {
     selected: 'mongo',
@@ -40,7 +41,7 @@ export default {
   fhirServerConfig: {
     auth: {
       // This server's URI
-      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString()
+      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString() + '/'
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
       //
