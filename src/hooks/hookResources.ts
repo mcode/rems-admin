@@ -822,6 +822,9 @@ export function createQuestionnaireCompletionTask(
     for: {
       reference: `${patient.resourceType}/${patient.id}`
     },
+    requester: {
+      reference: `${request.requester?.reference}`
+    },
     authoredOn: `${new Date(Date.now()).toISOString()}`,
     input: [
       {
