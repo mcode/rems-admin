@@ -377,7 +377,7 @@ const createMetRequirementAndUpdateCase = async (
           // _id comparison would not work for some reason
           if (req4?.requirementName === matchedMetReq.requirementName) {
             metReqArray[i].completed = true;
-            req4.completed = true;
+            req4!.completed = true;
             await remsCaseCollection.updateOne(
               { _id: remsRequestToUpdate?._id },
               { $set: { metRequirements: metReqArray } }

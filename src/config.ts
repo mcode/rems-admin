@@ -41,7 +41,7 @@ export default {
   fhirServerConfig: {
     auth: {
       // This server's URI
-      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString() + '/'
+      resourceServer: env.get('RESOURCE_SERVER').required() + '/'
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
       //
