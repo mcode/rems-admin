@@ -27,7 +27,7 @@ export interface MetRequirements extends Document {
   drugName: string;
   stakeholderId: string;
   case_numbers: string[];
-  metRequirementId: string;
+  metRequirementId: any;
 }
 
 export interface RemsCase extends Document {
