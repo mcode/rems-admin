@@ -152,7 +152,7 @@ export const codeMap: { [key: string]: CardRule[] } = {
         }
       ],
       stakeholderType: 'prescriber',
-      summary: 'iPledge/Isotretinoin REMS Provider Requirements',
+      summary: 'iPledge/Isotretinoin REMS Prescriber Requirements',
       cardDetails: CARD_DETAILS
     }
   ],
