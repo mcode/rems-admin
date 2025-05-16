@@ -18,7 +18,6 @@ import bodyParserXml from 'body-parser-xml';
 
 const logger = container.get('application');
 
-
 const initialize = (config: any) => {
   //const logLevel = _.get(config, 'logging.level');
   return new REMSServer(config.fhirServerConfig)
