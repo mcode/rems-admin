@@ -61,7 +61,6 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   let authNumber: string | undefined;
   let caseNumber: string | undefined;
 
-
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
       patient = param.resource;
