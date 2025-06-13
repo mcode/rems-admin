@@ -25,7 +25,7 @@ describe('REMSServer class', () => {
     const set = sinon.spy(server.app, 'set');
     const use = sinon.spy(server.app, 'use');
 
-    server.configureMiddleware();
+    server.configureMiddleware({});
     expect(set.callCount).to.equal(6);
     expect(set.getCall(4).args[0]).to.equal('showStackError');
     expect(set.getCall(4).args[1]).to.be.true;
@@ -87,20 +87,20 @@ describe('REMSServer class', () => {
   });
 
   it('should be able to prepopulate data without error', async () => {
-    expect(await metRequirementsCollection.count({})).to.equal(0);
-    expect(await medicationCollection.count({})).to.equal(0);
+    expect(await metRequirementsCollection.countDocuments({})).to.equal(0);
+    expect(await medicationCollection.countDocuments({})).to.equal(0);
     await FhirUtilities.populateDB();
-    expect(await metRequirementsCollection.count({})).to.not.equal(0);
-    expect(await medicationCollection.count({})).to.not.equal(0);
+    expect(await metRequirementsCollection.countDocuments({})).to.not.equal(0);
+    expect(await medicationCollection.countDocuments({})).to.not.equal(0);
     await FhirUtilities.populateDB();
   });
 
   it('should be able to load artifacts from filesystem', async () => {
-    expect(await LibraryModel.count({})).to.equal(0);
-    expect(await QuestionnaireModel.count({})).to.equal(0);
+    expect(await LibraryModel.countDocuments({})).to.equal(0);
+    expect(await QuestionnaireModel.countDocuments({})).to.equal(0);
     await FhirUtilities.loadResources('./test/fixtures/cds-library');
-    expect(await LibraryModel.count({})).to.not.equal(0);
-    expect(await QuestionnaireModel.count({})).to.not.equal(0);
+    expect(await LibraryModel.countDocuments({})).to.not.equal(0);
+    expect(await QuestionnaireModel.countDocuments({})).to.not.equal(0);
     await FhirUtilities.loadResources('./test/fixtures/cds-library');
   });
 });
