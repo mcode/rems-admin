@@ -59,6 +59,8 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   let patient: Patient | undefined;
   let medication: Medication | MedicationRequest | undefined;
   let authNumber: string | undefined;
+  let caseNumber: string | undefined;
+
 
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
@@ -71,12 +73,15 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
       medication = param.resource;
     } else if (param?.name === 'authNumber') {
       authNumber = param.valueString;
+    } else if (param?.name === 'caseNumber') {
+      caseNumber = param.valueString;
     }
   });
 
   let etasu: Pick<
     RemsCase,
     | 'drugName'
+    | 'case_number'
     | 'auth_number'
     | 'status'
     | 'drugCode'
@@ -94,7 +99,15 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     const medicationSearchDict = {};
 
     etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
-  } else {
+  } else if (caseNumber) {
+    const remsCaseSearchDict = {
+      case_number: caseNumber
+    };
+
+    const medicationSearchDict = {};
+
+    etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
+  }else {
     const drugCode = getMedicationCode(medication);
 
     // grab the patient demographics from the Patient resource in the parameters

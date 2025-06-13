@@ -29,6 +29,7 @@ export class GuidanceResponseUtilities {
       RemsCase,
       | 'drugName'
       | 'auth_number'
+      | 'case_number'
       | 'status'
       | 'drugCode'
       | 'patientFirstName'
@@ -79,6 +80,7 @@ export class GuidanceResponseUtilities {
       }
     });
     outputParameters.parameter?.push({ name: 'auth_number', valueString: etasu?.auth_number });
+    outputParameters.parameter?.push({ name: 'case_number', valueString: etasu?.case_number });
     return outputParameters;
   }
 
@@ -87,6 +89,7 @@ export class GuidanceResponseUtilities {
       RemsCase,
       | 'drugName'
       | 'auth_number'
+      | 'case_number'
       | 'status'
       | 'drugCode'
       | 'patientFirstName'

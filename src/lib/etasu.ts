@@ -34,7 +34,7 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
 });
 
 router.get('/met/auth/:authNumber', async (req: Request, res: Response) => {
-  console.log('get etasu by authnumber: ' + req.params.authNumber);
+  console.log('get etasu by authNumber: ' + req.params.authNumber);
   res.send(await remsCaseCollection.findOne({ auth_number: req.params.authNumber }));
 });
 
@@ -46,6 +46,7 @@ export const getCaseInfo = async (
   | 'status'
   | 'drugName'
   | 'auth_number'
+  | 'case_number'
   | 'drugCode'
   | 'patientFirstName'
   | 'patientLastName'
@@ -67,6 +68,7 @@ export const getCaseInfo = async (
         | 'status'
         | 'drugName'
         | 'auth_number'
+        | 'case_number'
         | 'drugCode'
         | 'patientFirstName'
         | 'patientLastName'
@@ -76,6 +78,7 @@ export const getCaseInfo = async (
         status: 'Approved',
         drugName: drug?.name,
         auth_number: remsCaseSearchDict.auth_number || '',
+        case_number: remsCaseSearchDict.case_number || '',
         drugCode: drug?.code,
         patientFirstName: remsCaseSearchDict.patientFirstName || '',
         patientLastName: remsCaseSearchDict.patientLastName || '',
