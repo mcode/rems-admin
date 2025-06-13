@@ -80,6 +80,7 @@ export class GuidanceResponseUtilities {
       }
     });
     outputParameters.parameter?.push({ name: 'auth_number', valueString: etasu?.auth_number });
+    outputParameters.parameter?.push({ name: 'case_number', valueString: etasu?.case_number });
     return outputParameters;
   }
 
