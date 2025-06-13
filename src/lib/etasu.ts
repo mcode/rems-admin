@@ -259,7 +259,6 @@ const createMetRequirementAndNewCase = async (
     message = 'ERROR: failed to create new met requirement for form initial to case';
     console.log(message);
     throw new Error(message);
-    
   }
 
   // iterate through all other requirements again to create corresponding false metRequirements / assign to existing
@@ -314,7 +313,7 @@ const createMetRequirementAndNewCase = async (
 
   remsRequest.status = remsRequestCompletedStatus;
   const returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
-  
+
   return {
     returnedRemsRequestDoc
   };
@@ -403,7 +402,6 @@ const createMetRequirementAndUpdateCase = async (
   return {
     returnedMetReqDoc
   };
-
 };
 
 const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
@@ -478,8 +476,7 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
     return {
       message
     };
-    }
-  
+  }
 };
 
 const getResource = (bundle: Bundle, resourceReference: string) => {
@@ -512,7 +509,6 @@ const getQuestionnaireResponse = (bundle: Bundle) => {
   }
   return null;
 };
-
 
 export const processQuestionnaireResponseSubmission = async (requestBody: Bundle): Promise<any> => {
   // extract params and questionnaire response identifier
@@ -554,7 +550,7 @@ export const processQuestionnaireResponseSubmission = async (requestBody: Bundle
       codeSystem: prescriptionSystem
     })
     .exec();
-    
+
   // iterate through each requirement of the drug
   if (drug) {
     for (const requirement of drug.requirements) {
@@ -603,7 +599,7 @@ export const processQuestionnaireResponseSubmission = async (requestBody: Bundle
       }
     }
   }
-  
+
   throw new Error('No matching requirement found for the submitted questionnaire');
 };
 
