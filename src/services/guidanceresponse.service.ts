@@ -107,7 +107,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     const medicationSearchDict = {};
 
     etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
-  }else {
+  } else {
     const drugCode = getMedicationCode(medication);
 
     // grab the patient demographics from the Patient resource in the parameters
