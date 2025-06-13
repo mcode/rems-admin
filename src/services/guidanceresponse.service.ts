@@ -58,7 +58,6 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   const parameters: Parameters = args?.resource;
   let patient: Patient | undefined;
   let medication: Medication | MedicationRequest | undefined;
-  let authNumber: string | undefined;
   let caseNumber: string | undefined;
 
   parameters?.parameter?.forEach(param => {
@@ -70,8 +69,6 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
         param.resource?.resourceType === 'MedicationRequest')
     ) {
       medication = param.resource;
-    } else if (param?.name === 'authNumber') {
-      authNumber = param.valueString;
     } else if (param?.name === 'caseNumber') {
       caseNumber = param.valueString;
     }
@@ -81,7 +78,6 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     RemsCase,
     | 'drugName'
     | 'case_number'
-    | 'auth_number'
     | 'status'
     | 'drugCode'
     | 'patientFirstName'
@@ -90,15 +86,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     | 'metRequirements'
   > | null;
 
-  if (authNumber) {
-    const remsCaseSearchDict = {
-      auth_number: authNumber
-    };
-
-    const medicationSearchDict = {};
-
-    etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
-  } else if (caseNumber) {
+  if (caseNumber) {
     const remsCaseSearchDict = {
       case_number: caseNumber
     };

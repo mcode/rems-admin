@@ -33,11 +33,6 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
-router.get('/met/auth/:authNumber', async (req: Request, res: Response) => {
-  console.log('get etasu by authNumber: ' + req.params.authNumber);
-  res.send(await remsCaseCollection.findOne({ auth_number: req.params.authNumber }));
-});
-
 export const getCaseInfo = async (
   remsCaseSearchDict: FilterQuery<RemsCase>,
   medicationSearchDict: FilterQuery<Medication>
@@ -45,7 +40,6 @@ export const getCaseInfo = async (
   RemsCase,
   | 'status'
   | 'drugName'
-  | 'auth_number'
   | 'case_number'
   | 'drugCode'
   | 'patientFirstName'
@@ -67,7 +61,6 @@ export const getCaseInfo = async (
         RemsCase,
         | 'status'
         | 'drugName'
-        | 'auth_number'
         | 'case_number'
         | 'drugCode'
         | 'patientFirstName'
@@ -77,7 +70,6 @@ export const getCaseInfo = async (
       > = {
         status: 'Approved',
         drugName: drug?.name,
-        auth_number: remsCaseSearchDict.auth_number || '',
         case_number: remsCaseSearchDict.case_number || '',
         drugCode: drug?.code,
         patientFirstName: remsCaseSearchDict.patientFirstName || '',
@@ -233,7 +225,6 @@ const createMetRequirementAndNewCase = async (
   const remsRequest: Pick<
     RemsCase,
     | 'case_number'
-    | 'auth_number'
     | 'status'
     | 'dispenseStatus'
     | 'drugName'
@@ -244,7 +235,6 @@ const createMetRequirementAndNewCase = async (
     | 'metRequirements'
   > = {
     case_number: case_number,
-    auth_number: '',
     status: remsRequestCompletedStatus,
     dispenseStatus: dispenseStatusDefault,
     drugName: drug?.name,
@@ -393,7 +383,6 @@ const createMetRequirementAndUpdateCase = async (
 
         if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
           remsRequestToUpdate.status = 'Approved';
-          remsRequestToUpdate.auth_number = uid();
           await remsRequestToUpdate.save();
         }
       }

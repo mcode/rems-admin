@@ -32,7 +32,6 @@ export interface MetRequirements extends Document {
 
 export interface RemsCase extends Document {
   case_number: string;
-  auth_number: string;
   status: string;
   dispenseStatus: string;
   drugName: string;
@@ -90,7 +89,6 @@ export const metRequirementsCollection = model<MetRequirements>(
 
 const remsCaseCollectionSchema = new Schema<RemsCase>({
   case_number: { type: String },
-  auth_number: { type: String },
   status: { type: String },
   dispenseStatus: { type: String },
   drugName: { type: String },
