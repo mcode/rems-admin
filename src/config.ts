@@ -112,7 +112,15 @@ export default {
       },
       questionnaireresponse: {
         service: './src/services/questionnaireresponse.service.ts',
-        versions: [fhirConstants.VERSIONS['4_0_0']]
+        versions: [fhirConstants.VERSIONS['4_0_0']],
+        operation: [
+          {
+            name: 'submit',
+            route: '/$submit',
+            method: 'POST',
+            reference: 'http://hl7.org/fhir/OperationDefinition/QuestionnaireResponse-submit'
+          }
+        ]
       },
       valueset: {
         service: './src/services/valueset.service.ts',
