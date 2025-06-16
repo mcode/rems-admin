@@ -22,9 +22,9 @@ module.exports.submit = async (args: any, context: any, logger: any) => {
   try {
     const requestBody = args?.resource as Bundle;
     const response = await processQuestionnaireResponseSubmission(requestBody);
+    context.req.res.status(201);
     return {
-      statusCode: 201,
-      resource: response
+      response
     };
   } catch (error) {
     logger.error('Error in QuestionnaireResponse $submit operation:', error);

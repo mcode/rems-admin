@@ -256,7 +256,7 @@ const createMetRequirementAndNewCase = async (
   };
 
   if (!(await createAndPushMetRequirements(metReq, remsRequest))) {
-    message = 'ERROR: failed to create new met requirement for form initial to case';
+    message = 'ERROR: failed to create new met requirement and initial case';
     console.log(message);
     throw new Error(message);
   }
@@ -304,7 +304,7 @@ const createMetRequirementAndNewCase = async (
         remsRequestCompletedStatus = 'Pending';
 
         if (!(await createAndPushMetRequirements(newMetReq, remsRequest))) {
-          message = 'ERROR: failed to create new met requirement for form initial to case';
+          message = 'ERROR: failed to create new met requirement for form and initial case';
           console.log(message);
         }
       }
