@@ -84,7 +84,7 @@ The FHIR server built into the REMS Admin can be queried for the questionnaire p
   - Input requires a parameter containing the following:
     - `patient` - Patient FHIR Resource, must include `medication` with `patient`
     - `medication` - Medication or MedicationRequest FHIR Resource, must include `patient` with `medication`
-    - `authNumber` - String containing the REMS Authorization Number, may be sent without `patient` or `medication`
+    - `caseNumber` - String containing the REMS Case Number, may be sent without `patient` or `medication`
   - Returns a GuidanceResponse within a Parameter with the status
     - Contains Nested GuidanceResponse resources for each ETASU requirement with their status
 - `/4_0_0/Questionnaire/\<form-name\>/$questionnaire-package` - The endpoint for the FHIR Operation used for retrieving the Questionnaire package for a given form

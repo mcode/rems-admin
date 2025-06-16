@@ -58,7 +58,7 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
   const parameters: Parameters = args?.resource;
   let patient: Patient | undefined;
   let medication: Medication | MedicationRequest | undefined;
-  let authNumber: string | undefined;
+  let caseNumber: string | undefined;
 
   parameters?.parameter?.forEach(param => {
     if (param?.name === 'patient' && param?.resource?.resourceType === 'Patient') {
@@ -69,15 +69,15 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
         param.resource?.resourceType === 'MedicationRequest')
     ) {
       medication = param.resource;
-    } else if (param?.name === 'authNumber') {
-      authNumber = param.valueString;
+    } else if (param?.name === 'caseNumber') {
+      caseNumber = param.valueString;
     }
   });
 
   let etasu: Pick<
     RemsCase,
     | 'drugName'
-    | 'auth_number'
+    | 'case_number'
     | 'status'
     | 'drugCode'
     | 'patientFirstName'
@@ -86,9 +86,9 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     | 'metRequirements'
   > | null;
 
-  if (authNumber) {
+  if (caseNumber) {
     const remsCaseSearchDict = {
-      auth_number: authNumber
+      case_number: caseNumber
     };
 
     const medicationSearchDict = {};

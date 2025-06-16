@@ -7,18 +7,22 @@ jobs:
     name: Check tsc, lint, and prettier
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
     - name: Checkout Repository
       uses: actions/checkout@v3
       with:
         submodules: true
-        node-version: '14.x'
+        clean: true
+        
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "18.x"
         
     - run: npm install
     - run: npm run lint
     - run: npm run prettier
       env:
         CI: true
+
   test:
     name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -29,10 +33,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+        
+    - name: Install OpenSSL 1.1 on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libssl1.1 || {
+          # Fallback for newer Ubuntu versions
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+        }
+        
     - run: npm install
     - run: git submodule update --init
     - run: npm test

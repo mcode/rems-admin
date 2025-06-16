@@ -33,11 +33,6 @@ router.get('/met/:caseId', async (req: Request, res: Response) => {
   res.send(await remsCaseCollection.findOne({ case_number: req.params.caseId }));
 });
 
-router.get('/met/auth/:authNumber', async (req: Request, res: Response) => {
-  console.log('get etasu by authnumber: ' + req.params.authNumber);
-  res.send(await remsCaseCollection.findOne({ auth_number: req.params.authNumber }));
-});
-
 export const getCaseInfo = async (
   remsCaseSearchDict: FilterQuery<RemsCase>,
   medicationSearchDict: FilterQuery<Medication>
@@ -45,7 +40,7 @@ export const getCaseInfo = async (
   RemsCase,
   | 'status'
   | 'drugName'
-  | 'auth_number'
+  | 'case_number'
   | 'drugCode'
   | 'patientFirstName'
   | 'patientLastName'
@@ -66,7 +61,7 @@ export const getCaseInfo = async (
         RemsCase,
         | 'status'
         | 'drugName'
-        | 'auth_number'
+        | 'case_number'
         | 'drugCode'
         | 'patientFirstName'
         | 'patientLastName'
@@ -75,7 +70,7 @@ export const getCaseInfo = async (
       > = {
         status: 'Approved',
         drugName: drug?.name,
-        auth_number: remsCaseSearchDict.auth_number || '',
+        case_number: remsCaseSearchDict.case_number || '',
         drugCode: drug?.code,
         patientFirstName: remsCaseSearchDict.patientFirstName || '',
         patientLastName: remsCaseSearchDict.patientLastName || '',
@@ -212,7 +207,6 @@ const createMetRequirementAndNewCase = async (
   drug: Medication,
   requirement: Requirement,
   questionnaireResponse: QuestionnaireResponse,
-  res: Response,
   reqStakeholderReference: string,
   practitionerReference: string,
   pharmacistReference: string,
@@ -230,7 +224,6 @@ const createMetRequirementAndNewCase = async (
   const remsRequest: Pick<
     RemsCase,
     | 'case_number'
-    | 'auth_number'
     | 'status'
     | 'dispenseStatus'
     | 'drugName'
@@ -241,7 +234,6 @@ const createMetRequirementAndNewCase = async (
     | 'metRequirements'
   > = {
     case_number: case_number,
-    auth_number: '',
     status: remsRequestCompletedStatus,
     dispenseStatus: dispenseStatusDefault,
     drugName: drug?.name,
@@ -264,11 +256,9 @@ const createMetRequirementAndNewCase = async (
   };
 
   if (!(await createAndPushMetRequirements(metReq, remsRequest))) {
-    res.status(200);
-    message = 'ERROR: failed to create new met requirement for form initial to case';
+    message = 'ERROR: failed to create new met requirement and initial case';
     console.log(message);
-    res.send(message);
-    return res;
+    throw new Error(message);
   }
 
   // iterate through all other requirements again to create corresponding false metRequirements / assign to existing
@@ -314,7 +304,7 @@ const createMetRequirementAndNewCase = async (
         remsRequestCompletedStatus = 'Pending';
 
         if (!(await createAndPushMetRequirements(newMetReq, remsRequest))) {
-          message = 'ERROR: failed to create new met requirement for form initial to case';
+          message = 'ERROR: failed to create new met requirement for form and initial case';
           console.log(message);
         }
       }
@@ -323,17 +313,16 @@ const createMetRequirementAndNewCase = async (
 
   remsRequest.status = remsRequestCompletedStatus;
   const returnedRemsRequestDoc = await remsCaseCollection.create(remsRequest);
-  res.status(201);
-  res.send(returnedRemsRequestDoc);
 
-  return res;
+  return {
+    returnedRemsRequestDoc
+  };
 };
 
 const createMetRequirementAndUpdateCase = async (
   drug: Medication,
   requirement: Requirement,
   questionnaireResponse: QuestionnaireResponse,
-  res: Response,
   reqStakeholderReference: string
 ) => {
   let returnedMetReqDoc;
@@ -390,7 +379,6 @@ const createMetRequirementAndUpdateCase = async (
 
         if (!foundUncompleted && remsRequestToUpdate?.status === 'Pending') {
           remsRequestToUpdate.status = 'Approved';
-          remsRequestToUpdate.auth_number = uid();
           await remsRequestToUpdate.save();
         }
       }
@@ -411,9 +399,9 @@ const createMetRequirementAndUpdateCase = async (
     returnedMetReqDoc = await createMetRequirements(newMetReq);
   }
 
-  res.status(201);
-  res.send(returnedMetReqDoc);
-  return res;
+  return {
+    returnedMetReqDoc
+  };
 };
 
 const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
@@ -421,7 +409,6 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
   drug: Medication,
   requirement: Requirement,
   questionnaireResponse: QuestionnaireResponse,
-  res: Response,
   reqStakeholderReference: string
 ) => {
   // Find the specific case associated with an individual patient for the patient status form
@@ -481,119 +468,16 @@ const createMetRequirementAndUpdateCaseNotRequiredToDispense = async (
     console.log(message);
   }
 
-  res.status(201);
   if (returnRemsRequest) {
-    res.send(remsRequestToUpdate);
+    return {
+      remsRequestToUpdate
+    };
   } else {
-    res.send(message);
+    return {
+      message
+    };
   }
-  return res;
 };
-
-router.post('/met', async (req: Request, res: Response) => {
-  try {
-    const requestBody = req.body as Bundle;
-
-    // extract params and questionnaire response identifier
-    const params = getResource(
-      requestBody,
-      (requestBody.entry?.[0]?.resource as MessageHeader)?.focus?.[0]?.reference || ''
-    ) as Parameters;
-    const questionnaireResponse = getQuestionnaireResponse(requestBody) as QuestionnaireResponse;
-    const questionnaireStringArray = questionnaireResponse?.questionnaire?.split('/');
-    const requirementId = questionnaireStringArray?.[questionnaireStringArray.length - 1];
-
-    // stakeholder and medication references
-    let prescriptionReference = '';
-    let practitionerReference = '';
-    let pharmacistReference = '';
-    let patientReference = '';
-    for (const param of params.parameter || []) {
-      if (param.name === 'prescription') {
-        prescriptionReference = param.valueReference?.reference || '';
-      } else if (param.name === 'prescriber') {
-        practitionerReference = param.valueReference?.reference || '';
-      } else if (param.name === 'pharmacy') {
-        pharmacistReference = param.valueReference?.reference || '';
-      } else if (param.name === 'source-patient') {
-        patientReference = param.valueReference?.reference || '';
-      }
-    }
-
-    // obtain drug information from database
-    const prescription = getResource(requestBody, prescriptionReference) as MedicationRequest;
-    const medicationCode = getDrugCodeFromMedicationRequest(prescription) as Coding;
-    const prescriptionSystem = medicationCode?.system;
-    const prescriptionCode = medicationCode?.code;
-    const patient = getResource(requestBody, patientReference) as Patient;
-
-    const drug = await medicationCollection
-      .findOne({
-        code: prescriptionCode,
-        codeSystem: prescriptionSystem
-      })
-      .exec();
-    // iterate through each requirement of the drug
-    if (drug) {
-      for (const requirement of drug.requirements) {
-        // figure out which stakeholder the req corresponds to
-        const stakeholder = requirement.stakeholderType;
-        const stakeholderReference =
-          stakeholder === 'prescriber'
-            ? practitionerReference
-            : stakeholder === 'pharmacist'
-            ? pharmacistReference
-            : patientReference;
-
-        // if the requirement is the one submitted continue
-        if (requirement.resourceId === requirementId) {
-          // if the req submitted is a patient enrollment form and requires creating a new case
-          if (requirement.createNewCase) {
-            await createMetRequirementAndNewCase(
-              patient,
-              drug,
-              requirement,
-              questionnaireResponse,
-              res,
-              stakeholderReference,
-              practitionerReference,
-              pharmacistReference,
-              patientReference
-            );
-
-            return;
-          } else {
-            // If it's not the patient status requirement
-            if (requirement.requiredToDispense) {
-              await createMetRequirementAndUpdateCase(
-                drug,
-                requirement,
-                questionnaireResponse,
-                res,
-                stakeholderReference
-              );
-              return;
-            } else {
-              await createMetRequirementAndUpdateCaseNotRequiredToDispense(
-                patient,
-                drug,
-                requirement,
-                questionnaireResponse,
-                res,
-                stakeholderReference
-              );
-              return;
-            }
-          }
-          break;
-        }
-      }
-    }
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-});
 
 const getResource = (bundle: Bundle, resourceReference: string) => {
   const temp = resourceReference.split('/');
@@ -625,5 +509,100 @@ const getQuestionnaireResponse = (bundle: Bundle) => {
   }
   return null;
 };
+
+export const processQuestionnaireResponseSubmission = async (requestBody: Bundle): Promise<any> => {
+  // extract params and questionnaire response identifier
+  const params = getResource(
+    requestBody,
+    (requestBody.entry?.[0]?.resource as MessageHeader)?.focus?.[0]?.reference || ''
+  ) as Parameters;
+  const questionnaireResponse = getQuestionnaireResponse(requestBody) as QuestionnaireResponse;
+  const questionnaireStringArray = questionnaireResponse?.questionnaire?.split('/');
+  const requirementId = questionnaireStringArray?.[questionnaireStringArray.length - 1];
+
+  // stakeholder and medication references
+  let prescriptionReference = '';
+  let practitionerReference = '';
+  let pharmacistReference = '';
+  let patientReference = '';
+  for (const param of params.parameter || []) {
+    if (param.name === 'prescription') {
+      prescriptionReference = param.valueReference?.reference || '';
+    } else if (param.name === 'prescriber') {
+      practitionerReference = param.valueReference?.reference || '';
+    } else if (param.name === 'pharmacy') {
+      pharmacistReference = param.valueReference?.reference || '';
+    } else if (param.name === 'source-patient') {
+      patientReference = param.valueReference?.reference || '';
+    }
+  }
+
+  // obtain drug information from database
+  const prescription = getResource(requestBody, prescriptionReference) as MedicationRequest;
+  const medicationCode = getDrugCodeFromMedicationRequest(prescription) as Coding;
+  const prescriptionSystem = medicationCode?.system;
+  const prescriptionCode = medicationCode?.code;
+  const patient = getResource(requestBody, patientReference) as Patient;
+
+  const drug = await medicationCollection
+    .findOne({
+      code: prescriptionCode,
+      codeSystem: prescriptionSystem
+    })
+    .exec();
+
+  // iterate through each requirement of the drug
+  if (drug) {
+    for (const requirement of drug.requirements) {
+      // figure out which stakeholder the req corresponds to
+      const stakeholder = requirement.stakeholderType;
+      const stakeholderReference =
+        stakeholder === 'prescriber'
+          ? practitionerReference
+          : stakeholder === 'pharmacist'
+          ? pharmacistReference
+          : patientReference;
+
+      // if the requirement is the one submitted continue
+      if (requirement.resourceId === requirementId) {
+        // if the req submitted is a patient enrollment form and requires creating a new case
+        if (requirement.createNewCase) {
+          return await createMetRequirementAndNewCase(
+            patient,
+            drug,
+            requirement,
+            questionnaireResponse,
+            stakeholderReference,
+            practitionerReference,
+            pharmacistReference,
+            patientReference
+          );
+        } else {
+          // If it's not the patient status requirement
+          if (requirement.requiredToDispense) {
+            return await createMetRequirementAndUpdateCase(
+              drug,
+              requirement,
+              questionnaireResponse,
+              stakeholderReference
+            );
+          } else {
+            return await createMetRequirementAndUpdateCaseNotRequiredToDispense(
+              patient,
+              drug,
+              requirement,
+              questionnaireResponse,
+              stakeholderReference
+            );
+          }
+        }
+      }
+    }
+  }
+
+  throw new Error('No matching requirement found for the submitted questionnaire');
+};
+
+export { getResource, getQuestionnaireResponse };
 
 export default router;
