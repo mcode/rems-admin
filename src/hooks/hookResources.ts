@@ -4,6 +4,7 @@ import {
   FhirResource,
   Task,
   Patient,
+  Organization,
   Bundle,
   Medication,
   BundleEntry
@@ -16,7 +17,8 @@ import {
   Requirement,
   medicationCollection,
   remsCaseCollection,
-  Medication as MongooseMedication
+  Medication as MongooseMedication,
+  metRequirementsCollection
 } from '../fhir/models';
 
 import axios from 'axios';
@@ -368,6 +370,8 @@ export const handleCardOrder = async (
 ): Promise<void> => {
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
 
+  const pharmacy = hydratedPrefetch?.pharmacy as Organization;
+
   const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
   if (errorCard) {
     res.json(errorCard);
@@ -397,9 +401,11 @@ export const handleCardOrder = async (
 
   const codeRule = (code && codeMap[code]) || [];
 
-  const cards: Card[] = codeRule
-    .map(getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient))
-    .flat();
+  const cardPromises = codeRule.map(
+    getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient, pharmacy)
+  );
+
+  const cards: Card[] = (await Promise.all(cardPromises)).flat();
 
   res.json({ cards });
 };
@@ -410,12 +416,26 @@ const getCardOrEmptyArrayFromRules =
     drug: MongooseMedication | null,
     remsCase: RemsCase | null,
     request: MedicationRequest,
-    patient: Patient | undefined
+    patient: Patient | undefined,
+    pharmacy: Organization | undefined
   ) =>
-  (rule: CardRule): Card | never[] => {
+  async (rule: CardRule): Promise<Card | never[]> => {
+    let pharmacyInfo = '';
+    if (pharmacy && pharmacy) {
+      const isCertified = await checkPharmacyCertification(pharmacy, drug?.code); // AWAIT HERE
+
+      const pharmacyName = pharmacy.name || pharmacy.alias?.[0] || 'Selected pharmacy';
+
+      pharmacyInfo = `**Pharmacy Status:** ${pharmacyName} is ${
+        isCertified ? 'certified' : 'not yet certified'
+      } for ${display} REMS dispensing. This medication ${
+        isCertified ? 'can' : 'cannot yet'
+      } be dispensed at this location.\n\n`;
+    }
+
     const card = new Card(
       rule.summary || display || 'Rems',
-      rule.cardDetails || CARD_DETAILS,
+      pharmacyInfo + (rule.cardDetails || CARD_DETAILS),
       source,
       'info'
     );
@@ -461,6 +481,53 @@ const getCardOrEmptyArrayFromRules =
 
     return [];
   };
+
+const checkPharmacyCertification = async (
+  pharmacy: Organization | undefined,
+  drugCode: string | undefined
+) => {
+  if (!pharmacy?.id || !drugCode) {
+    return false;
+  }
+
+  const drug = await medicationCollection
+    .findOne({
+      code: drugCode,
+      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+    })
+    .exec();
+
+  if (!drug) {
+    return false;
+  }
+
+  const requiredPharmacistRequirements = drug.requirements.filter(
+    requirement => requirement.stakeholderType === 'pharmacist' && requirement.requiredToDispense
+  );
+
+  if (requiredPharmacistRequirements.length === 0) {
+    return true;
+  }
+
+  const pharmacyId = `Organization/${pharmacy.id}`;
+
+  for (const requirement of requiredPharmacistRequirements) {
+    const metRequirement = await metRequirementsCollection
+      .findOne({
+        stakeholderId: pharmacyId,
+        requirementName: requirement.name,
+        drugName: drug.name,
+        completed: true
+      })
+      .exec();
+
+    if (!metRequirement) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 const getSmartLinks = (
   requirements: Requirement[],
@@ -738,6 +805,7 @@ export const handleCardEncounter = async (
   _contextRequest: FhirResource | undefined,
   resource: FhirResource | undefined
 ): Promise<void> => {
+
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
   const medResource = hookPrefetch?.medicationRequests;
   const medicationRequestsBundle =
