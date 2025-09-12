@@ -805,7 +805,6 @@ export const handleCardEncounter = async (
   _contextRequest: FhirResource | undefined,
   resource: FhirResource | undefined
 ): Promise<void> => {
-
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
   const medResource = hookPrefetch?.medicationRequests;
   const medicationRequestsBundle =
