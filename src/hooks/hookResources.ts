@@ -425,11 +425,11 @@ const getCardOrEmptyArrayFromRules =
   ) =>
   async (rule: CardRule): Promise<Card | never[]> => {
     let pharmacyInfo = '';
-    console.log('Checking pharmacy certification for ' + pharmacy)
+    console.log('Checking pharmacy certification for ' + pharmacy);
     if (pharmacy) {
       const isCertified = await checkPharmacyCertification(pharmacy, drug?.code); // AWAIT HERE
 
-      const pharmacyName = pharmacy.name || pharmacy.alias?.[0] || 'Selected pharmacy';
+      const pharmacyName = pharmacy.name || 'Selected pharmacy';
 
       pharmacyInfo = `**Pharmacy Status:** ${pharmacyName} is ${
         isCertified ? 'certified' : 'not yet certified'
