@@ -6,7 +6,8 @@ import {
   Patient,
   Bundle,
   Medication,
-  BundleEntry
+  BundleEntry,
+  HealthcareService
 } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
 import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
@@ -16,7 +17,8 @@ import {
   Requirement,
   medicationCollection,
   remsCaseCollection,
-  Medication as MongooseMedication
+  Medication as MongooseMedication,
+  metRequirementsCollection
 } from '../fhir/models';
 
 import axios from 'axios';
@@ -368,6 +370,12 @@ export const handleCardOrder = async (
 ): Promise<void> => {
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
 
+  console.log('hydratedPrefetch: ' + JSON.stringify(hydratedPrefetch));
+
+  const pharmacy = hydratedPrefetch?.pharmacy as HealthcareService;
+
+  console.log('    Pharmacy: ' + pharmacy);
+
   const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
   if (errorCard) {
     res.json(errorCard);
@@ -397,11 +405,56 @@ export const handleCardOrder = async (
 
   const codeRule = (code && codeMap[code]) || [];
 
-  const cards: Card[] = codeRule
-    .map(getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient))
-    .flat();
+  const cardPromises = codeRule.map(
+    getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient)
+  );
 
-  res.json({ cards });
+  const remsCards: Card[] = (await Promise.all(cardPromises)).flat();
+
+  // Create pharmacy status card once (if pharmacy exists)
+  const allCards: Card[] = [];
+  if (pharmacy) {
+    const pharmacyStatusCard = await createPharmacyStatusCard(pharmacy, drug, display);
+    if (pharmacyStatusCard) {
+      allCards.push(pharmacyStatusCard);
+    }
+  }
+
+  // Add all REMS cards after the pharmacy card
+  allCards.push(...remsCards);
+
+  res.json({ cards: allCards });
+};
+
+const createPharmacyStatusCard = async (
+  pharmacy: HealthcareService,
+  drug: MongooseMedication | null,
+  display: string | undefined
+): Promise<Card | null> => {
+  if (!pharmacy) {
+    return null;
+  }
+
+  const isCertified = await checkPharmacyCertification(pharmacy, drug?.code);
+  const pharmacyName = pharmacy.name || 'Selected pharmacy';
+  const locationInfo = pharmacy.location?.[0]?.display;
+  const fullPharmacyName = `${pharmacyName} (${locationInfo})`;
+
+  const statusText = `${fullPharmacyName} **is ${
+    isCertified ? 'certified' : 'not yet certified'
+  }** for ${display || 'this medication'} REMS dispensing. This medication **${
+    isCertified ? 'can' : 'cannot yet'
+  }** be dispensed at this location.`;
+
+  const pharmacyStatusCard = new Card(
+    'Pharmacy Certification Status',
+    statusText,
+    source,
+    isCertified ? 'info' : 'warning'
+  );
+
+  // No links or suggestions for this card - it's informational only
+  return pharmacyStatusCard;
 };
 
 const getCardOrEmptyArrayFromRules =
@@ -412,7 +465,7 @@ const getCardOrEmptyArrayFromRules =
     request: MedicationRequest,
     patient: Patient | undefined
   ) =>
-  (rule: CardRule): Card | never[] => {
+  async (rule: CardRule): Promise<Card | never[]> => {
     const card = new Card(
       rule.summary || display || 'Rems',
       rule.cardDetails || CARD_DETAILS,
@@ -461,6 +514,53 @@ const getCardOrEmptyArrayFromRules =
 
     return [];
   };
+
+const checkPharmacyCertification = async (
+  pharmacy: HealthcareService | undefined,
+  drugCode: string | undefined
+) => {
+  if (!pharmacy?.id || !drugCode) {
+    return false;
+  }
+
+  const drug = await medicationCollection
+    .findOne({
+      code: drugCode,
+      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+    })
+    .exec();
+
+  if (!drug) {
+    return false;
+  }
+
+  const requiredPharmacistRequirements = drug.requirements.filter(
+    requirement => requirement.stakeholderType === 'pharmacist' && requirement.requiredToDispense
+  );
+
+  if (requiredPharmacistRequirements.length === 0) {
+    return true;
+  }
+
+  const pharmacyId = `HealthcareService/${pharmacy.id}`;
+
+  for (const requirement of requiredPharmacistRequirements) {
+    const metRequirement = await metRequirementsCollection
+      .findOne({
+        stakeholderId: pharmacyId,
+        requirementName: requirement.name,
+        drugName: drug.name,
+        completed: true
+      })
+      .exec();
+
+    if (!metRequirement) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 const getSmartLinks = (
   requirements: Requirement[],

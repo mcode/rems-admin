@@ -119,3 +119,34 @@ Following are a list of modifiable paths:
 | SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |
 | FULL_RESOURCE_IN_APP_CONTEXT     | 'false'       | If true, the entire order resource will be included in the appContext, otherwise only a reference will be.                                                                     |
 | FRONTEND_PORT            | `9080`                                             | Port that the frontend  server should run on, change if there are conflicts with port usage.                   |
+
+# Data Rights
+
+<div style="text-align:center">
+<b>NOTICE</b>
+</div>
+
+This (software/technical data) was produced for the U. S. Government under Contract Number 75FCMC18D0047/75FCMC23D0004, and is subject to Federal Acquisition Regulation Clause 52.227-14, Rights in Data-General.
+
+
+No other use other than that granted to the U. S. Government, or to those acting on behalf of the U. S. Government under that Clause is authorized without the express written permission of The MITRE Corporation.
+
+
+For further information, please contact The MITRE Corporation, Contracts Management Office, 7515 Colshire Drive, McLean, VA 22102-7539, (703) 983-6000.
+
+<div style="text-align:center">
+<b>&copy;2025 The MITRE Corporation.</b>
+</div>
+
+<br />
+
+Licensed under the Apache License, Version 2.0 (the "License"); use of this repository is permitted in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
