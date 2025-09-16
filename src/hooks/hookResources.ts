@@ -440,11 +440,11 @@ const createPharmacyStatusCard = async (
   const locationInfo = pharmacy.location?.[0]?.display;
   const fullPharmacyName = `${pharmacyName} (${locationInfo})`;
 
-  const statusText = `${fullPharmacyName} is ${
+  const statusText = `${fullPharmacyName} **is ${
     isCertified ? 'certified' : 'not yet certified'
-  } for ${display || 'this medication'} REMS dispensing. This medication ${
+  }** for ${display || 'this medication'} REMS dispensing. This medication **${
     isCertified ? 'can' : 'cannot yet'
-  } be dispensed at this location.`;
+  }** be dispensed at this location.`;
 
   const pharmacyStatusCard = new Card(
     'Pharmacy Certification Status',
