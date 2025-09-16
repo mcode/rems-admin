@@ -406,12 +406,56 @@ export const handleCardOrder = async (
   const codeRule = (code && codeMap[code]) || [];
 
   const cardPromises = codeRule.map(
-    getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient, pharmacy)
+    getCardOrEmptyArrayFromRules(display, drug, remsCase, request, patient)
   );
 
-  const cards: Card[] = (await Promise.all(cardPromises)).flat();
+  const remsCards: Card[] = (await Promise.all(cardPromises)).flat();
+  
+  // Create pharmacy status card once (if pharmacy exists)
+  const allCards: Card[] = [];
+  if (pharmacy) {
+    const pharmacyStatusCard = await createPharmacyStatusCard(pharmacy, drug, display);
+    if (pharmacyStatusCard) {
+      allCards.push(pharmacyStatusCard);
+    }
+  }
+  
+  // Add all REMS cards after the pharmacy card
+  allCards.push(...remsCards);
 
-  res.json({ cards });
+  res.json({ cards: allCards });
+};
+
+
+const createPharmacyStatusCard = async (
+  pharmacy: HealthcareService,
+  drug: MongooseMedication | null,
+  display: string | undefined
+): Promise<Card | null> => {
+  if (!pharmacy) {
+    return null;
+  }
+
+  const isCertified = await checkPharmacyCertification(pharmacy, drug?.code);
+  const pharmacyName = pharmacy.name || 'Selected pharmacy';
+  const locationInfo = pharmacy.location?.[0]?.display;
+  const fullPharmacyName = `${pharmacyName} (${locationInfo})`;
+
+  const statusText = `${fullPharmacyName} is ${
+    isCertified ? 'certified' : 'not yet certified'
+  } for ${display || 'this medication'} REMS dispensing. This medication ${
+    isCertified ? 'can' : 'cannot yet'
+  } be dispensed at this location.`;
+
+  const pharmacyStatusCard = new Card(
+    'Pharmacy Certification Status',
+    statusText,
+    source,
+    isCertified ? 'info' : 'warning'
+  );
+
+  // No links or suggestions for this card - it's informational only
+  return pharmacyStatusCard;
 };
 
 const getCardOrEmptyArrayFromRules =
@@ -421,26 +465,11 @@ const getCardOrEmptyArrayFromRules =
     remsCase: RemsCase | null,
     request: MedicationRequest,
     patient: Patient | undefined,
-    pharmacy: HealthcareService | undefined
   ) =>
   async (rule: CardRule): Promise<Card | never[]> => {
-    let pharmacyInfo = '';
-    console.log('Checking pharmacy certification for ' + pharmacy);
-    if (pharmacy) {
-      const isCertified = await checkPharmacyCertification(pharmacy, drug?.code); // AWAIT HERE
-
-      const pharmacyName = pharmacy.name || 'Selected pharmacy';
-
-      pharmacyInfo = `**Pharmacy Status:** ${pharmacyName} is ${
-        isCertified ? 'certified' : 'not yet certified'
-      } for ${display} REMS dispensing. This medication ${
-        isCertified ? 'can' : 'cannot yet'
-      } be dispensed at this location.\n\n`;
-    }
-
     const card = new Card(
       rule.summary || display || 'Rems',
-      pharmacyInfo + (rule.cardDetails || CARD_DETAILS),
+      rule.cardDetails || CARD_DETAILS,
       source,
       'info'
     );
