@@ -410,7 +410,7 @@ export const handleCardOrder = async (
   );
 
   const remsCards: Card[] = (await Promise.all(cardPromises)).flat();
-  
+
   // Create pharmacy status card once (if pharmacy exists)
   const allCards: Card[] = [];
   if (pharmacy) {
@@ -419,13 +419,12 @@ export const handleCardOrder = async (
       allCards.push(pharmacyStatusCard);
     }
   }
-  
+
   // Add all REMS cards after the pharmacy card
   allCards.push(...remsCards);
 
   res.json({ cards: allCards });
 };
-
 
 const createPharmacyStatusCard = async (
   pharmacy: HealthcareService,
@@ -464,7 +463,7 @@ const getCardOrEmptyArrayFromRules =
     drug: MongooseMedication | null,
     remsCase: RemsCase | null,
     request: MedicationRequest,
-    patient: Patient | undefined,
+    patient: Patient | undefined
   ) =>
   async (rule: CardRule): Promise<Card | never[]> => {
     const card = new Card(
