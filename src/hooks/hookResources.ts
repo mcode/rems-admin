@@ -4,10 +4,10 @@ import {
   FhirResource,
   Task,
   Patient,
-  Organization,
   Bundle,
   Medication,
-  BundleEntry
+  BundleEntry,
+  HealthcareService
 } from 'fhir/r4';
 import Card, { Link, Suggestion, Action } from '../cards/Card';
 import { HookPrefetch, TypedRequestBody } from '../rems-cds-hooks/resources/HookTypes';
@@ -370,7 +370,11 @@ export const handleCardOrder = async (
 ): Promise<void> => {
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
 
-  const pharmacy = hydratedPrefetch?.pharmacy as Organization;
+  console.log('hydratedPrefetch: ' + JSON.stringify(hydratedPrefetch));
+
+  const pharmacy = hydratedPrefetch?.pharmacy as HealthcareService;
+
+  console.log('    Pharmacy: ' + pharmacy);
 
   const errorCard = getErrorCard(hydratedPrefetch, contextRequest);
   if (errorCard) {
@@ -417,11 +421,12 @@ const getCardOrEmptyArrayFromRules =
     remsCase: RemsCase | null,
     request: MedicationRequest,
     patient: Patient | undefined,
-    pharmacy: Organization | undefined
+    pharmacy: HealthcareService | undefined
   ) =>
   async (rule: CardRule): Promise<Card | never[]> => {
     let pharmacyInfo = '';
-    if (pharmacy && pharmacy) {
+    console.log('Checking pharmacy certification for ' + pharmacy)
+    if (pharmacy) {
       const isCertified = await checkPharmacyCertification(pharmacy, drug?.code); // AWAIT HERE
 
       const pharmacyName = pharmacy.name || pharmacy.alias?.[0] || 'Selected pharmacy';
@@ -483,7 +488,7 @@ const getCardOrEmptyArrayFromRules =
   };
 
 const checkPharmacyCertification = async (
-  pharmacy: Organization | undefined,
+  pharmacy: HealthcareService | undefined,
   drugCode: string | undefined
 ) => {
   if (!pharmacy?.id || !drugCode) {
@@ -509,7 +514,7 @@ const checkPharmacyCertification = async (
     return true;
   }
 
-  const pharmacyId = `Organization/${pharmacy.id}`;
+  const pharmacyId = `HealthcareService/${pharmacy.id}`;
 
   for (const requirement of requiredPharmacistRequirements) {
     const metRequirement = await metRequirementsCollection
