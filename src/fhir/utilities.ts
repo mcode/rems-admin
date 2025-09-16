@@ -311,7 +311,7 @@ export class FhirUtilities {
 
     const medicationRequirements = [
       {
-        stakeholderId: 'Organization/pharm0111',
+        stakeholderId: 'HealthcareService/pharm0111',
         completed: true,
         requirementName: 'Pharmacist Enrollment',
         drugName: 'Turalio',
@@ -319,7 +319,7 @@ export class FhirUtilities {
         case_numbers: []
       },
       {
-        stakeholderId: 'Organization/pharm0111',
+        stakeholderId: 'HealthcareService/pharm0111',
         completed: true,
         requirementName: 'Pharmacist Enrollment',
         drugName: 'TIRF',
@@ -327,7 +327,7 @@ export class FhirUtilities {
         case_numbers: []
       },
       {
-        stakeholderId: 'Organization/pharm0111',
+        stakeholderId: 'HealthcareService/pharm0111',
         completed: true,
         requirementName: 'Pharmacist Knowledge Assessment',
         drugName: 'TIRF',
@@ -335,7 +335,7 @@ export class FhirUtilities {
         case_numbers: []
       },
       {
-        stakeholderId: 'Organization/pharm0111',
+        stakeholderId: 'HealthcareService/pharm0111',
         completed: true,
         requirementName: 'Pharmacist Enrollment',
         drugName: 'Isotretinoin',
