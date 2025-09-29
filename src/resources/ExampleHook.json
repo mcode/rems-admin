@@ -34,7 +34,7 @@
                     "intent": "order",
                     "subject": {
                         "reference": "Patient/pat017",
-                        "display": "Jon Snow"
+                        "display": "John Snow"
                     },
                     "authoredOn": "2020-07-11",
                     "requester": {
@@ -121,11 +121,11 @@
                 {
                     "use": "home",
                     "type": "both",
-                    "state": "Westeros",
-                    "city": "Winterfell",
-                    "postalCode": "00008",
+                    "state": "MA",
+                    "city": "Boston",
+                    "postalCode": "02134",
                     "line": [
-                        "1 Winterfell Rd"
+                        "205 Main St"
                     ]
                 }
             ],
@@ -134,9 +134,7 @@
                     "use": "official",
                     "family": "Snow",
                     "given": [
-                        "Jon",
-                        "Stark"
-                    ]
+                        "John"                    ]
                 }
             ],
             "identifier": [
@@ -162,7 +160,7 @@
             "intent": "order",
             "subject": {
                 "reference": "Patient/pat017",
-                "display": "Jon Snow"
+                "display": "John Snow"
             },
             "authoredOn": "2020-07-11",
             "requester": {
