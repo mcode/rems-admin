@@ -119,6 +119,10 @@ Following are a list of modifiable paths:
 | SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |
 | FULL_RESOURCE_IN_APP_CONTEXT     | 'false'       | If true, the entire order resource will be included in the appContext, otherwise only a reference will be.                                                                     |
 | FRONTEND_PORT            | `9080`                                             | Port that the frontend  server should run on, change if there are conflicts with port usage.                   |
+| VITE_REALM | `ClientFhirServer` | Keycloak realm for frontend authentication. |
+| VITE_AUTH | `http://localhost:8180` | Keycloak authentication server URL for frontend. |
+| VITE_CLIENT | `app-login` | Client ID for frontend authentication. |
+| VITE_SCOPE_ID | `rems-admin` | Scope identifier for the frontend application. |
 
 # Data Rights
 
