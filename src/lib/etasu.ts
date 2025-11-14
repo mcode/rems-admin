@@ -210,7 +210,8 @@ const createMetRequirementAndNewCase = async (
   reqStakeholderReference: string,
   practitionerReference: string,
   pharmacistReference: string,
-  patientReference: string
+  patientReference: string,
+  medicationRequestReference: string
 ) => {
   const patientFirstName = patient.name?.[0].given?.[0] || '';
   const patientLastName = patient.name?.[0].family || '';
@@ -231,6 +232,7 @@ const createMetRequirementAndNewCase = async (
     | 'patientFirstName'
     | 'patientLastName'
     | 'patientDOB'
+    | 'medicationRequestReference'
     | 'metRequirements'
   > = {
     case_number: case_number,
@@ -241,6 +243,7 @@ const createMetRequirementAndNewCase = async (
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
+    medicationRequestReference: medicationRequestReference,
     metRequirements: []
   };
 
@@ -575,7 +578,8 @@ export const processQuestionnaireResponseSubmission = async (requestBody: Bundle
             stakeholderReference,
             practitionerReference,
             pharmacistReference,
-            patientReference
+            patientReference,
+            prescriptionReference
           );
         } else {
           // If it's not the patient status requirement
