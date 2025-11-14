@@ -25,7 +25,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
     logger.info(`Dispense authorization check for case: ${caseNumber}`);
 
     // Find the REMS case
-    const remsCase = await remsCaseCollection.findOne({ case_number: caseNumber });
+    const remsCase = await remsCaseCollection.findOne({ case_number: { $eq: caseNumber } });
 
     if (!remsCase) {
       logger.warn(`REMS case not found: ${caseNumber}`);
