@@ -1,87 +1,22 @@
-import { Router, Response, Request } from 'express';
-import {
-  medicationCollection,
-  remsCaseCollection,
-  Requirement
-} from '../fhir/models';
 import { Communication, Task, Patient, MedicationRequest } from 'fhir/r4';
 import axios from 'axios';
 import config from '../config';
 import { uid } from 'uid';
 import container from '../lib/winston';
 import { createQuestionnaireCompletionTask } from '../hooks/hookResources';
+import { Requirement } from '../fhir/models';
 
-const router = Router();
 const logger = container.get('application');
 
-router.post('/authorize', async (req: Request, res: Response) => {
+
+export async function sendCommunicationToEHR(
+  remsCase: any,
+  medication: any,
+  outstandingRequirements: any[]
+): Promise<void> {
   try {
-    const { caseNumber } = req.body;
-
-    if (!caseNumber) {
-      return res.status(400).json({ error: 'caseNumber is required' });
-    }
-
-    logger.info(`Dispense authorization check for case: ${caseNumber}`);
-
-    // Find the REMS case
-    const remsCase = await remsCaseCollection.findOne({ case_number: { $eq: caseNumber } });
-
-    if (!remsCase) {
-      logger.warn(`REMS case not found: ${caseNumber}`);
-      return res.status(404).json({ 
-        approved: false,
-        error: 'Case not found' 
-      });
-    }
-
-    // Get the medication to check requirements
-    const medication = await medicationCollection.findOne({
-      code: remsCase.drugCode,
-      name: remsCase.drugName
-    });
-
-    if (!medication) {
-      logger.error(`Medication not found: ${remsCase.drugCode}`);
-      return res.status(500).json({ 
-        approved: false,
-        error: 'Medication not found' 
-      });
-    }
-
-    // Check which requirements are required for dispensing and not completed
-    const outstandingRequirements: Requirement[] = [];
-
-    for (const requirement of medication.requirements) {
-      if (requirement.requiredToDispense) {
-        const metRequirement = remsCase.metRequirements.find(
-          metReq => metReq.requirementName === requirement.name
-        );
-
-        if (!metRequirement || !metRequirement.completed) {
-          outstandingRequirements.push(requirement);
-        }
-      }
-    }
-
-    // If all required requirements are met, approve
-    if (outstandingRequirements.length === 0) {
-      logger.info(`All requirements met for case ${caseNumber}. Approving.`);
-      
-      // Update dispense status
-      remsCase.dispenseStatus = 'Approved';
-      await remsCase.save();
-
-      return res.status(200).json({ approved: true });
-    }
-
-    // Outstanding requirements - deny and send Communication
-    logger.info(
-      `Outstanding requirements for case ${caseNumber}: ${outstandingRequirements
-        .map(r => r.name)
-        .join(', ')}`
-    );
-
+    logger.info(`Creating Communication for case ${remsCase.case_number}`);
+    
     // Create patient object from REMS case
     const patient: Patient = {
       resourceType: 'Patient',
@@ -95,11 +30,10 @@ router.post('/authorize', async (req: Request, res: Response) => {
       birthDate: remsCase.patientDOB
     };
 
-    // Get the stored MedicationRequest reference or create a minimal one for Task context
-    const medicationRequestRef = remsCase.medicationRequestReference || 
-      `MedicationRequest/${remsCase.case_number}`;
+    // Get the stored MedicationRequest reference
+    const medicationRequestRef = remsCase.medicationRequestReference;
 
-    // Create a minimal MedicationRequest for task context if needed
+    // Create a minimal MedicationRequest for task context
     const medicationRequest: MedicationRequest = {
       resourceType: 'MedicationRequest',
       status: 'active',
@@ -117,16 +51,19 @@ router.post('/authorize', async (req: Request, res: Response) => {
         reference: `Patient/${patient.id}`
       },
       requester: {
-        reference: remsCase.metRequirements.find(mr =>
+        reference: remsCase.metRequirements.find((mr: any) =>
           mr.requirementName?.toLowerCase().includes('prescriber')
         )?.stakeholderId
       }
     };
 
-    // Create Tasks using the existing function
+    // Create Tasks for each outstanding requirement
     const tasks: Task[] = [];
-    for (const requirement of outstandingRequirements) {
-      if (requirement.appContext) {
+    for (const outstandingReq of outstandingRequirements) {
+      const requirement = outstandingReq.requirement || 
+        medication.requirements.find((r: Requirement) => r.name === outstandingReq.name);
+      
+      if (requirement && requirement.appContext) {
         const questionnaireUrl = requirement.appContext;
         const task = createQuestionnaireCompletionTask(
           requirement,
@@ -143,7 +80,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
     const communication: Communication = {
       resourceType: 'Communication',
       id: `comm-${uid()}`,
-      status: 'completed',
+      status: 'completed', 
       category: [
         {
           coding: [
@@ -155,7 +92,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
           ]
         }
       ],
-      priority: 'urgent',
+      priority: 'urgent', 
       subject: {
         reference: `Patient/${patient.id}`,
         display: `${remsCase.patientFirstName} ${remsCase.patientLastName}`
@@ -170,7 +107,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
         ],
         text: 'Outstanding REMS Requirements for Medication Dispensing'
       },
-      sent: new Date().toISOString(),
+      sent: new Date().toISOString(), 
       recipient: [
         {
           reference: medicationRequest.requester?.reference || ''
@@ -185,7 +122,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
           contentString: `Medication dispensing authorization DENIED for ${remsCase.drugName}.\n\n` +
             `The following REMS requirements must be completed:\n\n` +
             outstandingRequirements
-              .map((req, idx) => `${idx + 1}. ${req.name} (${req.stakeholderType})`)
+              .map((req, idx) => `${idx + 1}. ${req.name} (${req.stakeholder})`)
               .join('\n') +
             `\n\nCase Number: ${remsCase.case_number}\n` +
             `Patient: ${remsCase.patientFirstName} ${remsCase.patientLastName} (DOB: ${remsCase.patientDOB})`
@@ -193,12 +130,10 @@ router.post('/authorize', async (req: Request, res: Response) => {
       ],
       contained: tasks,
       about: [
-        // Reference the actual MedicationRequest
         {
           reference: medicationRequestRef,
           display: `Prescription for ${remsCase.drugName}`
         },
-        // Reference the contained Tasks
         ...tasks.map(task => ({
           reference: `#${task.id}`,
           display: task.description
@@ -206,36 +141,32 @@ router.post('/authorize', async (req: Request, res: Response) => {
       ]
     };
 
-   
-    let ehrEndpoint = config.fhirServerConfig?.auth?.resourceServer;
+    // Determine EHR endpoint: use originatingFhirServer if available, otherwise default
+    const ehrEndpoint = remsCase.originatingFhirServer || 
+      config.fhirServerConfig?.auth?.resourceServer;
 
-    // Send Communication to EHR
-    if (ehrEndpoint) {
-      try {
-        const response = await axios.post(`${ehrEndpoint}/Communication`, communication, {
-          headers: {
-            'Content-Type': 'application/fhir+json'
-          }
-        });
-
-        if (response.status === 200 || response.status === 201) {
-          logger.info(`Communication sent to EHR: ${ehrEndpoint}`);
-        }
-      } catch (error: any) {
-        logger.error(`Failed to send Communication to EHR: ${error.message}`);
-      }
-    } else {
+    if (!ehrEndpoint) {
       logger.warn('No EHR endpoint configured, Communication not sent');
+      return;
     }
 
-    return res.status(200).json({ approved: false });
-  } catch (error: any) {
-    logger.error(`Error in dispense authorization: ${error.message}`);
-    return res.status(500).json({ 
-      approved: false,
-      error: 'Internal server error' 
+    // Send Communication to EHR
+    logger.info(`Sending Communication to EHR: ${ehrEndpoint}`);
+    
+    const response = await axios.post(`${ehrEndpoint}/Communication`, communication, {
+      headers: {
+        'Content-Type': 'application/fhir+json'
+      }
     });
-  }
-});
 
-export default router;
+    if (response.status === 200 || response.status === 201) {
+      logger.info(`Communication successfully sent to EHR for case ${remsCase.case_number}`);
+    } else {
+      logger.warn(`Unexpected response status from EHR: ${response.status}`);
+    }
+    
+  } catch (error: any) {
+    logger.error(`Failed to send Communication to EHR: ${error.message}`);
+    throw error; 
+  }
+}
