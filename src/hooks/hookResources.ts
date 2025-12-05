@@ -24,12 +24,14 @@ import {
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
+import { createNewRemsCaseFromCDSHook } from '../lib/etasu';
 
 type HandleCallback = (
   res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
-  patient: FhirResource | undefined
+  patient: FhirResource | undefined,
+  fhirServer?: string
 ) => Promise<void>;
 
 export interface CardRule {
@@ -366,7 +368,8 @@ export const handleCardOrder = async (
   res: any,
   hydratedPrefetch: HookPrefetch | undefined,
   contextRequest: FhirResource | undefined,
-  resource: FhirResource | undefined
+  resource: FhirResource | undefined,
+  fhirServer?: string
 ): Promise<void> => {
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
 
@@ -396,12 +399,42 @@ export const handleCardOrder = async (
   // find a matching REMS case for the patient and this drug to only return needed results
   const patientName = patient?.name?.[0];
   const patientBirth = patient?.birthDate;
-  const remsCase = await remsCaseCollection.findOne({
+  let remsCase = await remsCaseCollection.findOne({
     patientFirstName: patientName?.given?.[0],
     patientLastName: patientName?.family,
     patientDOB: patientBirth,
     drugCode: code
   });
+
+  // If no REMS case exists and drug has requirements, create case with all requirements unmet
+  if (!remsCase && drug && patient && request) {
+    const requiresCase = drug.requirements.some(req => req.requiredToDispense);
+
+    if (requiresCase && fhirServer) {     
+      try {
+        const patientReference = `Patient/${patient.id}`;
+        const medicationRequestReference = `${request.resourceType}/${request.id}`;
+        const practitionerReference = request.requester?.reference || '';
+        const pharmacistReference = pharmacy?.id ? `HealthcareService/${pharmacy.id}` : '';
+
+        const newCase = await createNewRemsCaseFromCDSHook(
+          patient,
+          drug,
+          practitionerReference,
+          pharmacistReference,
+          patientReference,
+          medicationRequestReference,
+          fhirServer
+        );
+
+        remsCase = newCase;
+
+        console.log(`Created REMS case from CDS Hook with originating server: ${fhirServer}`);
+      } catch (error) {
+        console.error('Failed to create REMS case from CDS Hook:', error);
+      }
+    }
+  }
 
   const codeRule = (code && codeMap[code]) || [];
 
@@ -594,6 +627,7 @@ export async function handleCard(
   const context = req.body.context;
   const patient = hydratedPrefetch?.patient;
   const practitioner = hydratedPrefetch?.practitioner;
+  const fhirServer = req.body.fhirServer;
 
   console.log('    Patient: ' + patient?.id);
 
@@ -612,7 +646,7 @@ export async function handleCard(
     res.json(buildErrorCard('Context userId does not match prefetch Practitioner ID'));
     return;
   }
-  return callback(res, hydratedPrefetch, contextRequest, patient);
+  return callback(res, hydratedPrefetch, contextRequest, patient, fhirServer);
 }
 
 // handles all hooks, any supported hook should pass through this function
@@ -836,7 +870,8 @@ export const handleCardEncounter = async (
   res: any,
   hookPrefetch: HookPrefetch | undefined,
   _contextRequest: FhirResource | undefined,
-  resource: FhirResource | undefined
+  resource: FhirResource | undefined,
+  fhirServer?: string
 ): Promise<void> => {
   const patient = resource?.resourceType === 'Patient' ? resource : undefined;
   const medResource = hookPrefetch?.medicationRequests;

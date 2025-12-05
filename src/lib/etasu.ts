@@ -183,6 +183,113 @@ const pushMetRequirements = (
   });
 };
 
+export const createNewRemsCaseFromCDSHook = async (
+  patient: Patient,
+  drug: Medication,
+  practitionerReference: string,
+  pharmacistReference: string,
+  patientReference: string,
+  medicationRequestReference: string,
+  originatingFhirServer?: string
+) => {
+  const patientFirstName = patient.name?.[0].given?.[0] || '';
+  const patientLastName = patient.name?.[0].family || '';
+  const patientDOB = patient.birthDate || '';
+  const case_number = uid();
+
+  // Check if case already exists
+  const existingCase = await remsCaseCollection.findOne({
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    drugCode: drug?.code
+  });
+
+  if (existingCase) {
+    console.log(`Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${drug?.name}`);
+    return existingCase;
+  }
+
+  // Create new case with all requirements pending
+  const remsRequest: Pick<
+    RemsCase,
+    | 'case_number'
+    | 'status'
+    | 'dispenseStatus'
+    | 'drugName'
+    | 'drugCode'
+    | 'patientFirstName'
+    | 'patientLastName'
+    | 'patientDOB'
+    | 'medicationRequestReference'
+    | 'metRequirements'
+  > & { originatingFhirServer?: string } = {
+    case_number: case_number,
+    status: 'Pending', // All requirements unmet, so status is Pending
+    dispenseStatus: 'Pending',
+    drugName: drug?.name,
+    drugCode: drug?.code,
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    medicationRequestReference: medicationRequestReference,
+    originatingFhirServer: originatingFhirServer,
+    metRequirements: []
+  };
+
+  // Iterate through ALL requirements and create as unmet (or link to existing if already completed)
+  for (const requirement of drug.requirements) {
+    // Only process requirements that are required to dispense
+    if (requirement.requiredToDispense) {
+      // Figure out which stakeholder the requirement corresponds to
+      const stakeholderType = requirement.stakeholderType;
+      const stakeholderReference =
+        stakeholderType === 'prescriber'
+          ? practitionerReference
+          : stakeholderType === 'pharmacist'
+          ? pharmacistReference
+          : patientReference;
+
+      // Check if this stakeholder has already completed this requirement
+      const existingMetReq = await metRequirementsCollection
+        .findOne({
+          stakeholderId: stakeholderReference,
+          requirementName: requirement.name,
+          drugName: drug?.name
+        })
+        .exec();
+
+      if (existingMetReq) {
+        // Requirement already exists (e.g., prescriber or pharmacist enrolled previously)
+        pushMetRequirements(existingMetReq, remsRequest);
+        existingMetReq.case_numbers.push(case_number);
+        await existingMetReq.save();
+      } else {
+        // Create new unmet requirement
+        const newMetReq = {
+          completed: false,
+          requirementName: requirement.name,
+          requirementDescription: requirement.description,
+          drugName: drug?.name,
+          stakeholderId: stakeholderReference,
+          case_numbers: [case_number]
+        };
+
+        if (!(await createAndPushMetRequirements(newMetReq, remsRequest))) {
+          console.log('ERROR: failed to create unmet requirement for new case');
+        }
+      }
+    }
+  }
+
+  // Save the new case
+  remsRequest.status = remsRequest.metRequirements.every(req => req.completed) ? 'Approved' : 'Pending';
+  const newCase = await remsCaseCollection.create(remsRequest);
+  
+  console.log(`Created new REMS case ${case_number} with all requirements unmet (or linked to existing)`);
+  return newCase;
+};
+
 const createMetRequirements = async (metReq: Partial<MetRequirements>) => {
   return await metRequirementsCollection.create(metReq);
 };
@@ -211,7 +318,8 @@ const createMetRequirementAndNewCase = async (
   practitionerReference: string,
   pharmacistReference: string,
   patientReference: string,
-  medicationRequestReference: string
+  medicationRequestReference: string,
+  originatingFhirServer?: string
 ) => {
   const patientFirstName = patient.name?.[0].given?.[0] || '';
   const patientLastName = patient.name?.[0].family || '';
@@ -234,7 +342,7 @@ const createMetRequirementAndNewCase = async (
     | 'patientDOB'
     | 'medicationRequestReference'
     | 'metRequirements'
-  > = {
+  > & { originatingFhirServer?: string } = {
     case_number: case_number,
     status: remsRequestCompletedStatus,
     dispenseStatus: dispenseStatusDefault,
@@ -244,6 +352,7 @@ const createMetRequirementAndNewCase = async (
     patientLastName: patientLastName,
     patientDOB: patientDOB,
     medicationRequestReference: medicationRequestReference,
+    originatingFhirServer: originatingFhirServer,
     metRequirements: []
   };
 

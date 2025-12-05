@@ -135,7 +135,7 @@ class REMSServer extends Server {
         }
       })
     );
-    this.app.use('/', Ncpdp);
+    this.app.use('/ncpdp', Ncpdp);
     return this;
   }
 

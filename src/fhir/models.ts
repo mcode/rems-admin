@@ -40,6 +40,7 @@ export interface RemsCase extends Document {
   patientLastName: string;
   patientDOB: string;
   medicationRequestReference?: string;
+  originatingFhirServer?: string;
   metRequirements: Partial<MetRequirements>[];
 }
 
@@ -98,6 +99,7 @@ const remsCaseCollectionSchema = new Schema<RemsCase>({
   patientDOB: { type: String },
   drugCode: { type: String },
   medicationRequestReference: { type: String },
+  originatingFhirServer: { type: String },
   metRequirements: [
     {
       metRequirementId: { type: String },
