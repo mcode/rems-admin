@@ -11,7 +11,6 @@ import { Server } from '@projecttacoma/node-fhir-server-core';
 import Etasu from './lib/etasu';
 import Ncpdp from './ncpdp/script';
 import Api from './lib/api_routes';
-import DispenseAuth from './lib/dispense_authorization';
 import env from 'env-var';
 import https from 'https';
 import fs from 'fs';
@@ -32,7 +31,6 @@ const initialize = (config: any) => {
     .configureEtasuEndpoints()
     .configureNCPDPEndpoints()
     .configureUIEndpoints()
-    .configureDispenseAuthEndpoints()
     .setErrorRoutes();
 };
 
@@ -141,11 +139,6 @@ class REMSServer extends Server {
 
   configureUIEndpoints() {
     this.app.use('/api/', Api);
-    return this;
-  }
-
-  configureDispenseAuthEndpoints() {
-    this.app.use('/dispense', DispenseAuth);
     return this;
   }
 
