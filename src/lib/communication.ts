@@ -2,7 +2,7 @@ import { Communication, Task, Patient, MedicationRequest } from 'fhir/r4';
 import axios from 'axios';
 import config from '../config';
 import { uid } from 'uid';
-import container from '../lib/winston';
+import container from './winston';
 import { createQuestionnaireCompletionTask } from '../hooks/hookResources';
 import { Requirement } from '../fhir/models';
 
