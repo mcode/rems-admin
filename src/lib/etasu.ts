@@ -325,8 +325,72 @@ const createMetRequirementAndNewCase = async (
   const patientLastName = patient.name?.[0].family || '';
   const patientDOB = patient.birthDate || '';
   let message = '';
-  const case_number = uid();
 
+  // Check if case already exists 
+  const existingCase = await remsCaseCollection.findOne({
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    drugCode: drug?.code
+  });
+
+  if (existingCase) {
+    // Case already exists - update the existing requirement instead of creating new case
+    console.log(`Case ${existingCase.case_number} already exists, updating requirement ${requirement.name}`);
+    
+    // Find and update the existing MetRequirement
+    const matchedMetReq = await metRequirementsCollection
+      .findOne({
+        stakeholderId: reqStakeholderReference,
+        requirementName: requirement.name,
+        drugName: drug?.name
+      })
+      .exec();
+
+    if (matchedMetReq) {
+      // Update existing MetRequirement
+      matchedMetReq.completed = true;
+      matchedMetReq.completedQuestionnaire = questionnaireResponse;
+      await matchedMetReq.save();
+
+      // Update the case's metRequirements array
+      const metReqArray = existingCase.metRequirements || [];
+      let foundUncompleted = false;
+      
+      for (let i = 0; i < metReqArray.length; i++) {
+        const req = existingCase.metRequirements[i];
+        if (req?.requirementName === matchedMetReq.requirementName) {
+          metReqArray[i].completed = true;
+          req!.completed = true;
+          await remsCaseCollection.updateOne(
+            { _id: existingCase._id },
+            { $set: { metRequirements: metReqArray } }
+          );
+        }
+        if (!req?.completed) {
+          foundUncompleted = true;
+        }
+      }
+
+      // Update case status if all requirements are now complete
+      if (!foundUncompleted && existingCase.status === 'Pending') {
+        existingCase.status = 'Approved';
+        await existingCase.save();
+      }
+
+      return {
+        returnedRemsRequestDoc: existingCase
+      };
+    } else {
+      message = 'ERROR: MetRequirement not found for existing case';
+      console.log(message);
+      throw new Error(message);
+    }
+  }
+
+  // No existing case - create new one
+  const case_number = uid();
+  
   // create new rems request and add the created metReq to it
   let remsRequestCompletedStatus = 'Approved';
   const dispenseStatusDefault = 'Pending';
