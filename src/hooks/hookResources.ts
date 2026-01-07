@@ -413,7 +413,8 @@ export const handleCardOrder = async (
     const medicationRequestReference = `${request.resourceType}/${request.id}`;
 
     const prescriberChanged = remsCase.currentPrescriberId !== practitionerReference;
-    const pharmacyChanged = pharmacistReference && remsCase.currentPharmacyId !== pharmacistReference;
+    const pharmacyChanged =
+      pharmacistReference && remsCase.currentPharmacyId !== pharmacistReference;
 
     if (prescriberChanged || pharmacyChanged) {
       try {
@@ -448,7 +449,7 @@ export const handleCardOrder = async (
   if (!remsCase && drug && patient && request) {
     const requiresCase = drug.requirements.some(req => req.requiredToDispense);
 
-    if (requiresCase && fhirServer) {     
+    if (requiresCase && fhirServer) {
       try {
         const patientReference = `Patient/${patient.id}`;
         const medicationRequestReference = `${request.resourceType}/${request.id}`;

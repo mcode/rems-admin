@@ -206,7 +206,9 @@ export const createNewRemsCaseFromCDSHook = async (
   });
 
   if (existingCase) {
-    console.log(`Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${drug?.name}`);
+    console.log(
+      `Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${drug?.name}`
+    );
     return existingCase;
   }
 
@@ -302,10 +304,14 @@ export const createNewRemsCaseFromCDSHook = async (
   }
 
   // Save the new case
-  remsRequest.status = remsRequest.metRequirements.every(req => req.completed) ? 'Approved' : 'Pending';
+  remsRequest.status = remsRequest.metRequirements.every(req => req.completed)
+    ? 'Approved'
+    : 'Pending';
   const newCase = await remsCaseCollection.create(remsRequest);
-  
-  console.log(`Created new REMS case ${case_number} with all requirements unmet (or linked to existing)`);
+
+  console.log(
+    `Created new REMS case ${case_number} with all requirements unmet (or linked to existing)`
+  );
   return newCase;
 };
 
@@ -336,7 +342,9 @@ export const handleStakeholderChangesAndRecordEvent = async (
 
   // Check if prescriber changed
   if (remsCase.currentPrescriberId !== practitionerReference) {
-    console.log(`Prescriber changed from ${remsCase.currentPrescriberId} to ${practitionerReference}`);
+    console.log(
+      `Prescriber changed from ${remsCase.currentPrescriberId} to ${practitionerReference}`
+    );
     stakeholdersChanged = true;
 
     // Remove old prescriber requirements
@@ -349,7 +357,9 @@ export const handleStakeholderChangesAndRecordEvent = async (
     );
 
     // Add new prescriber requirements
-    const prescriberRequirements = drug.requirements.filter(r => r.stakeholderType === 'prescriber');
+    const prescriberRequirements = drug.requirements.filter(
+      r => r.stakeholderType === 'prescriber'
+    );
     for (const requirement of prescriberRequirements) {
       if (requirement.requiredToDispense) {
         const existingMetReq = await metRequirementsCollection
@@ -485,7 +495,7 @@ const createMetRequirementAndNewCase = async (
   const patientDOB = patient.birthDate || '';
   let message = '';
 
-  // Check if case already exists 
+  // Check if case already exists
   const existingCase = await remsCaseCollection.findOne({
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
@@ -495,12 +505,15 @@ const createMetRequirementAndNewCase = async (
 
   if (existingCase) {
     // Case already exists - check for stakeholder changes before updating requirement
-    console.log(`Case ${existingCase.case_number} already exists, checking for stakeholder changes`);
-    
+    console.log(
+      `Case ${existingCase.case_number} already exists, checking for stakeholder changes`
+    );
+
     // Check if prescriber or pharmacy changed and handle accordingly
     const prescriberChanged = existingCase.currentPrescriberId !== practitionerReference;
-    const pharmacyChanged = pharmacistReference && existingCase.currentPharmacyId !== pharmacistReference;
-    
+    const pharmacyChanged =
+      pharmacistReference && existingCase.currentPharmacyId !== pharmacistReference;
+
     if (prescriberChanged || pharmacyChanged) {
       await handleStakeholderChangesAndRecordEvent(
         existingCase,
@@ -511,7 +524,7 @@ const createMetRequirementAndNewCase = async (
         originatingFhirServer
       );
     }
-    
+
     // Find and update the existing MetRequirement
     const matchedMetReq = await metRequirementsCollection
       .findOne({
@@ -530,10 +543,13 @@ const createMetRequirementAndNewCase = async (
       // Update the case's metRequirements array
       const metReqArray = existingCase.metRequirements || [];
       let foundUncompleted = false;
-      
+
       for (let i = 0; i < metReqArray.length; i++) {
         const req = existingCase.metRequirements[i];
-        if (req?.requirementName === matchedMetReq.requirementName && req?.stakeholderId === matchedMetReq.stakeholderId) {
+        if (
+          req?.requirementName === matchedMetReq.requirementName &&
+          req?.stakeholderId === matchedMetReq.stakeholderId
+        ) {
           metReqArray[i].completed = true;
           req!.completed = true;
           await remsCaseCollection.updateOne(
@@ -564,7 +580,7 @@ const createMetRequirementAndNewCase = async (
 
   // No existing case - create new one
   const case_number = uid();
-  
+
   // create new rems request and add the created metReq to it
   let remsRequestCompletedStatus = 'Approved';
   const dispenseStatusDefault = 'Pending';

@@ -8,7 +8,6 @@ import { Requirement } from '../fhir/models';
 
 const logger = container.get('application');
 
-
 export async function sendCommunicationToEHR(
   remsCase: any,
   medication: any,
@@ -16,7 +15,7 @@ export async function sendCommunicationToEHR(
 ): Promise<void> {
   try {
     logger.info(`Creating Communication for case ${remsCase.case_number}`);
-    
+
     // Create patient object from REMS case
     const patient: Patient = {
       resourceType: 'Patient',
@@ -60,9 +59,10 @@ export async function sendCommunicationToEHR(
     // Create Tasks for each outstanding requirement
     const tasks: Task[] = [];
     for (const outstandingReq of outstandingRequirements) {
-      const requirement = outstandingReq.requirement || 
+      const requirement =
+        outstandingReq.requirement ||
         medication.requirements.find((r: Requirement) => r.name === outstandingReq.name);
-      
+
       if (requirement && requirement.appContext) {
         const questionnaireUrl = requirement.appContext;
         const task = createQuestionnaireCompletionTask(
@@ -80,7 +80,7 @@ export async function sendCommunicationToEHR(
     const communication: Communication = {
       resourceType: 'Communication',
       id: `comm-${uid()}`,
-      status: 'completed', 
+      status: 'completed',
       category: [
         {
           coding: [
@@ -92,7 +92,7 @@ export async function sendCommunicationToEHR(
           ]
         }
       ],
-      priority: 'urgent', 
+      priority: 'urgent',
       subject: {
         reference: `Patient/${patient.id}`,
         display: `${remsCase.patientFirstName} ${remsCase.patientLastName}`
@@ -107,7 +107,7 @@ export async function sendCommunicationToEHR(
         ],
         text: 'Outstanding REMS Requirements for Medication Dispensing'
       },
-      sent: new Date().toISOString(), 
+      sent: new Date().toISOString(),
       recipient: [
         {
           reference: medicationRequest.requester?.reference || ''
@@ -119,8 +119,9 @@ export async function sendCommunicationToEHR(
       },
       payload: [
         {
-          contentString: `Medication dispensing authorization DENIED for ${remsCase.drugName}.\n\n` +
-            `The following REMS requirements must be completed:\n\n` +
+          contentString:
+            `Medication dispensing authorization DENIED for ${remsCase.drugName}.\n\n` +
+            'The following REMS requirements must be completed:\n\n' +
             outstandingRequirements
               .map((req, idx) => `${idx + 1}. ${req.name} (${req.stakeholder})`)
               .join('\n') +
@@ -142,8 +143,8 @@ export async function sendCommunicationToEHR(
     };
 
     // Determine EHR endpoint: use originatingFhirServer if available, otherwise default
-    const ehrEndpoint = remsCase.originatingFhirServer || 
-      config.fhirServerConfig?.auth?.resourceServer;
+    const ehrEndpoint =
+      remsCase.originatingFhirServer || config.fhirServerConfig?.auth?.resourceServer;
 
     if (!ehrEndpoint) {
       logger.warn('No EHR endpoint configured, Communication not sent');
@@ -152,7 +153,7 @@ export async function sendCommunicationToEHR(
 
     // Send Communication to EHR
     logger.info(`Sending Communication to EHR: ${ehrEndpoint}`);
-    
+
     const response = await axios.post(`${ehrEndpoint}/Communication`, communication, {
       headers: {
         'Content-Type': 'application/fhir+json'
@@ -164,9 +165,8 @@ export async function sendCommunicationToEHR(
     } else {
       logger.warn(`Unexpected response status from EHR: ${response.status}`);
     }
-    
   } catch (error: any) {
     logger.error(`Failed to send Communication to EHR: ${error.message}`);
-    throw error; 
+    throw error;
   }
 }
