@@ -24,7 +24,7 @@ import {
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { createNewRemsCaseFromCDSHook } from '../lib/etasu';
+import { createNewRemsCaseFromCDSHook, handleStakeholderChangesAndRecordEvent } from '../lib/etasu';
 
 type HandleCallback = (
   res: any,
@@ -405,6 +405,44 @@ export const handleCardOrder = async (
     patientDOB: patientBirth,
     drugCode: code
   });
+
+  // If case exists, check for stakeholder changes and record prescription event
+  if (remsCase && drug && fhirServer) {
+    const practitionerReference = request.requester?.reference || '';
+    const pharmacistReference = pharmacy?.id ? `HealthcareService/${pharmacy.id}` : '';
+    const medicationRequestReference = `${request.resourceType}/${request.id}`;
+
+    const prescriberChanged = remsCase.currentPrescriberId !== practitionerReference;
+    const pharmacyChanged = pharmacistReference && remsCase.currentPharmacyId !== pharmacistReference;
+
+    if (prescriberChanged || pharmacyChanged) {
+      try {
+        const updatedCase = await handleStakeholderChangesAndRecordEvent(
+          remsCase,
+          drug,
+          practitionerReference,
+          pharmacistReference,
+          medicationRequestReference,
+          fhirServer
+        );
+        console.log(`Updated case ${updatedCase?.case_number} with stakeholder changes`);
+      } catch (error) {
+        console.error('Failed to handle stakeholder changes:', error);
+      }
+    } else {
+      // Record prescription event even if no stakeholder change
+      remsCase.prescriptionEvents.push({
+        medicationRequestReference: medicationRequestReference,
+        prescriberId: practitionerReference,
+        pharmacyId: pharmacistReference,
+        timestamp: new Date(),
+        originatingFhirServer: fhirServer,
+        caseStatusAtTime: remsCase.status
+      });
+      remsCase.medicationRequestReference = medicationRequestReference;
+      await remsCase.save();
+    }
+  }
 
   // If no REMS case exists and drug has requirements, create case with all requirements unmet
   if (!remsCase && drug && patient && request) {

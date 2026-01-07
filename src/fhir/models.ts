@@ -30,6 +30,15 @@ export interface MetRequirements extends Document {
   metRequirementId: any;
 }
 
+export interface PrescriptionEvent {
+  medicationRequestReference: string;
+  prescriberId: string;
+  pharmacyId?: string;
+  timestamp: Date;
+  originatingFhirServer?: string;
+  caseStatusAtTime: string;
+}
+
 export interface RemsCase extends Document {
   case_number: string;
   status: string;
@@ -39,6 +48,11 @@ export interface RemsCase extends Document {
   patientFirstName: string;
   patientLastName: string;
   patientDOB: string;
+  currentPrescriberId?: string;
+  currentPharmacyId?: string;
+  prescriberHistory: string[];
+  pharmacyHistory: string[];
+  prescriptionEvents: PrescriptionEvent[];
   medicationRequestReference?: string;
   originatingFhirServer?: string;
   metRequirements: Partial<MetRequirements>[];
@@ -98,6 +112,20 @@ const remsCaseCollectionSchema = new Schema<RemsCase>({
   patientLastName: { type: String },
   patientDOB: { type: String },
   drugCode: { type: String },
+  currentPrescriberId: { type: String },
+  currentPharmacyId: { type: String },
+  prescriberHistory: [{ type: String }],
+  pharmacyHistory: [{ type: String }],
+  prescriptionEvents: [
+    {
+      medicationRequestReference: { type: String },
+      prescriberId: { type: String },
+      pharmacyId: { type: String },
+      timestamp: { type: Date },
+      originatingFhirServer: { type: String },
+      caseStatusAtTime: { type: String }
+    }
+  ],
   medicationRequestReference: { type: String },
   originatingFhirServer: { type: String },
   metRequirements: [
