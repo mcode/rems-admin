@@ -143,12 +143,19 @@ export async function sendCommunicationToEHR(
     };
 
     // Determine EHR endpoint: use originatingFhirServer if available, otherwise default
-    const ehrEndpoint =
+    let ehrEndpoint =
       remsCase.originatingFhirServer || config.fhirServerConfig?.auth?.resourceServer;
 
     if (!ehrEndpoint) {
       logger.warn('No EHR endpoint configured, Communication not sent');
       return;
+    }
+
+    if (config.fhirServerConfig.auth.dockered_ehr_container_name) {
+      const originalEhrEndpoint = ehrEndpoint;
+      ehrEndpoint = originalEhrEndpoint.replace(/localhost/g, config.fhirServerConfig.auth.dockered_ehr_container_name)
+            .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_ehr_container_name);
+      logger.info(`Running locally in Docker, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`);
     }
 
     // Send Communication to EHR

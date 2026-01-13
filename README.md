@@ -118,6 +118,8 @@ Following are a list of modifiable paths:
 | WHITELIST       | `http://localhost, http://localhost:3005`  | List of valid URLs for CORS. Should include any URLs the server accesses for resources.                                     |
 | SERVER_NAME     | `CodeX REMS Administrator Prototype`       | Name of the server that is returned in the card source.                                                                     |
 | FULL_RESOURCE_IN_APP_CONTEXT     | 'false'       | If true, the entire order resource will be included in the appContext, otherwise only a reference will be.                                                                     |
+| DOCKERED_EHR_CONTAINER_NAME     | ''       | String of the EHR container name for local docker networking communication                              |
+
 | FRONTEND_PORT            | `9080`                                             | Port that the frontend  server should run on, change if there are conflicts with port usage.                   |
 | VITE_REALM | `ClientFhirServer` | Keycloak realm for frontend authentication. |
 | VITE_AUTH | `http://localhost:8180` | Keycloak authentication server URL for frontend. |
