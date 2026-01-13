@@ -204,7 +204,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
       patientFirstName: patient?.names?.name?.firstname,
       patientLastName: patient?.names?.name?.lastname,
       patientDOB: patient?.dateofbirth?.date,
-      drugCode: drugCode
+      drugNdcCode: drugCode
     });
     
     if (!remsCase) {
@@ -290,7 +290,7 @@ const handleRxFill = async (message: any, res: Response) => {
         patientFirstName: patient?.names?.name?.firstname,
         patientLastName: patient?.names?.name?.lastname,
         patientDOB: patient?.dateofbirth?.date,
-        drugCode: drugCode
+        drugNdcCode: drugCode
       },
       { dispenseStatus: fillStatus },
       { new: true }

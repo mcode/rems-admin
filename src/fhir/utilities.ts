@@ -127,6 +127,7 @@ export class FhirUtilities {
         name: 'Turalio',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '2183126',
+        ndcCode: '65597-407-20',
         requirements: [
           {
             name: 'Patient Enrollment',
@@ -196,6 +197,7 @@ export class FhirUtilities {
         name: 'TIRF',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '1237051',
+        ndcCode: '63459-502-30',
         requirements: [
           {
             name: 'Patient Enrollment',
@@ -262,6 +264,7 @@ export class FhirUtilities {
         name: 'Isotretinoin',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '6064',
+        ndcCode: '0245-0571-01',
         requirements: [
           {
             name: 'Patient Enrollment',
@@ -305,6 +308,7 @@ export class FhirUtilities {
         name: 'Addyi',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '1666386',
+        ndcCode: '58604-214-30',
         requirements: []
       }
     ];

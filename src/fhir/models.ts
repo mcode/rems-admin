@@ -16,6 +16,7 @@ export interface Medication extends Document {
   name: string;
   codeSystem: string;
   code: string;
+  ndcCode: string,
   requirements: Requirement[];
 }
 
@@ -45,6 +46,7 @@ export interface RemsCase extends Document {
   dispenseStatus: string;
   drugName: string;
   drugCode: string;
+  drugNdcCode?: string;
   patientFirstName: string;
   patientLastName: string;
   patientDOB: string;
@@ -62,6 +64,7 @@ const medicationCollectionSchema = new Schema<Medication>({
   name: { type: String },
   codeSystem: { type: String },
   code: { type: String },
+  ndcCode: { type: String },
   requirements: [
     {
       name: { type: String },
@@ -112,6 +115,7 @@ const remsCaseCollectionSchema = new Schema<RemsCase>({
   patientLastName: { type: String },
   patientDOB: { type: String },
   drugCode: { type: String },
+  drugNdcCode: { type: String },
   currentPrescriberId: { type: String },
   currentPharmacyId: { type: String },
   prescriberHistory: [{ type: String }],

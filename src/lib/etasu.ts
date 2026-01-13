@@ -220,6 +220,7 @@ export const createNewRemsCaseFromCDSHook = async (
     | 'dispenseStatus'
     | 'drugName'
     | 'drugCode'
+    | 'drugNdcCode'
     | 'patientFirstName'
     | 'patientLastName'
     | 'patientDOB'
@@ -236,6 +237,7 @@ export const createNewRemsCaseFromCDSHook = async (
     dispenseStatus: 'Pending',
     drugName: drug?.name,
     drugCode: drug?.code,
+    drugNdcCode: drug?.ndcCode,
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
@@ -591,6 +593,7 @@ const createMetRequirementAndNewCase = async (
     | 'dispenseStatus'
     | 'drugName'
     | 'drugCode'
+    | 'drugNdcCode'
     | 'patientFirstName'
     | 'patientLastName'
     | 'patientDOB'
@@ -607,6 +610,7 @@ const createMetRequirementAndNewCase = async (
     dispenseStatus: dispenseStatusDefault,
     drugName: drug?.name,
     drugCode: drug?.code,
+    drugNdcCode: drug?.ndcCode,
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
