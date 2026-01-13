@@ -36,11 +36,13 @@ router.post('/', async (req: Request, res: Response) => {
       await handleRxFill(message, res);
     } else {
       logger.error('Unknown NCPDP message type');
+      res.type('application/xml');
       res.status(400).send(buildErrorResponse('Unknown message type'));
     }
   } catch (error: any) {
     logger.error(`ERROR processing NCPDP message: ${error.message}`);
     logger.error(`Stack: ${error.stack}`);
+    res.type('application/xml');
     res.status(500).send(buildErrorResponse('Internal server error'));
   }
 });
@@ -59,6 +61,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     
     if (!caseId) {
       logger.error('Case ID not provided in request');
+      res.type('application/xml');
       return res.status(200).send(buildDeniedResponse(header, remsRequest, 'EC', 'Case ID not provided'));
     }
     
@@ -68,6 +71,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     
     if (!remsCase) {
       logger.error(`Case not found: ${caseId}`);
+      res.type('application/xml');
       return res.status(200).send(buildDeniedResponse(header, remsRequest, 'EC', 'Case not found'));
     }
     
@@ -86,6 +90,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     
     if (!medication) {
       logger.error(`Medication configuration not found for NDC: ${remsCase.drugNdcCode}`);
+      res.type('application/xml');
       return res.status(200).send(buildDeniedResponse(header, remsRequest, 'ER', 'Medication configuration error'));
     }
     
@@ -135,6 +140,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
       };
       logger.info(`Authorization details: ${JSON.stringify(authDetails)}`);
       
+      res.type('application/xml');
       return res.status(200).send(buildApprovedResponse(
         header,
         remsRequest,
@@ -167,11 +173,13 @@ const handleRemsRequest = async (message: any, res: Response) => {
     }
     
     logger.info('Sending DENIED response');
+    res.type('application/xml');
     return res.status(200).send(buildDeniedResponse(header, remsRequest, reasonCodes.join(','), reasonText));
     
   } catch (error: any) {
     logger.error(`ERROR in handleRemsRequest: ${error.message}`);
     logger.error(`Stack trace: ${error.stack}`);
+    res.type('application/xml');
     return res.status(500).send(buildErrorResponse(error.message));
   }
 };
@@ -202,6 +210,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     
     if (!remsCase) {
       logger.info('No case exists - patient must enroll');
+      res.type('application/xml');
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -217,6 +226,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     
     if (!medication) {
       logger.error(`Medication not found for NDC: ${drugNdcCode}`);
+      res.type('application/xml');
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -247,6 +257,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
       const reasonText = buildReasonText(outstandingRequirements);
       
       logger.info(`Requirements not met - closing with: ${reasonCodes.join(',')}`);
+      res.type('application/xml');
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -257,10 +268,12 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     
     // All requirements met - return success with patient ID
     logger.info('All requirements met - returning success');
+    res.type('application/xml');
     return res.status(200).send(buildInitiationSuccessResponse(header, initRequest, remsCase));
     
   } catch (error: any) {
     logger.error(`ERROR in handleRemsInitiation: ${error.message}`);
+    res.type('application/xml');
     return res.status(500).send(buildErrorResponse(error.message));
   }
 };
@@ -292,9 +305,11 @@ const handleRxFill = async (message: any, res: Response) => {
       logger.warn('Case not found for RxFill notification');
     }
     
+    res.type('application/xml');
     return res.status(200).send(buildRxFillResponse(header, rxFill));
   } catch (error: any) {
     logger.error(`ERROR in handleRxFill: ${error.message}`);
+    res.type('application/xml');
     return res.status(500).send(buildErrorResponse(error.message));
   }
 };
