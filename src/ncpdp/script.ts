@@ -3,13 +3,13 @@ import { remsCaseCollection, medicationCollection } from '../fhir/models';
 import container from '../lib/winston';
 import { Builder } from 'xml2js';
 import { sendCommunicationToEHR } from '../lib/communication';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 const logger = container.get('application');
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    // req.body is already parsed by body-parser-xml middleware
     const parsedMessage = req.body;
     
     logger.info('=== NCPDP Request Received ===');
@@ -25,7 +25,6 @@ router.post('/', async (req: Request, res: Response) => {
     };
     logger.info(`Message type check: ${JSON.stringify(messageInfo)}`);
     
-    // Route based on message type (tags are lowercase due to normalizeTags: true)
     if (body?.remsrequest) {
       logger.info('Routing to handleRemsRequest');
       await handleRemsRequest(message, res);
@@ -65,7 +64,6 @@ const handleRemsRequest = async (message: any, res: Response) => {
     
     logger.info(`Looking up case: ${caseId}`);
     
-    // Find the REMS case
     const remsCase = await remsCaseCollection.findOne({ case_number: caseId });
     
     if (!remsCase) {
@@ -77,25 +75,23 @@ const handleRemsRequest = async (message: any, res: Response) => {
       case_number: remsCase.case_number,
       status: remsCase.status,
       drugName: remsCase.drugName,
-      drugCode: remsCase.drugCode,
+      drugNdcCode: remsCase.drugNdcCode,
       numRequirements: remsCase.metRequirements?.length
     };
     logger.info(`Case found: ${JSON.stringify(caseInfo)}`);
     
-    // Get medication requirements
     const medication = await medicationCollection.findOne({
-      code: remsCase.drugCode,
-      name: remsCase.drugName
+      ndcCode: remsCase.drugNdcCode
     });
     
     if (!medication) {
-      logger.error(`Medication configuration not found: code=${remsCase.drugCode}, name=${remsCase.drugName}`);
+      logger.error(`Medication configuration not found for NDC: ${remsCase.drugNdcCode}`);
       return res.status(200).send(buildDeniedResponse(header, remsRequest, 'ER', 'Medication configuration error'));
     }
     
     const medInfo = {
       name: medication.name,
-      code: medication.code,
+      ndcCode: medication.ndcCode,
       totalRequirements: medication.requirements.length,
       requiredToDispense: medication.requirements.filter((r: any) => r.requiredToDispense).length
     };
@@ -130,7 +126,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
       const authNumber = `RDA${Math.floor(Math.random() * 10000000)}`;
       const today = new Date();
       const expirationDate = new Date(today);
-      expirationDate.setDate(expirationDate.getDate() + 7); // 7-day authorization window
+      expirationDate.setDate(expirationDate.getDate() + 7);
       
       const authDetails = {
         authNumber,
@@ -149,8 +145,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
       ));
     }
     
-    // Requirements not met - determine reason codes and send Communication
-    logger.info(`${outstandingRequirements.length} requirements not met - DENYING`);
+    // Requirements not met - denial with reason codes
     const reasonCodes = determineReasonCodes(outstandingRequirements);
     const reasonText = buildReasonText(outstandingRequirements);
     
@@ -169,7 +164,6 @@ const handleRemsRequest = async (message: any, res: Response) => {
       logger.info(`Communication sent successfully to: ${ehrEndpoint}`);
     } catch (commError: any) {
       logger.error(`Failed to send Communication: ${commError.message}`);
-      // Continue with denial response even if Communication fails
     }
     
     logger.info('Sending DENIED response');
@@ -191,24 +185,23 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     const patient = initRequest.patient?.humanpatient;
     const prescriber = initRequest.prescriber?.nonveterinarian;
     const pharmacy = initRequest.pharmacy;
-    const drugCode = initRequest.medicationprescribed?.product?.drugcoded?.ndc;
+    const drugNdcCode = initRequest.medicationprescribed?.product?.drugcoded?.ndc;
     
     const requestInfo = {
       patientName: `${patient?.names?.name?.firstname} ${patient?.names?.name?.lastname}`,
-      drugCode
+      drugNdcCode: drugNdcCode
     };
     logger.info(`REMS Initiation request: ${JSON.stringify(requestInfo)}`);
     
-    // Look up patient's REMS case
     const remsCase = await remsCaseCollection.findOne({
       patientFirstName: patient?.names?.name?.firstname,
       patientLastName: patient?.names?.name?.lastname,
       patientDOB: patient?.dateofbirth?.date,
-      drugNdcCode: drugCode
+      drugNdcCode: drugNdcCode
     });
     
     if (!remsCase) {
-      // No case exists - return "Closed" with EM (patient must enroll)
+      logger.info('No case exists - patient must enroll');
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -218,9 +211,12 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     }
     
     // Case exists - check requirements
-    const medication = await medicationCollection.findOne({ code: drugCode });
+    const medication = await medicationCollection.findOne({ 
+      ndcCode: drugNdcCode
+    });
     
     if (!medication) {
+      logger.error(`Medication not found for NDC: ${drugNdcCode}`);
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -250,6 +246,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
       const reasonCodes = determineReasonCodes(outstandingRequirements);
       const reasonText = buildReasonText(outstandingRequirements);
       
+      logger.info(`Requirements not met - closing with: ${reasonCodes.join(',')}`);
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
@@ -259,6 +256,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     }
     
     // All requirements met - return success with patient ID
+    logger.info('All requirements met - returning success');
     return res.status(200).send(buildInitiationSuccessResponse(header, initRequest, remsCase));
     
   } catch (error: any) {
@@ -271,61 +269,51 @@ const handleRemsInitiation = async (message: any, res: Response) => {
 const handleRxFill = async (message: any, res: Response) => {
   try {
     logger.info('--- handleRxFill started ---');
+    const header = message.header;
     const rxFill = message.body.rxfill;
     const patient = rxFill.patient?.humanpatient;
-    const drugCode = rxFill.medicationprescribed?.product?.drugcoded?.ndc;
-    const fillStatus = rxFill.fillstatus?.dispensed?.note || 'Dispensed';
+    const drugNdcCode = rxFill.medicationprescribed?.product?.drugcoded?.ndc;
     
-    const rxFillInfo = {
-      patientName: `${patient?.names?.name?.firstname} ${patient?.names?.name?.lastname}`,
-      patientDOB: patient?.dateofbirth?.date,
-      drugCode,
-      fillStatus
-    };
-    logger.info(`RxFill notification: ${JSON.stringify(rxFillInfo)}`);
+    logger.info(`RxFill for patient: ${patient?.names?.name?.firstname} ${patient?.names?.name?.lastname}, NDC: ${drugNdcCode}`);
     
     // Update case dispense status
-    const updatedCase = await remsCaseCollection.findOneAndUpdate(
-      {
-        patientFirstName: patient?.names?.name?.firstname,
-        patientLastName: patient?.names?.name?.lastname,
-        patientDOB: patient?.dateofbirth?.date,
-        drugNdcCode: drugCode
-      },
-      { dispenseStatus: fillStatus },
-      { new: true }
-    );
+    const remsCase = await remsCaseCollection.findOne({
+      patientFirstName: patient?.names?.name?.firstname,
+      patientLastName: patient?.names?.name?.lastname,
+      patientDOB: patient?.dateofbirth?.date,
+      drugNdcCode: drugNdcCode
+    });
     
-    if (updatedCase) {
-      logger.info(`Updated dispense status for case ${updatedCase.case_number}: ${fillStatus}`);
+    if (remsCase) {
+      remsCase.dispenseStatus = 'Dispensed';
+      await remsCase.save();
+      logger.info(`Updated case ${remsCase.case_number} dispense status to Dispensed`);
     } else {
-      logger.warn('No matching case found to update');
+      logger.warn('Case not found for RxFill notification');
     }
     
-    logger.info('Sending RxFill acknowledgment');
-    // Simple acknowledgment response
-    res.status(200).send(buildRxFillResponse(message.header, rxFill));
-    
+    return res.status(200).send(buildRxFillResponse(header, rxFill));
   } catch (error: any) {
     logger.error(`ERROR in handleRxFill: ${error.message}`);
     return res.status(500).send(buildErrorResponse(error.message));
   }
 };
 
+
 const determineReasonCodes = (outstandingRequirements: any[]): string[] => {
   const codes = new Set<string>();
   
   for (const req of outstandingRequirements) {
-    switch (req.stakeholder) {
+    switch (req.stakeholder?.toLowerCase()) {
       case 'patient':
-        codes.add('EM'); // Patient must enroll/certify
+        codes.add('EM');
         break;
       case 'prescriber':
-        codes.add('ES'); // Prescriber must enroll/certify
+        codes.add('ES');
         break;
       case 'pharmacist':
       case 'pharmacy':
-        codes.add('EO'); // Pharmacy not enrolled/certified
+        codes.add('EO');
         break;
     }
   }
@@ -482,6 +470,9 @@ const buildInitiationClosedResponse = (
 const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any): string => {
   const builder = new Builder({ headless: false });
   
+  const patient = request.Patient || request.patient;
+  const humanPatient = patient?.HumanPatient || patient?.humanpatient;
+  
   const response = {
     Message: {
       $: {
@@ -498,11 +489,21 @@ const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any
         REMSInitiationResponse: {
           REMSReferenceID: request.REMSReferenceID,
           Patient: {
-            ...request.Patient,
             HumanPatient: {
-              ...request.Patient.HumanPatient,
+              $: {
+                'xsi:type': 'PatientMandatoryAddress'
+              },
               Identification: {
-                REMSPatientID: remsCase.case_number // Return case number as patient ID
+                REMSPatientID: remsCase.remsPatientId || remsCase.case_number
+              },
+              Names: humanPatient?.Names || humanPatient?.names,
+              GenderAndSex: humanPatient?.GenderAndSex || humanPatient?.genderandsex,
+              DateOfBirth: humanPatient?.DateOfBirth || humanPatient?.dateofbirth,
+              Address: {
+                $: {
+                  'xsi:type': 'MandatoryAddressType'
+                },
+                ...(humanPatient?.Address || humanPatient?.address)
               }
             }
           },
@@ -535,7 +536,7 @@ const buildRxFillResponse = (header: any, rxFill: any): string => {
       Header: header,
       Body: {
         Status: {
-          Code: '000', // Success code
+          Code: '000',
           Description: 'Dispense notification received'
         }
       }
