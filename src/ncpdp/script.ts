@@ -151,12 +151,13 @@ const handleRemsRequest = async (message: any, res: Response) => {
       ));
     }
     
-    // Requirements not met - denial with reason codes
+    // Requirements not met - denial with reason code
     const reasonCodes = determineReasonCodes(outstandingRequirements);
-    const reasonText = buildReasonText(outstandingRequirements);
+    const reasonCode = reasonCodes[0];
+    const reasonText = buildReasonText(reasonCode);
     
     const denialDetails = {
-      reasonCodes: reasonCodes.join(','),
+      reasonCode: reasonCode,
       reasonText,
       outstandingCount: outstandingRequirements.length
     };
@@ -174,7 +175,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     
     logger.info('Sending DENIED response');
     res.type('application/xml');
-    return res.status(200).send(buildDeniedResponse(header, remsRequest, reasonCodes.join(','), reasonText));
+    return res.status(200).send(buildDeniedResponse(header, remsRequest, reasonCode, reasonText));
     
   } catch (error: any) {
     logger.error(`ERROR in handleRemsRequest: ${error.message}`);
@@ -342,30 +343,48 @@ const handleRxFill = async (message: any, res: Response) => {
 
 
 const determineReasonCodes = (outstandingRequirements: any[]): string[] => {
-  const codes = new Set<string>();
+  let hasPatientReq = false;
+  let hasPrescriberReq = false;
+  let hasPharmacyReq = false;
   
   for (const req of outstandingRequirements) {
-    switch (req.stakeholder?.toLowerCase()) {
-      case 'patient':
-        codes.add('EM');
-        break;
-      case 'prescriber':
-        codes.add('ES');
-        break;
-      case 'pharmacist':
-      case 'pharmacy':
-        codes.add('EO');
-        break;
+    const stakeholder = req.stakeholder?.toLowerCase();
+    if (stakeholder === 'patient') {
+      hasPatientReq = true;
+    } else if (stakeholder === 'prescriber') {
+      hasPrescriberReq = true;
+    } else if (stakeholder === 'pharmacist' || stakeholder === 'pharmacy') {
+      hasPharmacyReq = true;
     }
   }
   
-  return Array.from(codes);
+  // Return only the highest priority requirement
+  if (hasPatientReq) {
+    return ['EM'];
+  } else if (hasPrescriberReq) {
+    return ['ES'];
+  } else if (hasPharmacyReq) {
+    return ['EO'];
+  }
+  
+  // Fallback - should not reach here
+  return ['EC'];
 };
 
 
-const buildReasonText = (outstandingRequirements: any[]): string => {
-  const reqNames = outstandingRequirements.map(r => `${r.name} (${r.stakeholder})`).join(', ');
-  return `Outstanding REMS requirements: ${reqNames}`;
+const buildReasonText = (reasonCode: string): string => {
+  const reasonCodeNotes: { [key: string]: string } = {
+    'EM': 'Patient enrollment/certification required',
+    'ES': 'Prescriber enrollment/certification required',
+    'EO': 'Pharmacy enrollment/certification required',
+    'EC': 'Case information incomplete or invalid',
+    'ER': 'REMS program error',
+    'EX': 'Prescriber deactivated/decertified',
+    'EY': 'Pharmacy deactivated/decertified',
+    'EZ': 'Patient deactivated/decertified'
+  };
+  
+  return reasonCodeNotes[reasonCode] || 'REMS requirement not met';
 };
 
 
@@ -378,6 +397,13 @@ const buildApprovedResponse = (
   expirationDate: string
 ): string => {
   const builder = new Builder({ headless: false });
+  
+  // Handle both capitalized and lowercased keys from parsed XML
+  const patient = request.patient;
+  const pharmacy =  request.pharmacy;
+  const prescriber =  request.prescriber;
+  const medicationPrescribed = request.medicationprescribed;
+  const remsReferenceID = request.remsreferenceid;
   
   const response = {
     Message: {
@@ -393,11 +419,11 @@ const buildApprovedResponse = (
       Header: header,
       Body: {
         REMSResponse: {
-          REMSReferenceID: request.REMSReferenceID,
-          Patient: request.Patient,
-          Pharmacy: request.Pharmacy,
-          Prescriber: request.Prescriber,
-          MedicationPrescribed: request.MedicationPrescribed,
+          REMSReferenceID: remsReferenceID,
+          Patient: patient,
+          Pharmacy: pharmacy,
+          Prescriber: prescriber,
+          MedicationPrescribed: medicationPrescribed,
           Response: {
             ResponseStatus: {
               Approved: {
@@ -427,6 +453,14 @@ const buildDeniedResponse = (
 ): string => {
   const builder = new Builder({ headless: false });
   
+  const patient =  request.patient;
+  const pharmacy =  request.pharmacy;
+  const prescriber =  request.prescriber;
+  const medicationPrescribed =  request.medicationprescribed;
+  const remsReferenceID = request.remsreferenceid;
+  const solicitedModel =  request.request?.solicitedmodel;
+  const caseId = solicitedModel?.remscaseid;
+  
   const response = {
     Message: {
       $: {
@@ -441,15 +475,15 @@ const buildDeniedResponse = (
       Header: header,
       Body: {
         REMSResponse: {
-          REMSReferenceID: request.REMSReferenceID,
-          Patient: request.Patient,
-          Pharmacy: request.Pharmacy,
-          Prescriber: request.Prescriber,
-          MedicationPrescribed: request.MedicationPrescribed,
+          REMSReferenceID: remsReferenceID,
+          Patient: patient,
+          Pharmacy: pharmacy,
+          Prescriber: prescriber,
+          MedicationPrescribed: medicationPrescribed,
           Response: {
             ResponseStatus: {
               Denied: {
-                REMSCaseID: request.request?.solicitedmodel?.remscaseid,
+                REMSCaseID: caseId,
                 DeniedReasonCode: reasonCode,
                 REMSNote: note
               }
@@ -472,6 +506,12 @@ const buildInitiationClosedResponse = (
 ): string => {
   const builder = new Builder({ headless: false });
   
+  const patient =  request.patient;
+  const pharmacy =  request.pharmacy;
+  const prescriber = request.prescriber;
+  const medicationPrescribed =  request.medicationprescribed;
+  const remsReferenceID =  request.remsreferenceid;
+  
   const response = {
     Message: {
       $: {
@@ -486,11 +526,11 @@ const buildInitiationClosedResponse = (
       Header: header,
       Body: {
         REMSInitiationResponse: {
-          REMSReferenceID: request.REMSReferenceID,
-          Patient: request.Patient,
-          Pharmacy: request.Pharmacy,
-          Prescriber: request.Prescriber,
-          MedicationPrescribed: request.MedicationPrescribed,
+          REMSReferenceID: remsReferenceID,
+          Patient: patient,
+          Pharmacy: pharmacy,
+          Prescriber: prescriber,
+          MedicationPrescribed: medicationPrescribed,
           Response: {
             ResponseStatus: {
               Closed: {
@@ -511,8 +551,12 @@ const buildInitiationClosedResponse = (
 const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any): string => {
   const builder = new Builder({ headless: false });
   
-  const patient = request.Patient || request.patient;
-  const humanPatient = patient?.HumanPatient || patient?.humanpatient;
+  const patient =  request.patient;
+  const humanPatient = patient?.humanpatient;
+  const pharmacy = request.pharmacy;
+  const prescriber = request.prescriber;
+  const medicationPrescribed = request.medicationprescribed;
+  const remsReferenceID = request.remsreferenceid;
   
   const response = {
     Message: {
@@ -528,7 +572,7 @@ const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any
       Header: header,
       Body: {
         REMSInitiationResponse: {
-          REMSReferenceID: request.REMSReferenceID,
+          REMSReferenceID: remsReferenceID,
           Patient: {
             HumanPatient: {
               $: {
@@ -548,9 +592,9 @@ const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any
               }
             }
           },
-          Pharmacy: request.Pharmacy,
-          Prescriber: request.Prescriber,
-          MedicationPrescribed: request.MedicationPrescribed
+          Pharmacy: pharmacy,
+          Prescriber: prescriber,
+          MedicationPrescribed: medicationPrescribed
         }
       }
     }
