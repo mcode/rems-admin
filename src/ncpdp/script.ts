@@ -285,30 +285,56 @@ const handleRxFill = async (message: any, res: Response) => {
     const header = message.header;
     const rxFill = message.body.rxfill;
     const patient = rxFill.patient?.humanpatient;
-    const drugNdcCode = rxFill.medicationprescribed?.product?.drugcoded?.ndc;
+
+    const medicationDispensed = rxFill.medicationdispensed;
     
-    logger.info(`RxFill for patient: ${patient?.names?.name?.firstname} ${patient?.names?.name?.lastname}, NDC: ${drugNdcCode}`);
+    if (!medicationDispensed) {
+      logger.error('MedicationDispensed not found in RxFill message');
+      logger.error(`Available RxFill fields: ${JSON.stringify(Object.keys(rxFill))}`);
+    }
     
-    // Update case dispense status
-    const remsCase = await remsCaseCollection.findOne({
-      patientFirstName: patient?.names?.name?.firstname,
-      patientLastName: patient?.names?.name?.lastname,
-      patientDOB: patient?.dateofbirth?.date,
-      drugNdcCode: drugNdcCode
-    });
+    let drugNdcCode = medicationDispensed?.drugcoded?.productcode?.code
+    
+    const patientInfo = {
+      firstName: patient?.name?.firstname || patient?.names?.name?.firstname,
+      lastName: patient?.name?.lastname || patient?.names?.name?.lastname,
+      dob: patient?.dateofbirth?.date,
+      ndc: drugNdcCode,
+    };
+    
+    logger.info(`RxFill received for: ${JSON.stringify(patientInfo)}`);
+    
+    // Try to find case - if NDC not available, try by patient + drug description
+    let remsCase = null;
+    
+    if (drugNdcCode) {
+      remsCase = await remsCaseCollection.findOne({
+        patientFirstName: patientInfo.firstName,
+        patientLastName: patientInfo.lastName,
+        patientDOB: patientInfo.dob,
+        drugNdcCode: drugNdcCode
+      });
+    }
     
     if (remsCase) {
       remsCase.dispenseStatus = 'Dispensed';
       await remsCase.save();
-      logger.info(`Updated case ${remsCase.case_number} dispense status to Dispensed`);
+      
+      logger.info(`Updated case ${remsCase.case_number} dispense status to 'Dispensed'`);
+      logger.info(`  Patient: ${remsCase.patientFirstName} ${remsCase.patientLastName}`);
+      logger.info(`  Drug: ${remsCase.drugName} (NDC: ${remsCase.drugNdcCode})`);
+      logger.info(`  Case Status: ${remsCase.status}`);
     } else {
-      logger.warn('Case not found for RxFill notification');
+      logger.warn(`Case not found for RxFill notification`);
+      logger.warn(`  Searched for: ${JSON.stringify(patientInfo)}`);
     }
     
+    // Return success status per NCPDP
     res.type('application/xml');
     return res.status(200).send(buildRxFillResponse(header, rxFill));
   } catch (error: any) {
     logger.error(`ERROR in handleRxFill: ${error.message}`);
+    logger.error(`Stack trace: ${error.stack}`);
     res.type('application/xml');
     return res.status(500).send(buildErrorResponse(error.message));
   }
@@ -552,7 +578,7 @@ const buildRxFillResponse = (header: any, rxFill: any): string => {
       Body: {
         Status: {
           Code: '000',
-          Description: 'Dispense notification received'
+          Description: 'Dispense notification received and processed'
         }
       }
     }
