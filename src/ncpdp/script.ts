@@ -152,8 +152,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     }
     
     // Requirements not met - denial with reason code
-    const reasonCodes = determineReasonCodes(outstandingRequirements);
-    const reasonCode = reasonCodes[0];
+    const reasonCode = determineReasonCodes(outstandingRequirements);
     const reasonText = buildReasonText(reasonCode);
     
     const denialDetails = {
@@ -254,15 +253,15 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     }
     
     if (outstandingRequirements.length > 0) {
-      const reasonCodes = determineReasonCodes(outstandingRequirements);
-      const reasonText = buildReasonText(outstandingRequirements);
+      const reasonCode = determineReasonCodes(outstandingRequirements);
+      const reasonText = buildReasonText(reasonCode);
       
-      logger.info(`Requirements not met - closing with: ${reasonCodes.join(',')}`);
+      logger.info(`Requirements not met - closing with: ${reasonCode}`);
       res.type('application/xml');
       return res.status(200).send(buildInitiationClosedResponse(
         header,
         initRequest,
-        reasonCodes.join(','),
+        reasonCode,
         reasonText
       ));
     }
@@ -342,7 +341,7 @@ const handleRxFill = async (message: any, res: Response) => {
 };
 
 
-const determineReasonCodes = (outstandingRequirements: any[]): string[] => {
+const determineReasonCodes = (outstandingRequirements: any[]): string => {
   let hasPatientReq = false;
   let hasPrescriberReq = false;
   let hasPharmacyReq = false;
@@ -360,15 +359,15 @@ const determineReasonCodes = (outstandingRequirements: any[]): string[] => {
   
   // Return only the highest priority requirement
   if (hasPatientReq) {
-    return ['EM'];
+    return 'EM';
   } else if (hasPrescriberReq) {
-    return ['ES'];
+    return 'ES';
   } else if (hasPharmacyReq) {
-    return ['EO'];
+    return 'EO';
   }
   
   // Fallback - should not reach here
-  return ['EC'];
+  return 'EC';
 };
 
 
