@@ -566,6 +566,11 @@ const getCardOrEmptyArrayFromRules =
       const notFound = remsCase && !metRequirement;
       const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
 
+      // Only show forms that are not required to dispense (like patient status) if case is approved
+      if (!requirement.requiredToDispense && remsCase && remsCase.status !== 'Approved') {
+        return false;
+      }
+
       return formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense;
     };
 
@@ -825,7 +830,7 @@ const containsMatchingMedicationRequest =
 
 const getCardOrEmptyArrayFromCases =
   (entries: BundleEntry[] | undefined) =>
-  async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
+  async ({ drugCode, drugName, metRequirements, status }: RemsCase): Promise<Card | never[]> => {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
     const drug = await medicationCollection
       .findOne({
@@ -866,6 +871,11 @@ const getCardOrEmptyArrayFromCases =
       });
       const formNotProcessed = metRequirement && !metRequirement.completed;
       const notFound = !metRequirement;
+
+      // Only show forms that are not required to dispense (like patient status) if case is approved
+      if (!requirement.requiredToDispense && status !== 'Approved') {
+        return false;
+      }
 
       return formNotProcessed || notFound;
     };
