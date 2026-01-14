@@ -152,7 +152,7 @@ const handleRemsRequest = async (message: any, res: Response) => {
     }
     
     // Requirements not met - denial with reason code
-    const reasonCode = determineReasonCodes(outstandingRequirements);
+    const reasonCode = determineReasonCode(outstandingRequirements);
     const reasonText = buildReasonText(reasonCode);
     
     const denialDetails = {
@@ -253,7 +253,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     }
     
     if (outstandingRequirements.length > 0) {
-      const reasonCode = determineReasonCodes(outstandingRequirements);
+      const reasonCode = determineReasonCode(outstandingRequirements);
       const reasonText = buildReasonText(reasonCode);
       
       logger.info(`Requirements not met - closing with: ${reasonCode}`);
@@ -341,7 +341,7 @@ const handleRxFill = async (message: any, res: Response) => {
 };
 
 
-const determineReasonCodes = (outstandingRequirements: any[]): string => {
+const determineReasonCode = (outstandingRequirements: any[]): string => {
   let hasPatientReq = false;
   let hasPrescriberReq = false;
   let hasPharmacyReq = false;
@@ -397,10 +397,9 @@ const buildApprovedResponse = (
 ): string => {
   const builder = new Builder({ headless: false });
   
-  // Handle both capitalized and lowercased keys from parsed XML
   const patient = request.patient;
-  const pharmacy =  request.pharmacy;
-  const prescriber =  request.prescriber;
+  const pharmacy = request.pharmacy;
+  const prescriber = request.prescriber;
   const medicationPrescribed = request.medicationprescribed;
   const remsReferenceID = request.remsreferenceid;
   
@@ -452,12 +451,12 @@ const buildDeniedResponse = (
 ): string => {
   const builder = new Builder({ headless: false });
   
-  const patient =  request.patient;
-  const pharmacy =  request.pharmacy;
-  const prescriber =  request.prescriber;
-  const medicationPrescribed =  request.medicationprescribed;
+  const patient = request.patient;
+  const pharmacy = request.pharmacy;
+  const prescriber = request.prescriber;
+  const medicationPrescribed = request.medicationprescribed;
   const remsReferenceID = request.remsreferenceid;
-  const solicitedModel =  request.request?.solicitedmodel;
+  const solicitedModel = request.request?.solicitedmodel;
   const caseId = solicitedModel?.remscaseid;
   
   const response = {
@@ -505,11 +504,11 @@ const buildInitiationClosedResponse = (
 ): string => {
   const builder = new Builder({ headless: false });
   
-  const patient =  request.patient;
-  const pharmacy =  request.pharmacy;
+  const patient = request.patient;
+  const pharmacy = request.pharmacy;
   const prescriber = request.prescriber;
-  const medicationPrescribed =  request.medicationprescribed;
-  const remsReferenceID =  request.remsreferenceid;
+  const medicationPrescribed = request.medicationprescribed;
+  const remsReferenceID = request.remsreferenceid;
   
   const response = {
     Message: {
@@ -550,7 +549,7 @@ const buildInitiationClosedResponse = (
 const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any): string => {
   const builder = new Builder({ headless: false });
   
-  const patient =  request.patient;
+  const patient = request.patient;
   const humanPatient = patient?.humanpatient;
   const pharmacy = request.pharmacy;
   const prescriber = request.prescriber;
@@ -580,14 +579,14 @@ const buildInitiationSuccessResponse = (header: any, request: any, remsCase: any
               Identification: {
                 REMSPatientID: remsCase.remsPatientId || remsCase.case_number
               },
-              Names: humanPatient?.Names || humanPatient?.names,
-              GenderAndSex: humanPatient?.GenderAndSex || humanPatient?.genderandsex,
-              DateOfBirth: humanPatient?.DateOfBirth || humanPatient?.dateofbirth,
+              Names: humanPatient?.names,
+              GenderAndSex: humanPatient?.genderandsex,
+              DateOfBirth: humanPatient?.dateofbirth,
               Address: {
                 $: {
                   'xsi:type': 'MandatoryAddressType'
                 },
-                ...(humanPatient?.Address || humanPatient?.address)
+                ...humanPatient?.address
               }
             }
           },
