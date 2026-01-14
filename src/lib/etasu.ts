@@ -197,17 +197,24 @@ export const createNewRemsCaseFromCDSHook = async (
   const patientDOB = patient.birthDate || '';
   const case_number = uid();
 
+  // Fetch the full medication from database to get NDC code
+  const fullMedication = await medicationCollection.findOne({
+    code: drug?.code
+  }).exec();
+
+  const medicationData = fullMedication || drug;
+
   // Check if case already exists
   const existingCase = await remsCaseCollection.findOne({
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
-    drugCode: drug?.code
+    drugCode: medicationData?.code
   });
 
   if (existingCase) {
     console.log(
-      `Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${drug?.name}`
+      `Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${medicationData?.name}`
     );
     return existingCase;
   }
@@ -235,9 +242,9 @@ export const createNewRemsCaseFromCDSHook = async (
     case_number: case_number,
     status: 'Pending',
     dispenseStatus: 'Pending',
-    drugName: drug?.name,
-    drugCode: drug?.code,
-    drugNdcCode: drug?.ndcCode,
+    drugName: medicationData?.name,
+    drugCode: medicationData?.code,
+    drugNdcCode: medicationData?.ndcCode,
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
@@ -261,7 +268,7 @@ export const createNewRemsCaseFromCDSHook = async (
   };
 
   // Iterate through ALL requirements and create as unmet (or link to existing if already completed)
-  for (const requirement of drug.requirements) {
+  for (const requirement of medicationData.requirements) {
     // Only process requirements that are required to dispense
     if (requirement.requiredToDispense) {
       // Figure out which stakeholder the requirement corresponds to
@@ -278,7 +285,7 @@ export const createNewRemsCaseFromCDSHook = async (
         .findOne({
           stakeholderId: stakeholderReference,
           requirementName: requirement.name,
-          drugName: drug?.name
+          drugName: medicationData?.name
         })
         .exec();
 
@@ -293,7 +300,7 @@ export const createNewRemsCaseFromCDSHook = async (
           completed: false,
           requirementName: requirement.name,
           requirementDescription: requirement.description,
-          drugName: drug?.name,
+          drugName: medicationData?.name,
           stakeholderId: stakeholderReference,
           case_numbers: [case_number]
         };
@@ -497,12 +504,19 @@ const createMetRequirementAndNewCase = async (
   const patientDOB = patient.birthDate || '';
   let message = '';
 
+  // Fetch the full medication from database to get NDC code
+  const fullMedication = await medicationCollection.findOne({
+    code: drug?.code
+  }).exec();
+
+  const medicationData = fullMedication || drug;
+
   // Check if case already exists
   const existingCase = await remsCaseCollection.findOne({
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
-    drugCode: drug?.code
+    drugCode: medicationData?.code
   });
 
   if (existingCase) {
@@ -519,7 +533,7 @@ const createMetRequirementAndNewCase = async (
     if (prescriberChanged || pharmacyChanged) {
       await handleStakeholderChangesAndRecordEvent(
         existingCase,
-        drug,
+        medicationData,
         practitionerReference,
         pharmacistReference,
         medicationRequestReference,
@@ -532,7 +546,7 @@ const createMetRequirementAndNewCase = async (
       .findOne({
         stakeholderId: reqStakeholderReference,
         requirementName: requirement.name,
-        drugName: drug?.name
+        drugName: medicationData?.name
       })
       .exec();
 
@@ -608,9 +622,9 @@ const createMetRequirementAndNewCase = async (
     case_number: case_number,
     status: remsRequestCompletedStatus,
     dispenseStatus: dispenseStatusDefault,
-    drugName: drug?.name,
-    drugCode: drug?.code,
-    drugNdcCode: drug?.ndcCode,
+    drugName: medicationData?.name,
+    drugCode: medicationData?.code,
+    drugNdcCode: medicationData?.ndcCode,
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
@@ -639,7 +653,7 @@ const createMetRequirementAndNewCase = async (
     completedQuestionnaire: questionnaireResponse,
     requirementName: requirement.name,
     requirementDescription: requirement.description,
-    drugName: drug?.name,
+    drugName: medicationData?.name,
     stakeholderId: reqStakeholderReference,
     case_numbers: [case_number]
   };
@@ -651,7 +665,7 @@ const createMetRequirementAndNewCase = async (
   }
 
   // iterate through all other requirements again to create corresponding false metRequirements / assign to existing
-  for (const requirement2 of drug.requirements) {
+  for (const requirement2 of medicationData.requirements) {
     // skip if the req found is the same as in the outer loop and has already been processed
     // && If the requirement is not the patient Status Form (when requiredToDispense == false)
     if (!(requirement2.resourceId === requirement.resourceId) && requirement2.requiredToDispense) {
@@ -668,7 +682,7 @@ const createMetRequirementAndNewCase = async (
         .findOne({
           stakeholderId: reqStakeholder2Reference,
           requirementName: requirement2.name,
-          drugName: drug?.name
+          drugName: medicationData?.name
         })
         .exec();
       if (matchedMetReq2) {
@@ -685,7 +699,7 @@ const createMetRequirementAndNewCase = async (
           completed: false,
           requirementName: requirement2.name,
           requirementDescription: requirement2.description,
-          drugName: drug?.name,
+          drugName: medicationData?.name,
           stakeholderId: reqStakeholder2Reference,
           case_numbers: [case_number]
         };
