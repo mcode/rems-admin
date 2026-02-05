@@ -64,6 +64,14 @@ const handleRemsRequest = async (message: any, res: Response) => {
         .send(buildDeniedResponse(header, remsRequest, 'EC', 'Case ID not provided'));
     }
 
+    if (typeof caseId !== 'string' || caseId.trim().length === 0) {
+      logger.error('Invalid Case ID type or value in request');
+      res.type('application/xml');
+      return res
+        .status(200)
+        .send(buildDeniedResponse(header, remsRequest, 'EC', 'Invalid case ID'));
+    }
+
     logger.info(`Looking up case: ${caseId}`);
 
     const remsCase = await remsCaseCollection.findOne({ case_number: caseId });
