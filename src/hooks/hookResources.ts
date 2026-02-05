@@ -24,7 +24,7 @@ import {
 import axios from 'axios';
 import { ServicePrefetch } from '../rems-cds-hooks/resources/CdsService';
 import { hydrate } from '../rems-cds-hooks/prefetch/PrefetchHydrator';
-import { createNewRemsCaseFromCDSHook } from '../lib/etasu';
+import { createNewRemsCaseFromCDSHook, handleStakeholderChangesAndRecordEvent } from '../lib/etasu';
 
 type HandleCallback = (
   res: any,
@@ -406,11 +406,50 @@ export const handleCardOrder = async (
     drugCode: code
   });
 
+  // If case exists, check for stakeholder changes and record prescription event
+  if (remsCase && drug && fhirServer) {
+    const practitionerReference = request.requester?.reference || '';
+    const pharmacistReference = pharmacy?.id ? `HealthcareService/${pharmacy.id}` : '';
+    const medicationRequestReference = `${request.resourceType}/${request.id}`;
+
+    const prescriberChanged = remsCase.currentPrescriberId !== practitionerReference;
+    const pharmacyChanged =
+      pharmacistReference && remsCase.currentPharmacyId !== pharmacistReference;
+
+    if (prescriberChanged || pharmacyChanged) {
+      try {
+        const updatedCase = await handleStakeholderChangesAndRecordEvent(
+          remsCase,
+          drug,
+          practitionerReference,
+          pharmacistReference,
+          medicationRequestReference,
+          fhirServer
+        );
+        console.log(`Updated case ${updatedCase?.case_number} with stakeholder changes`);
+      } catch (error) {
+        console.error('Failed to handle stakeholder changes:', error);
+      }
+    } else {
+      // Record prescription event even if no stakeholder change
+      remsCase.prescriptionEvents.push({
+        medicationRequestReference: medicationRequestReference,
+        prescriberId: practitionerReference,
+        pharmacyId: pharmacistReference,
+        timestamp: new Date(),
+        originatingFhirServer: fhirServer,
+        caseStatusAtTime: remsCase.status
+      });
+      remsCase.medicationRequestReference = medicationRequestReference;
+      await remsCase.save();
+    }
+  }
+
   // If no REMS case exists and drug has requirements, create case with all requirements unmet
   if (!remsCase && drug && patient && request) {
     const requiresCase = drug.requirements.some(req => req.requiredToDispense);
 
-    if (requiresCase && fhirServer) {     
+    if (requiresCase && fhirServer) {
       try {
         const patientReference = `Patient/${patient.id}`;
         const medicationRequestReference = `${request.resourceType}/${request.id}`;
@@ -526,6 +565,11 @@ const getCardOrEmptyArrayFromRules =
       const formNotProcessed = metRequirement && !metRequirement.completed;
       const notFound = remsCase && !metRequirement;
       const noEtasuToCheckAndRequiredToDispense = !remsCase && requirement.requiredToDispense;
+
+      // Only show forms that are not required to dispense (like patient status) if case is approved
+      if (!requirement.requiredToDispense && remsCase && remsCase.status !== 'Approved') {
+        return false;
+      }
 
       return formNotProcessed || notFound || noEtasuToCheckAndRequiredToDispense;
     };
@@ -786,7 +830,7 @@ const containsMatchingMedicationRequest =
 
 const getCardOrEmptyArrayFromCases =
   (entries: BundleEntry[] | undefined) =>
-  async ({ drugCode, drugName, metRequirements }: RemsCase): Promise<Card | never[]> => {
+  async ({ drugCode, drugName, metRequirements, status }: RemsCase): Promise<Card | never[]> => {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
     const drug = await medicationCollection
       .findOne({
@@ -827,6 +871,11 @@ const getCardOrEmptyArrayFromCases =
       });
       const formNotProcessed = metRequirement && !metRequirement.completed;
       const notFound = !metRequirement;
+
+      // Only show forms that are not required to dispense (like patient status) if case is approved
+      if (!requirement.requiredToDispense && status !== 'Approved') {
+        return false;
+      }
 
       return formNotProcessed || notFound;
     };

@@ -41,7 +41,8 @@ export default {
   fhirServerConfig: {
     auth: {
       // This server's URI
-      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString()
+      resourceServer: env.get('RESOURCE_SERVER').required().asUrlString(),
+      dockered_ehr_container_name: env.get('DOCKERED_EHR_CONTAINER_NAME').asString()
       //
       // if you use this strategy, you need to add the corresponding env vars to docker-compose
       //
