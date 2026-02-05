@@ -15,8 +15,8 @@ export interface Requirement {
 export interface Medication extends Document {
   name: string;
   codeSystem: string;
-  code: string;  // RxNorm code (used for CDS Hooks)
-  ndcCode: string;  // NDC code (used for NCPDP SCRIPT)
+  code: string; // RxNorm code (used for CDS Hooks)
+  ndcCode: string; // NDC code (used for NCPDP SCRIPT)
   requirements: Requirement[];
 }
 
@@ -118,7 +118,7 @@ const remsCaseCollectionSchema = new Schema<RemsCase>({
   patientFirstName: { type: String },
   patientLastName: { type: String },
   patientDOB: { type: String },
-  drugCode: { type: String }, 
+  drugCode: { type: String },
   drugNdcCode: { type: String },
   currentPrescriberId: { type: String },
   currentPharmacyId: { type: String },
@@ -147,12 +147,18 @@ const remsCaseCollectionSchema = new Schema<RemsCase>({
   ]
 });
 
-remsCaseCollectionSchema.index(
-  { patientFirstName: 1, patientLastName: 1, patientDOB: 1, drugNdcCode: 1 }
-);
+remsCaseCollectionSchema.index({
+  patientFirstName: 1,
+  patientLastName: 1,
+  patientDOB: 1,
+  drugNdcCode: 1
+});
 
-remsCaseCollectionSchema.index(
-  { patientFirstName: 1, patientLastName: 1, patientDOB: 1, drugCode: 1 }
-);
+remsCaseCollectionSchema.index({
+  patientFirstName: 1,
+  patientLastName: 1,
+  patientDOB: 1,
+  drugCode: 1
+});
 
 export const remsCaseCollection = model<RemsCase>('RemsCaseCollection', remsCaseCollectionSchema);

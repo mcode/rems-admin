@@ -1,4 +1,4 @@
-import winston, { Container, transports, format } from 'winston';
+import winston, { Container, transports } from 'winston';
 import config from '../config';
 import 'winston-daily-rotate-file';
 import path from 'path';
@@ -15,10 +15,7 @@ const applicationTransports = [];
 // Create a console transport
 const transportConsole = new transports.Console({
   level: logConfig.level,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  )
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json())
 });
 
 applicationTransports.push(transportConsole);
@@ -30,10 +27,7 @@ if (logConfig.directory) {
     level: logging.level,
     zippedArchive: true,
     maxSize: '20m',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    )
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json())
   });
   applicationTransports.push(transportDailyFile);
 }

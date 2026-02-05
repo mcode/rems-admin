@@ -153,9 +153,12 @@ export async function sendCommunicationToEHR(
 
     if (config.fhirServerConfig.auth.dockered_ehr_container_name) {
       const originalEhrEndpoint = ehrEndpoint;
-      ehrEndpoint = originalEhrEndpoint.replace(/localhost/g, config.fhirServerConfig.auth.dockered_ehr_container_name)
-            .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_ehr_container_name);
-      logger.info(`Running locally in Docker, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`);
+      ehrEndpoint = originalEhrEndpoint
+        .replace(/localhost/g, config.fhirServerConfig.auth.dockered_ehr_container_name)
+        .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_ehr_container_name);
+      logger.info(
+        `Running locally in Docker, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
+      );
     }
 
     // Send Communication to EHR

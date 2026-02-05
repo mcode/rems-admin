@@ -198,9 +198,11 @@ export const createNewRemsCaseFromCDSHook = async (
   const case_number = uid();
 
   // Fetch the full medication from database to get NDC code
-  const fullMedication = await medicationCollection.findOne({
-    code: drug?.code
-  }).exec();
+  const fullMedication = await medicationCollection
+    .findOne({
+      code: drug?.code
+    })
+    .exec();
 
   const medicationData = fullMedication || drug;
 
@@ -505,9 +507,11 @@ const createMetRequirementAndNewCase = async (
   let message = '';
 
   // Fetch the full medication from database to get NDC code
-  const fullMedication = await medicationCollection.findOne({
-    code: drug?.code
-  }).exec();
+  const fullMedication = await medicationCollection
+    .findOne({
+      code: drug?.code
+    })
+    .exec();
 
   const medicationData = fullMedication || drug;
 
@@ -567,7 +571,7 @@ const createMetRequirementAndNewCase = async (
           req?.stakeholderId === matchedMetReq.stakeholderId
         ) {
           metReqArray[i].completed = true;
-          req!.completed = true;
+          req.completed = true;
           await remsCaseCollection.updateOne(
             { _id: existingCase._id },
             { $set: { metRequirements: metReqArray } }
@@ -769,7 +773,7 @@ const createMetRequirementAndUpdateCase = async (
           // _id comparison would not work for some reason
           if (req4?.requirementName === matchedMetReq.requirementName) {
             metReqArray[i].completed = true;
-            req4!.completed = true;
+            req4.completed = true;
             await remsCaseCollection.updateOne(
               { _id: remsRequestToUpdate?._id },
               { $set: { metRequirements: metReqArray } }
