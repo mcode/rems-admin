@@ -183,6 +183,293 @@ const pushMetRequirements = (
   });
 };
 
+export const createNewRemsCaseFromCDSHook = async (
+  patient: Patient,
+  drug: Medication,
+  practitionerReference: string,
+  pharmacistReference: string,
+  patientReference: string,
+  medicationRequestReference: string,
+  originatingFhirServer?: string
+) => {
+  const patientFirstName = patient.name?.[0].given?.[0] || '';
+  const patientLastName = patient.name?.[0].family || '';
+  const patientDOB = patient.birthDate || '';
+  const case_number = uid();
+
+  // Fetch the full medication from database to get NDC code
+  const fullMedication = await medicationCollection
+    .findOne({
+      code: drug?.code
+    })
+    .exec();
+
+  const medicationData = fullMedication || drug;
+
+  // Check if case already exists
+  const existingCase = await remsCaseCollection.findOne({
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    drugCode: medicationData?.code
+  });
+
+  if (existingCase) {
+    console.log(
+      `Case already exists for patient ${patientFirstName} ${patientLastName} and drug ${medicationData?.name}`
+    );
+    return existingCase;
+  }
+
+  // Create new case with all requirements pending
+  const remsRequest: Pick<
+    RemsCase,
+    | 'case_number'
+    | 'status'
+    | 'dispenseStatus'
+    | 'drugName'
+    | 'drugCode'
+    | 'drugNdcCode'
+    | 'patientFirstName'
+    | 'patientLastName'
+    | 'patientDOB'
+    | 'medicationRequestReference'
+    | 'currentPrescriberId'
+    | 'currentPharmacyId'
+    | 'prescriberHistory'
+    | 'pharmacyHistory'
+    | 'prescriptionEvents'
+    | 'metRequirements'
+  > & { originatingFhirServer?: string } = {
+    case_number: case_number,
+    status: 'Pending',
+    dispenseStatus: 'Pending',
+    drugName: medicationData?.name,
+    drugCode: medicationData?.code,
+    drugNdcCode: medicationData?.ndcCode,
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    medicationRequestReference: medicationRequestReference,
+    currentPrescriberId: practitionerReference,
+    currentPharmacyId: pharmacistReference,
+    prescriberHistory: [practitionerReference],
+    pharmacyHistory: pharmacistReference ? [pharmacistReference] : [],
+    prescriptionEvents: [
+      {
+        medicationRequestReference: medicationRequestReference,
+        prescriberId: practitionerReference,
+        pharmacyId: pharmacistReference,
+        timestamp: new Date(),
+        originatingFhirServer: originatingFhirServer,
+        caseStatusAtTime: 'Pending'
+      }
+    ],
+    originatingFhirServer: originatingFhirServer,
+    metRequirements: []
+  };
+
+  // Iterate through ALL requirements and create as unmet (or link to existing if already completed)
+  for (const requirement of medicationData.requirements) {
+    // Only process requirements that are required to dispense
+    if (requirement.requiredToDispense) {
+      // Figure out which stakeholder the requirement corresponds to
+      const stakeholderType = requirement.stakeholderType;
+      const stakeholderReference =
+        stakeholderType === 'prescriber'
+          ? practitionerReference
+          : stakeholderType === 'pharmacist'
+          ? pharmacistReference
+          : patientReference;
+
+      // Check if this stakeholder has already completed this requirement
+      const existingMetReq = await metRequirementsCollection
+        .findOne({
+          stakeholderId: stakeholderReference,
+          requirementName: requirement.name,
+          drugName: medicationData?.name
+        })
+        .exec();
+
+      if (existingMetReq) {
+        // Requirement already exists (e.g., prescriber or pharmacist enrolled previously)
+        pushMetRequirements(existingMetReq, remsRequest);
+        existingMetReq.case_numbers.push(case_number);
+        await existingMetReq.save();
+      } else {
+        // Create new unmet requirement
+        const newMetReq = {
+          completed: false,
+          requirementName: requirement.name,
+          requirementDescription: requirement.description,
+          drugName: medicationData?.name,
+          stakeholderId: stakeholderReference,
+          case_numbers: [case_number]
+        };
+
+        if (!(await createAndPushMetRequirements(newMetReq, remsRequest))) {
+          console.log('ERROR: failed to create unmet requirement for new case');
+        }
+      }
+    }
+  }
+
+  // Save the new case
+  remsRequest.status = remsRequest.metRequirements.every(req => req.completed)
+    ? 'Approved'
+    : 'Pending';
+  const newCase = await remsCaseCollection.create(remsRequest);
+
+  console.log(
+    `Created new REMS case ${case_number} with all requirements unmet (or linked to existing)`
+  );
+  return newCase;
+};
+
+export const handleStakeholderChangesAndRecordEvent = async (
+  remsCase: RemsCase,
+  drug: Medication,
+  practitionerReference: string,
+  pharmacistReference: string,
+  medicationRequestReference: string,
+  originatingFhirServer?: string
+) => {
+  let stakeholdersChanged = false;
+
+  // Record prescription event
+  const prescriptionEvent = {
+    medicationRequestReference: medicationRequestReference,
+    prescriberId: practitionerReference,
+    pharmacyId: pharmacistReference,
+    timestamp: new Date(),
+    originatingFhirServer: originatingFhirServer,
+    caseStatusAtTime: remsCase.status
+  };
+  remsCase.prescriptionEvents.push(prescriptionEvent);
+  remsCase.medicationRequestReference = medicationRequestReference;
+  if (originatingFhirServer) {
+    remsCase.originatingFhirServer = originatingFhirServer;
+  }
+
+  // Check if prescriber changed
+  if (remsCase.currentPrescriberId !== practitionerReference) {
+    console.log(
+      `Prescriber changed from ${remsCase.currentPrescriberId} to ${practitionerReference}`
+    );
+    stakeholdersChanged = true;
+
+    // Remove old prescriber requirements
+    remsCase.metRequirements = remsCase.metRequirements.filter(
+      req =>
+        req.stakeholderId !== remsCase.currentPrescriberId ||
+        !drug.requirements.some(
+          r => r.name === req.requirementName && r.stakeholderType === 'prescriber'
+        )
+    );
+
+    // Add new prescriber requirements
+    const prescriberRequirements = drug.requirements.filter(
+      r => r.stakeholderType === 'prescriber'
+    );
+    for (const requirement of prescriberRequirements) {
+      if (requirement.requiredToDispense) {
+        const existingMetReq = await metRequirementsCollection
+          .findOne({
+            stakeholderId: practitionerReference,
+            requirementName: requirement.name,
+            drugName: drug?.name
+          })
+          .exec();
+
+        if (existingMetReq) {
+          pushMetRequirements(existingMetReq, remsCase);
+          if (!existingMetReq.case_numbers.includes(remsCase.case_number)) {
+            existingMetReq.case_numbers.push(remsCase.case_number);
+            await existingMetReq.save();
+          }
+        } else {
+          const newMetReq = {
+            completed: false,
+            requirementName: requirement.name,
+            requirementDescription: requirement.description,
+            drugName: drug?.name,
+            stakeholderId: practitionerReference,
+            case_numbers: [remsCase.case_number]
+          };
+          await createAndPushMetRequirements(newMetReq, remsCase);
+        }
+      }
+    }
+
+    // Update prescriber tracking
+    remsCase.currentPrescriberId = practitionerReference;
+    if (!remsCase.prescriberHistory.includes(practitionerReference)) {
+      remsCase.prescriberHistory.push(practitionerReference);
+    }
+  }
+
+  // Check if pharmacy changed
+  if (pharmacistReference && remsCase.currentPharmacyId !== pharmacistReference) {
+    console.log(`Pharmacy changed from ${remsCase.currentPharmacyId} to ${pharmacistReference}`);
+    stakeholdersChanged = true;
+
+    // Remove old pharmacy requirements
+    remsCase.metRequirements = remsCase.metRequirements.filter(
+      req =>
+        req.stakeholderId !== remsCase.currentPharmacyId ||
+        !drug.requirements.some(
+          r => r.name === req.requirementName && r.stakeholderType === 'pharmacist'
+        )
+    );
+
+    // Add new pharmacy requirements
+    const pharmacyRequirements = drug.requirements.filter(r => r.stakeholderType === 'pharmacist');
+    for (const requirement of pharmacyRequirements) {
+      if (requirement.requiredToDispense) {
+        const existingMetReq = await metRequirementsCollection
+          .findOne({
+            stakeholderId: pharmacistReference,
+            requirementName: requirement.name,
+            drugName: drug?.name
+          })
+          .exec();
+
+        if (existingMetReq) {
+          pushMetRequirements(existingMetReq, remsCase);
+          if (!existingMetReq.case_numbers.includes(remsCase.case_number)) {
+            existingMetReq.case_numbers.push(remsCase.case_number);
+            await existingMetReq.save();
+          }
+        } else {
+          const newMetReq = {
+            completed: false,
+            requirementName: requirement.name,
+            requirementDescription: requirement.description,
+            drugName: drug?.name,
+            stakeholderId: pharmacistReference,
+            case_numbers: [remsCase.case_number]
+          };
+          await createAndPushMetRequirements(newMetReq, remsCase);
+        }
+      }
+    }
+
+    // Update pharmacy tracking
+    remsCase.currentPharmacyId = pharmacistReference;
+    if (!remsCase.pharmacyHistory.includes(pharmacistReference)) {
+      remsCase.pharmacyHistory.push(pharmacistReference);
+    }
+  }
+
+  // Recalculate status if stakeholders changed
+  if (stakeholdersChanged) {
+    remsCase.status = remsCase.metRequirements.every(req => req.completed) ? 'Approved' : 'Pending';
+  }
+
+  await remsCase.save();
+  return remsCase;
+};
+
 const createMetRequirements = async (metReq: Partial<MetRequirements>) => {
   return await metRequirementsCollection.create(metReq);
 };
@@ -210,12 +497,108 @@ const createMetRequirementAndNewCase = async (
   reqStakeholderReference: string,
   practitionerReference: string,
   pharmacistReference: string,
-  patientReference: string
+  patientReference: string,
+  medicationRequestReference: string,
+  originatingFhirServer?: string
 ) => {
   const patientFirstName = patient.name?.[0].given?.[0] || '';
   const patientLastName = patient.name?.[0].family || '';
   const patientDOB = patient.birthDate || '';
   let message = '';
+
+  // Fetch the full medication from database to get NDC code
+  const fullMedication = await medicationCollection
+    .findOne({
+      code: drug?.code
+    })
+    .exec();
+
+  const medicationData = fullMedication || drug;
+
+  // Check if case already exists
+  const existingCase = await remsCaseCollection.findOne({
+    patientFirstName: patientFirstName,
+    patientLastName: patientLastName,
+    patientDOB: patientDOB,
+    drugCode: medicationData?.code
+  });
+
+  if (existingCase) {
+    // Case already exists - check for stakeholder changes before updating requirement
+    console.log(
+      `Case ${existingCase.case_number} already exists, checking for stakeholder changes`
+    );
+
+    // Check if prescriber or pharmacy changed and handle accordingly
+    const prescriberChanged = existingCase.currentPrescriberId !== practitionerReference;
+    const pharmacyChanged =
+      pharmacistReference && existingCase.currentPharmacyId !== pharmacistReference;
+
+    if (prescriberChanged || pharmacyChanged) {
+      await handleStakeholderChangesAndRecordEvent(
+        existingCase,
+        medicationData,
+        practitionerReference,
+        pharmacistReference,
+        medicationRequestReference,
+        originatingFhirServer
+      );
+    }
+
+    // Find and update the existing MetRequirement
+    const matchedMetReq = await metRequirementsCollection
+      .findOne({
+        stakeholderId: reqStakeholderReference,
+        requirementName: requirement.name,
+        drugName: medicationData?.name
+      })
+      .exec();
+
+    if (matchedMetReq) {
+      // Update existing MetRequirement
+      matchedMetReq.completed = true;
+      matchedMetReq.completedQuestionnaire = questionnaireResponse;
+      await matchedMetReq.save();
+
+      // Update the case's metRequirements array
+      const metReqArray = existingCase.metRequirements || [];
+      let foundUncompleted = false;
+
+      for (let i = 0; i < metReqArray.length; i++) {
+        const req = existingCase.metRequirements[i];
+        if (
+          req?.requirementName === matchedMetReq.requirementName &&
+          req?.stakeholderId === matchedMetReq.stakeholderId
+        ) {
+          metReqArray[i].completed = true;
+          req.completed = true;
+          await remsCaseCollection.updateOne(
+            { _id: existingCase._id },
+            { $set: { metRequirements: metReqArray } }
+          );
+        }
+        if (!req?.completed) {
+          foundUncompleted = true;
+        }
+      }
+
+      // Update case status if all requirements are now complete
+      if (!foundUncompleted && existingCase.status === 'Pending') {
+        existingCase.status = 'Approved';
+        await existingCase.save();
+      }
+
+      return {
+        returnedRemsRequestDoc: existingCase
+      };
+    } else {
+      message = 'ERROR: MetRequirement not found for existing case';
+      console.log(message);
+      throw new Error(message);
+    }
+  }
+
+  // No existing case - create new one
   const case_number = uid();
 
   // create new rems request and add the created metReq to it
@@ -228,19 +611,43 @@ const createMetRequirementAndNewCase = async (
     | 'dispenseStatus'
     | 'drugName'
     | 'drugCode'
+    | 'drugNdcCode'
     | 'patientFirstName'
     | 'patientLastName'
     | 'patientDOB'
+    | 'medicationRequestReference'
+    | 'currentPrescriberId'
+    | 'currentPharmacyId'
+    | 'prescriberHistory'
+    | 'pharmacyHistory'
+    | 'prescriptionEvents'
     | 'metRequirements'
-  > = {
+  > & { originatingFhirServer?: string } = {
     case_number: case_number,
     status: remsRequestCompletedStatus,
     dispenseStatus: dispenseStatusDefault,
-    drugName: drug?.name,
-    drugCode: drug?.code,
+    drugName: medicationData?.name,
+    drugCode: medicationData?.code,
+    drugNdcCode: medicationData?.ndcCode,
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
+    medicationRequestReference: medicationRequestReference,
+    currentPrescriberId: practitionerReference,
+    currentPharmacyId: pharmacistReference,
+    prescriberHistory: [practitionerReference],
+    pharmacyHistory: pharmacistReference ? [pharmacistReference] : [],
+    prescriptionEvents: [
+      {
+        medicationRequestReference: medicationRequestReference,
+        prescriberId: practitionerReference,
+        pharmacyId: pharmacistReference,
+        timestamp: new Date(),
+        originatingFhirServer: originatingFhirServer,
+        caseStatusAtTime: remsRequestCompletedStatus
+      }
+    ],
+    originatingFhirServer: originatingFhirServer,
     metRequirements: []
   };
 
@@ -250,7 +657,7 @@ const createMetRequirementAndNewCase = async (
     completedQuestionnaire: questionnaireResponse,
     requirementName: requirement.name,
     requirementDescription: requirement.description,
-    drugName: drug?.name,
+    drugName: medicationData?.name,
     stakeholderId: reqStakeholderReference,
     case_numbers: [case_number]
   };
@@ -262,7 +669,7 @@ const createMetRequirementAndNewCase = async (
   }
 
   // iterate through all other requirements again to create corresponding false metRequirements / assign to existing
-  for (const requirement2 of drug.requirements) {
+  for (const requirement2 of medicationData.requirements) {
     // skip if the req found is the same as in the outer loop and has already been processed
     // && If the requirement is not the patient Status Form (when requiredToDispense == false)
     if (!(requirement2.resourceId === requirement.resourceId) && requirement2.requiredToDispense) {
@@ -279,7 +686,7 @@ const createMetRequirementAndNewCase = async (
         .findOne({
           stakeholderId: reqStakeholder2Reference,
           requirementName: requirement2.name,
-          drugName: drug?.name
+          drugName: medicationData?.name
         })
         .exec();
       if (matchedMetReq2) {
@@ -296,7 +703,7 @@ const createMetRequirementAndNewCase = async (
           completed: false,
           requirementName: requirement2.name,
           requirementDescription: requirement2.description,
-          drugName: drug?.name,
+          drugName: medicationData?.name,
           stakeholderId: reqStakeholder2Reference,
           case_numbers: [case_number]
         };
@@ -366,7 +773,7 @@ const createMetRequirementAndUpdateCase = async (
           // _id comparison would not work for some reason
           if (req4?.requirementName === matchedMetReq.requirementName) {
             metReqArray[i].completed = true;
-            req4!.completed = true;
+            req4.completed = true;
             await remsCaseCollection.updateOne(
               { _id: remsRequestToUpdate?._id },
               { $set: { metRequirements: metReqArray } }
@@ -575,7 +982,8 @@ export const processQuestionnaireResponseSubmission = async (requestBody: Bundle
             stakeholderReference,
             practitionerReference,
             pharmacistReference,
-            patientReference
+            patientReference,
+            prescriptionReference
           );
         } else {
           // If it's not the patient status requirement
