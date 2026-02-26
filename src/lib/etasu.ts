@@ -196,6 +196,11 @@ export const createNewRemsCaseFromCDSHook = async (
   const patientLastName = patient.name?.[0].family || '';
   const patientDOB = patient.birthDate || '';
   const case_number = uid();
+  
+  // Extract patientId from the patientReference (e.g., "Patient/pat017" -> "pat017")
+  const patientId = patientReference.includes('/') 
+    ? patientReference.split('/').pop() || patientReference
+    : patientReference;
 
   // Fetch the full medication from database to get NDC code
   const fullMedication = await medicationCollection
@@ -225,6 +230,7 @@ export const createNewRemsCaseFromCDSHook = async (
   const remsRequest: Pick<
     RemsCase,
     | 'case_number'
+    | 'remsPatientId'
     | 'status'
     | 'dispenseStatus'
     | 'drugName'
@@ -242,6 +248,7 @@ export const createNewRemsCaseFromCDSHook = async (
     | 'metRequirements'
   > & { originatingFhirServer?: string } = {
     case_number: case_number,
+    remsPatientId: patientId,
     status: 'Pending',
     dispenseStatus: 'Pending',
     drugName: medicationData?.name,
