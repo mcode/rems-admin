@@ -170,9 +170,9 @@ export async function sendCommunicationToEHR(
     }
 
     // Send Communication to EHR
-    logger.info(`Sending Communication to EHR: ${ehrEndpoint}/Communication`);
+    logger.info(`Sending Communication to EHR: ${ehrEndpoint}Communication`);
 
-    const response = await axios.post(`${ehrEndpoint}/Communication`, communication, {
+    const response = await axios.post(`${ehrEndpoint}Communication`, communication, {
       headers: {
         'Content-Type': 'application/fhir+json'
       }
