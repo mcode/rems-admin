@@ -196,9 +196,9 @@ export const createNewRemsCaseFromCDSHook = async (
   const patientLastName = patient.name?.[0].family || '';
   const patientDOB = patient.birthDate || '';
   const case_number = uid();
-  
+
   // Extract patientId from the patientReference (e.g., "Patient/pat017" -> "pat017")
-  const patientId = patientReference.includes('/') 
+  const patientId = patientReference.includes('/')
     ? patientReference.split('/').pop() || patientReference
     : patientReference;
 

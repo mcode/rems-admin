@@ -151,19 +151,28 @@ export async function sendCommunicationToEHR(
       return;
     }
 
-    const originalEhrEndpoint = ehrEndpoint.toString().replace(/\/$/, '') ;
+    const originalEhrEndpoint = ehrEndpoint.toString().replace(/\/$/, '');
     logger.info(config.fhirServerConfig.auth);
-    if (config.fhirServerConfig.auth.dockered_ehr_container_name && originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_ehr_port)) {
+    if (
+      config.fhirServerConfig.auth.dockered_ehr_container_name &&
+      originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_ehr_port)
+    ) {
       ehrEndpoint = originalEhrEndpoint
         .replace(/localhost/g, config.fhirServerConfig.auth.dockered_ehr_container_name)
         .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_ehr_container_name);
       logger.info(
         `Running locally in Docker to ehr, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
       );
-    } else if (config.fhirServerConfig.auth.dockered_interemediary_container_name && originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_intermediary_port)) {
+    } else if (
+      config.fhirServerConfig.auth.dockered_interemediary_container_name &&
+      originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_intermediary_port)
+    ) {
       ehrEndpoint = originalEhrEndpoint
         .replace(/localhost/g, config.fhirServerConfig.auth.dockered_interemediary_container_name)
-        .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_interemediary_container_name);
+        .replace(
+          /127\.0\.0\.1/g,
+          config.fhirServerConfig.auth.dockered_interemediary_container_name
+        );
       logger.info(
         `Running locally in Docker to intermediary, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
       );

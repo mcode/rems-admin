@@ -43,7 +43,9 @@ export default {
       // This server's URI
       resourceServer: env.get('RESOURCE_SERVER').required().asUrlString(),
       dockered_ehr_container_name: env.get('DOCKERED_EHR_CONTAINER_NAME').asString(),
-      dockered_interemediary_container_name: env.get('DOCKERED_INTERMEDIARY_CONTAINER_NAME').asString(),
+      dockered_interemediary_container_name: env
+        .get('DOCKERED_INTERMEDIARY_CONTAINER_NAME')
+        .asString(),
       dockered_ehr_port: env.get('EHR_PORT').asInt(),
       dockered_intermediary_port: env.get('INTERMEDIARY_PORT').asInt()
       //
