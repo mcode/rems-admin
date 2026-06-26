@@ -1,7 +1,7 @@
 import { FhirUtilities } from '../fhir/utilities';
 import { GuidanceResponseUtilities } from '../fhir/guidanceResponseUtilities';
 import GuidanceResponseModel from '../lib/schemas/resources/GuidanceResponse';
-import { Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
+import { Coding, Parameters, Medication, Patient, MedicationRequest } from 'fhir/r4';
 import { getCaseInfo } from '../lib/etasu';
 import { RemsCase } from '../fhir/models';
 
@@ -20,22 +20,19 @@ module.exports.create = async (args: any, req: any) => {
 
 const getMedicationCode = (
   medication: Medication | MedicationRequest | undefined
-): string | undefined => {
-  // grab the medication drug code from the Medication resource
-  let drugCode;
+): Coding | undefined => {
+  const selectRoutingCode = (codings: Coding[] | undefined) => {
+    const ndc = codings?.find(medCode => medCode?.system?.toLowerCase().endsWith('/ndc'));
+    if (ndc?.code) return ndc;
+
+    return codings?.find(medCode => medCode?.system?.toLowerCase().includes('rxnorm'));
+  };
+
   if (medication?.resourceType == 'Medication') {
-    medication?.code?.coding?.forEach(medCode => {
-      if (medCode?.system?.endsWith('rxnorm')) {
-        drugCode = medCode?.code;
-      }
-    });
+    return selectRoutingCode(medication?.code?.coding);
   } else {
     if (medication?.medicationCodeableConcept) {
-      medication?.medicationCodeableConcept?.coding?.forEach(medCode => {
-        if (medCode.system?.endsWith('rxnorm')) {
-          drugCode = medCode.code;
-        }
-      });
+      return selectRoutingCode(medication?.medicationCodeableConcept?.coding);
     } else if (medication?.medicationReference) {
       const ref = medication.medicationReference.reference;
       if (ref?.startsWith('#')) {
@@ -49,7 +46,6 @@ const getMedicationCode = (
       }
     }
   }
-  return drugCode;
 };
 
 module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
@@ -96,18 +92,19 @@ module.exports.remsEtasu = async (args: any, context: any, logger: any) => {
     etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
   } else {
     const drugCode = getMedicationCode(medication);
+    const drugCodeIsNdc = drugCode?.system?.toLowerCase().endsWith('/ndc');
 
     // grab the patient demographics from the Patient resource in the parameters
     const remsCaseSearchDict = {
-      patientFirstName: patient?.name?.[0]?.given,
+      patientFirstName: patient?.name?.[0]?.given?.[0],
       patientLastName: patient?.name?.[0]?.family,
       patientDOB: patient?.birthDate,
-      drugCode: drugCode
+      ...(drugCodeIsNdc ? { drugNdcCode: drugCode?.code } : { drugCode: drugCode?.code })
     };
 
-    const medicationSearchDict = {
-      code: drugCode
-    };
+    const medicationSearchDict = drugCodeIsNdc
+      ? { ndcCode: drugCode?.code }
+      : { code: drugCode?.code };
 
     etasu = await getCaseInfo(remsCaseSearchDict, medicationSearchDict);
   }

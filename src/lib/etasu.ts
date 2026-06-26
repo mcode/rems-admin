@@ -204,9 +204,7 @@ export const createNewRemsCaseFromCDSHook = async (
 
   // Fetch the full medication from database to get NDC code
   const fullMedication = await medicationCollection
-    .findOne({
-      code: drug?.code
-    })
+    .findOne(drug?.ndcCode ? { ndcCode: drug.ndcCode } : { code: drug?.code })
     .exec();
 
   const medicationData = fullMedication || drug;
@@ -216,7 +214,9 @@ export const createNewRemsCaseFromCDSHook = async (
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
-    drugCode: medicationData?.code
+    ...(medicationData?.ndcCode
+      ? { drugNdcCode: medicationData.ndcCode }
+      : { drugCode: medicationData?.code })
   });
 
   if (existingCase) {
@@ -515,9 +515,7 @@ const createMetRequirementAndNewCase = async (
 
   // Fetch the full medication from database to get NDC code
   const fullMedication = await medicationCollection
-    .findOne({
-      code: drug?.code
-    })
+    .findOne(drug?.ndcCode ? { ndcCode: drug.ndcCode } : { code: drug?.code })
     .exec();
 
   const medicationData = fullMedication || drug;
@@ -527,7 +525,9 @@ const createMetRequirementAndNewCase = async (
     patientFirstName: patientFirstName,
     patientLastName: patientLastName,
     patientDOB: patientDOB,
-    drugCode: medicationData?.code
+    ...(medicationData?.ndcCode
+      ? { drugNdcCode: medicationData.ndcCode }
+      : { drugCode: medicationData?.code })
   });
 
   if (existingCase) {
@@ -958,12 +958,10 @@ export const processQuestionnaireResponseSubmission = async (requestBody: Bundle
   const prescriptionCode = medicationCode?.code;
   const patient = getResource(requestBody, patientReference) as Patient;
 
-  const drug = await medicationCollection
-    .findOne({
-      code: prescriptionCode,
-      codeSystem: prescriptionSystem
-    })
-    .exec();
+  const drugSearchDict = prescriptionSystem?.toLowerCase().endsWith('/ndc')
+    ? { ndcCode: prescriptionCode }
+    : { code: prescriptionCode, codeSystem: prescriptionSystem };
+  const drug = await medicationCollection.findOne(drugSearchDict).exec();
 
   // iterate through each requirement of the drug
   if (drug) {

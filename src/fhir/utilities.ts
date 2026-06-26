@@ -261,6 +261,76 @@ export class FhirUtilities {
         ]
       },
       {
+        name: 'Pexidartinib Hydrochloride',
+        codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        code: '2183126',
+        ndcCode: '99999-407-20',
+        requirements: [
+          {
+            name: 'Patient Enrollment',
+            description: 'Submit Patient Enrollment form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: true,
+            resourceId: 'PexidartinibRemsPatientEnrollment',
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=' +
+              config.fhirServerConfig.auth.resourceServer +
+              '4_0_0/Questionnaire/PexidartinibRemsPatientEnrollment',
+            questionnaire: null
+          },
+          {
+            name: 'Prescriber Enrollment',
+            description: 'Submit Prescriber Enrollment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'PexidartinibPrescriberEnrollmentForm',
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=' +
+              config.fhirServerConfig.auth.resourceServer +
+              '4_0_0/Questionnaire/PexidartinibPrescriberEnrollmentForm',
+            questionnaire: null
+          },
+          {
+            name: 'Prescriber Knowledge Assessment',
+            description: 'Submit Prescriber Knowledge Assessment form to the REMS Administrator',
+            stakeholderType: 'prescriber',
+            createNewCase: false,
+            resourceId: 'PexidartinibPrescriberKnowledgeAssessment',
+            requiredToDispense: true,
+            appContext:
+              'questionnaire=' +
+              config.fhirServerConfig.auth.resourceServer +
+              '4_0_0/Questionnaire/PexidartinibPrescriberKnowledgeAssessment',
+            questionnaire: null
+          },
+          {
+            name: 'Pharmacist Enrollment',
+            description: 'Submit Pharmacist Enrollment form to the REMS Administrator',
+            stakeholderType: 'pharmacist',
+            createNewCase: false,
+            resourceId: 'PexidartinibPharmacistEnrollment',
+            requiredToDispense: true,
+            appContext: null,
+            questionnaire: null
+          },
+          {
+            name: 'Patient Status Update',
+            description: 'Submit Patient Status Update form to the REMS Administrator',
+            stakeholderType: 'patient',
+            createNewCase: false,
+            resourceId: 'PexidartinibRemsPatientStatus',
+            requiredToDispense: false,
+            appContext:
+              'questionnaire=' +
+              config.fhirServerConfig.auth.resourceServer +
+              '4_0_0/Questionnaire/PexidartinibRemsPatientStatus',
+            questionnaire: null
+          }
+        ]
+      },
+      {
         name: 'Isotretinoin',
         codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm',
         code: '6064',
@@ -319,6 +389,14 @@ export class FhirUtilities {
         completed: true,
         requirementName: 'Pharmacist Enrollment',
         drugName: 'Turalio',
+        completedQuestionnaire: null,
+        case_numbers: []
+      },
+      {
+        stakeholderId: 'HealthcareService/pharm0111',
+        completed: true,
+        requirementName: 'Pharmacist Enrollment',
+        drugName: 'Pexidartinib Hydrochloride',
         completedQuestionnaire: null,
         case_numbers: []
       },

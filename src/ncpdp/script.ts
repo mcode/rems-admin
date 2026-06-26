@@ -7,6 +7,21 @@ import { sendCommunicationToEHR } from '../lib/communication';
 const router = Router();
 const logger = container.get('application');
 
+const getMedicationNdcCode = (medication: any): string | undefined => {
+  const drugCoded =
+    medication?.product?.drugcoded ||
+    medication?.drugcoded ||
+    medication?.Product?.DrugCoded ||
+    medication?.DrugCoded;
+
+  return (
+    drugCoded?.ndc ||
+    drugCoded?.NDC ||
+    drugCoded?.productcode?.code ||
+    drugCoded?.ProductCode?.Code
+  );
+};
+
 router.post('/', async (req: Request, res: Response) => {
   try {
     const parsedMessage = req.body;
@@ -206,7 +221,7 @@ const handleRemsInitiation = async (message: any, res: Response) => {
     const patient = initRequest.patient?.humanpatient;
     //const prescriber = initRequest.prescriber?.nonveterinarian;
     //const pharmacy = initRequest.pharmacy;
-    const drugNdcCode = initRequest.medicationprescribed?.product?.drugcoded?.ndc;
+    const drugNdcCode = getMedicationNdcCode(initRequest.medicationprescribed);
 
     const requestInfo = {
       patientName: `${patient?.names?.name?.firstname} ${patient?.names?.name?.lastname}`,
@@ -299,7 +314,7 @@ const handleRxFill = async (message: any, res: Response) => {
       logger.error(`Available RxFill fields: ${JSON.stringify(Object.keys(rxFill))}`);
     }
 
-    const drugNdcCode = medicationDispensed?.drugcoded?.productcode?.code;
+    const drugNdcCode = getMedicationNdcCode(medicationDispensed);
 
     const patientInfo = {
       firstName: patient?.name?.firstname || patient?.names?.name?.firstname,

@@ -228,11 +228,100 @@ export const codeMap: { [key: string]: CardRule[] } = {
     }
   ]
 };
+
+codeMap['65597-407-20'] = codeMap['2183126'];
+codeMap['99999-407-20'] = [
+  {
+    links: [
+      {
+        label: 'Documentation Requirements',
+        type: 'absolute',
+        url: new URL(
+          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_08_04_REMS_Full.pdf'
+        )
+      },
+      {
+        label: 'Medication Guide',
+        type: 'absolute',
+        url: new URL(
+          'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio_Med&inline=true'
+        )
+      },
+      {
+        label: 'Patient Guide',
+        type: 'absolute',
+        url: new URL(
+          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Patient_Guide.pdf'
+        )
+      }
+    ],
+    stakeholderType: 'patient',
+    summary: 'Pexidartinib Hydrochloride REMS Patient Requirements',
+    cardDetails: CARD_DETAILS
+  },
+  {
+    links: [
+      {
+        label: 'Documentation Requirements',
+        type: 'absolute',
+        url: new URL(
+          'https://daiichisankyo.us/prescribing-information-portlet/getPIContent?productName=Turalio&inline=true'
+        )
+      },
+      {
+        label: 'Program Overview',
+        type: 'absolute',
+        url: new URL(
+          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Program_Overview.pdf'
+        )
+      },
+      {
+        label: 'Prescriber Training',
+        type: 'absolute',
+        url: new URL(
+          'https://www.accessdata.fda.gov/drugsatfda_docs/rems/Turalio_2020_12_16_Prescriber_Training.pdf'
+        )
+      }
+    ],
+    stakeholderType: 'prescriber',
+    summary: 'Pexidartinib Hydrochloride REMS Prescriber Requirements',
+    cardDetails: CARD_DETAILS
+  }
+];
+
+const isNdcCoding = (coding: Coding | undefined) =>
+  coding?.system?.toLowerCase().endsWith('/ndc');
+
+const medicationQueryForCoding = (coding: Coding) =>
+  isNdcCoding(coding)
+    ? { ndcCode: coding.code }
+    : { code: coding.code, codeSystem: coding.system };
+
+const caseQueryForPatientAndCoding = (
+  patientFirstName: string | undefined,
+  patientLastName: string | undefined,
+  patientDOB: string | undefined,
+  coding: Coding
+) => ({
+  patientFirstName,
+  patientLastName,
+  patientDOB,
+  ...(isNdcCoding(coding) ? { drugNdcCode: coding.code } : { drugCode: coding.code })
+});
+
 // TODO: No hardcoding of valid codes
 export const validCodes: Coding[] = [
   {
     code: '2183126', // Turalio
     system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+  },
+  {
+    code: '65597-407-20', // Turalio
+    system: 'http://hl7.org/fhir/sid/ndc'
+  },
+  {
+    code: '99999-407-20', // Generic pexidartinib
+    system: 'http://hl7.org/fhir/sid/ndc'
   },
   {
     code: '1237051', // TIRF
@@ -252,22 +341,16 @@ const source = {
   url: new URL('https://github.com/mcode/rems-admin')
 };
 
-/*
- * Retrieve the coding for the medication from the medicationCodeableConcept if available.
- * Read coding from contained Medication matching the medicationReference otherwise.
- */
-export function getDrugCodeFromMedicationRequest(
-  resource: FhirResource | undefined
-): Coding | null {
+const getCodingsFromMedicationRequest = (resource: FhirResource | undefined): Coding[] => {
   const medicationRequest =
     resource?.resourceType === 'MedicationRequest' && (resource as MedicationRequest);
 
   if (!medicationRequest) {
-    return null;
+    return [];
   }
 
   if (medicationRequest.medicationCodeableConcept) {
-    return medicationRequest.medicationCodeableConcept?.coding?.[0] || null;
+    return medicationRequest.medicationCodeableConcept?.coding || [];
   }
 
   if (medicationRequest.medicationReference) {
@@ -277,10 +360,25 @@ export function getDrugCodeFromMedicationRequest(
         resource.resourceType + '/' + resource.id === reference.reference &&
         resource.resourceType === 'Medication'
     ) as Medication;
-    return medication?.code?.coding?.[0] || null;
+    return medication?.code?.coding || [];
   }
 
-  return null;
+  return [];
+};
+
+/*
+ * Retrieve the coding for the medication from the medicationCodeableConcept if available.
+ * Read coding from contained Medication matching the medicationReference otherwise.
+ */
+export function getDrugCodeFromMedicationRequest(
+  resource: FhirResource | undefined
+): Coding | null {
+  const codings = getCodingsFromMedicationRequest(resource);
+  return (
+    codings.find(coding => coding?.system?.toLowerCase().endsWith('/ndc')) ||
+    codings[0] ||
+    null
+  );
 }
 export function getFhirResource(token: string, req: TypedRequestBody) {
   const ehrUrl = `${req.body.fhirServer}/${token}`;
@@ -389,22 +487,14 @@ export const handleCardOrder = async (
   const coding = !errorCard && (getDrugCodeFromMedicationRequest(contextRequest) as Coding);
   const { code, system, display } = coding;
   const request = coding && (contextRequest as MedicationRequest);
-  const drug = await medicationCollection
-    .findOne({
-      code: code,
-      codeSystem: system
-    })
-    .exec();
+  const drug = await medicationCollection.findOne(medicationQueryForCoding(coding)).exec();
 
   // find a matching REMS case for the patient and this drug to only return needed results
   const patientName = patient?.name?.[0];
   const patientBirth = patient?.birthDate;
-  let remsCase = await remsCaseCollection.findOne({
-    patientFirstName: patientName?.given?.[0],
-    patientLastName: patientName?.family,
-    patientDOB: patientBirth,
-    drugCode: code
-  });
+  let remsCase = await remsCaseCollection.findOne(
+    caseQueryForPatientAndCoding(patientName?.given?.[0], patientName?.family, patientBirth, coding)
+  );
 
   // If case exists, check for stakeholder changes and record prescription event
   if (remsCase && drug && fhirServer) {
@@ -507,7 +597,7 @@ const createPharmacyStatusCard = async (
     return null;
   }
 
-  const isCertified = await checkPharmacyCertification(pharmacy, drug?.code);
+  const isCertified = await checkPharmacyCertification(pharmacy, drug);
   const pharmacyName = pharmacy.name || 'Selected pharmacy';
   const locationInfo = pharmacy.location?.[0]?.display;
   const fullPharmacyName = `${pharmacyName} (${locationInfo})`;
@@ -594,20 +684,9 @@ const getCardOrEmptyArrayFromRules =
 
 const checkPharmacyCertification = async (
   pharmacy: HealthcareService | undefined,
-  drugCode: string | undefined
+  drug: MongooseMedication | null
 ) => {
-  if (!pharmacy?.id || !drugCode) {
-    return false;
-  }
-
-  const drug = await medicationCollection
-    .findOne({
-      code: drugCode,
-      codeSystem: 'http://www.nlm.nih.gov/research/umls/rxnorm'
-    })
-    .exec();
-
-  if (!drug) {
+  if (!pharmacy?.id || !drug) {
     return false;
   }
 
@@ -812,41 +891,47 @@ const processMedicationRequests = (
 
 const getSummary = (drugCode: string, drugName: string): string => {
   const codeRule = codeMap[drugCode];
-  const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
+  const rule = codeRule?.find(rule => rule.stakeholderType === 'patient');
   const summary = rule?.summary || drugName || 'Rems';
   return summary;
 };
 
 const containsMatchingMedicationRequest =
-  (drugCode: string) =>
+  (drugCode: string, drugNdcCode?: string) =>
   (entry: BundleEntry): boolean => {
     if (entry.resource?.resourceType === 'MedicationRequest') {
       const medReq: MedicationRequest = entry.resource;
-      const medicationCode = getDrugCodeFromMedicationRequest(medReq);
-      return drugCode === medicationCode?.code;
+      const codings = getCodingsFromMedicationRequest(medReq);
+      return codings.some(coding => coding.code === (drugNdcCode || drugCode));
     }
     return false;
   };
 
 const getCardOrEmptyArrayFromCases =
   (entries: BundleEntry[] | undefined) =>
-  async ({ drugCode, drugName, metRequirements, status }: RemsCase): Promise<Card | never[]> => {
+  async ({
+    drugCode,
+    drugNdcCode,
+    drugName,
+    metRequirements,
+    status
+  }: RemsCase): Promise<Card | never[]> => {
     // find the drug in the medicationCollection that matches the REMS case to get the smart links
     const drug = await medicationCollection
-      .findOne({
-        code: drugCode,
-        name: drugName
-      })
+      .findOne(drugNdcCode ? { ndcCode: drugNdcCode } : { code: drugCode, name: drugName })
       .exec();
 
     // get the rule summary from the codemap
-    const summary = getSummary(drugCode, drugName);
+    const cardRuleCode = drugNdcCode || drugCode;
+    const summary = getSummary(cardRuleCode, drugName);
 
     // create the card
     const card = new Card(summary, CARD_DETAILS, source, 'info');
 
     // find the matching MedicationRequest for the context
-    const request = (entries || []).find(containsMatchingMedicationRequest(drugCode))?.resource;
+    const request = (entries || []).find(
+      containsMatchingMedicationRequest(drugCode, drugNdcCode)
+    )?.resource;
 
     // if no valid request or not a MedicationRequest found skip this REMS case
     if (!request || (request && request.resourceType !== 'MedicationRequest')) {
@@ -854,7 +939,7 @@ const getCardOrEmptyArrayFromCases =
     }
 
     // grab absolute links relevant to the patient
-    const codeRule = codeMap[drugCode];
+    const codeRule = codeMap[cardRuleCode] || [];
     const rule = codeRule.find(rule => rule.stakeholderType === 'patient');
     const absoluteLinks = rule?.links || [];
     card.addLinks(absoluteLinks);
