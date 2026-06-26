@@ -1,0 +1,23 @@
+{
+  "topic": "Pexidartinib Hydrochloride",
+  "payers": [
+    "cms"
+  ],
+  "mappings": [
+    {
+      "codeSystem": "rxnorm",
+      "codes": [
+        "2183126"
+      ]
+    },
+    {
+      "codeSystem": "ndc",
+      "codes": [
+        "99999-407-20"
+      ]
+    }
+  ],
+  "fhirVersions": [
+    "R4"
+  ]
+}
