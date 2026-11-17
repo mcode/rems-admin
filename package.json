@@ -31,7 +31,7 @@
     "axios": "^1.2.1",
     "body-parser": "^1.20.2",
     "body-parser-xml": "^2.0.5",
-    "conventional-changelog-cli": "^2.0.34",
+    "conventional-changelog-cli": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "env-var": "^7.3.1",
@@ -43,10 +43,10 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.40",
     "mongodb": "^4.12.1",
-    "mongoose": "8.9.5",
+    "mongoose": "8.24.10",
     "morgan": "^1.9.1",
     "uid": "^2.0.1",
-    "uuid": "^9.0.0",
+    "uuid": "^11.1.1",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.2.1"
   },
@@ -74,8 +74,8 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^4.2.1",
     "json-diff": "^0.9.0",
-    "mocha": "^10.2.0",
-    "mongodb-memory-server": "^8.12.1",
+    "mocha": "^12.0.3",
+    "mongodb-memory-server": "^10.4.1",
     "nock": "^13.2.9",
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
@@ -84,5 +84,19 @@
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.3"
+  },
+  "overrides": {
+    "@projecttacoma/node-fhir-server-core": {
+      "eslint": "^8.57.1",
+      "jsonwebtoken": "^9.0.3",
+      "passport": "^0.6.0",
+      "validator": "^13.15.35"
+    },
+    "fhirclient": {
+      "typescript": "^6.0.3"
+    },
+    "simple-update-notifier@1.1.0": {
+      "semver": "^7.5.2"
+    }
   }
 }
