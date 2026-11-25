@@ -19,7 +19,7 @@ export async function sendCommunicationToEHR(
     // Create patient object from REMS case
     const patient: Patient = {
       resourceType: 'Patient',
-      id: `${remsCase.patientFirstName}-${remsCase.patientLastName}`.replace(/\s+/g, '-'),
+      id: remsCase.remsPatientId,
       name: [
         {
           given: [remsCase.patientFirstName],
@@ -151,20 +151,37 @@ export async function sendCommunicationToEHR(
       return;
     }
 
-    if (config.fhirServerConfig.auth.dockered_ehr_container_name) {
-      const originalEhrEndpoint = ehrEndpoint;
+    const originalEhrEndpoint = ehrEndpoint.toString().replace(/\/$/, '');
+    logger.info(config.fhirServerConfig.auth);
+    if (
+      config.fhirServerConfig.auth.dockered_ehr_container_name &&
+      originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_ehr_port)
+    ) {
       ehrEndpoint = originalEhrEndpoint
         .replace(/localhost/g, config.fhirServerConfig.auth.dockered_ehr_container_name)
         .replace(/127\.0\.0\.1/g, config.fhirServerConfig.auth.dockered_ehr_container_name);
       logger.info(
-        `Running locally in Docker, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
+        `Running locally in Docker to ehr, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
+      );
+    } else if (
+      config.fhirServerConfig.auth.dockered_interemediary_container_name &&
+      originalEhrEndpoint.includes(config.fhirServerConfig.auth.dockered_intermediary_port)
+    ) {
+      ehrEndpoint = originalEhrEndpoint
+        .replace(/localhost/g, config.fhirServerConfig.auth.dockered_interemediary_container_name)
+        .replace(
+          /127\.0\.0\.1/g,
+          config.fhirServerConfig.auth.dockered_interemediary_container_name
+        );
+      logger.info(
+        `Running locally in Docker to intermediary, converting EHR url from ${originalEhrEndpoint} to ${ehrEndpoint}`
       );
     }
 
     // Send Communication to EHR
-    logger.info(`Sending Communication to EHR: ${ehrEndpoint}`);
+    logger.info(`Sending Communication to EHR: ${ehrEndpoint}Communication`);
 
-    const response = await axios.post(`${ehrEndpoint}/Communication`, communication, {
+    const response = await axios.post(`${ehrEndpoint}Communication`, communication, {
       headers: {
         'Content-Type': 'application/fhir+json'
       }
