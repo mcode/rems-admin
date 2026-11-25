@@ -259,6 +259,12 @@ const source = {
 export function getDrugCodeFromMedicationRequest(
   resource: FhirResource | undefined
 ): Coding | null {
+  // Prefer RxNorm because Epic can list internal medication codes first.
+  const pickCoding = (codings: Coding[] | undefined): Coding | null =>
+    codings?.find(c => c.system === 'http://www.nlm.nih.gov/research/umls/rxnorm') ||
+    codings?.[0] ||
+    null;
+
   const medicationRequest =
     resource?.resourceType === 'MedicationRequest' && (resource as MedicationRequest);
 
@@ -267,7 +273,7 @@ export function getDrugCodeFromMedicationRequest(
   }
 
   if (medicationRequest.medicationCodeableConcept) {
-    return medicationRequest.medicationCodeableConcept?.coding?.[0] || null;
+    return pickCoding(medicationRequest.medicationCodeableConcept?.coding);
   }
 
   if (medicationRequest.medicationReference) {
@@ -277,7 +283,7 @@ export function getDrugCodeFromMedicationRequest(
         resource.resourceType + '/' + resource.id === reference.reference &&
         resource.resourceType === 'Medication'
     ) as Medication;
-    return medication?.code?.coding?.[0] || null;
+    return pickCoding(medication?.code?.coding);
   }
 
   return null;
